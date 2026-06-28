@@ -1,0 +1,11 @@
+/*
+ *  Sends the test parameter structure and number of tests
+ */
+void AUDIOLIB_tableInterpolate_getTestParams (
+    AUDIOLIB_tableInterpolate_testParams_t **params,
+    int32_t *                                 numTests)
+{
+   *params = testParams;
+   *numTests =
+       sizeof (testParams) / sizeof (AUDIOLIB_tableInterpolate_testParams_t);
+}

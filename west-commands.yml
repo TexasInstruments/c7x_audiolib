@@ -1,0 +1,6 @@
+west-commands:
+  - file: west_ext.py
+    commands:
+      - name: build-audiolib
+        class: BuildAudiolib
+        help: build dsplib dependency then audiolib

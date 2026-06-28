@@ -1,0 +1,104 @@
+<svg viewBox="0 0 900 700" xmlns="http://www.w3.org/2000/svg">
+  <text x="450" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold">
+    Circular Buffer with Ping-Pong Buffering (128 Elements, 4 Blocks)
+  </text>
+  
+  <g>
+    <text x="50" y="70" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Linear Buffer View:</text>
+    
+    <rect x="50" y="90" width="800" height="60" fill="none" stroke="#000" stroke-width="2"/>
+    
+    <rect x="50" y="90" width="200" height="60" fill="#FFE6E6" stroke="#FF6B6B" stroke-width="2"/>
+    <text x="150" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block 0</text>
+    <text x="150" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Elements 0-31</text>
+    <text x="150" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">PROCESSING</text>
+    
+    <rect x="250" y="90" width="200" height="60" fill="#E6F7F7" stroke="#4ECDC4" stroke-width="2"/>
+    <text x="350" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block 1</text>
+    <text x="350" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Elements 32-63</text>
+    <text x="350" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">WRITING</text>
+    
+    <rect x="450" y="90" width="200" height="60" fill="#F0F0F0" stroke="#888" stroke-width="2"/>
+    <text x="550" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block 2</text>
+    <text x="550" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Elements 64-95</text>
+    <text x="550" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">IDLE</text>
+    
+    <rect x="650" y="90" width="200" height="60" fill="#F0F0F0" stroke="#888" stroke-width="2"/>
+    <text x="750" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block 3</text>
+    <text x="750" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">Elements 96-127</text>
+    <text x="750" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">IDLE</text>
+    
+    <g font-family="Arial, sans-serif" font-size="9" text-anchor="middle">
+      <text x="50" y="175">0</text>
+      <text x="150" y="175">16</text>
+      <text x="250" y="175">32</text>
+      <text x="350" y="175">48</text>
+      <text x="450" y="175">64</text>
+      <text x="550" y="175">80</text>
+      <text x="650" y="175">96</text>
+      <text x="750" y="175">112</text>
+      <text x="850" y="175">127</text>
+    </g>
+  </g>
+  
+  <g>
+    <text x="50" y="220" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Circular Buffer View:</text>
+    
+    <circle cx="330" cy="350" r="120" fill="none" stroke="#000" stroke-width="3"/>
+    
+    <g stroke="#000" stroke-width="2">
+      <line x1="330" y1="230" x2="330" y2="350"/>
+      <line x1="330" y1="350" x2="450" y2="350"/>
+      <line x1="330" y1="350" x2="330" y2="470"/>
+      <line x1="210" y1="350" x2="330" y2="350"/>
+    </g>
+    
+    <path d="M 330 230 A 120 120 0 0 1 450 350 L 330 350 Z" fill="#FFE6E6" stroke="#FF6B6B" stroke-width="2"/>
+    <text x="370" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block 0</text>
+    <text x="370" y="305" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">0-31</text>
+    <text x="370" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">PROCESSING</text>
+    
+    <path d="M 330 350 L 450 350 A 120 120 0 0 1 330 470 Z" fill="#E6F7F7" stroke="#4ECDC4" stroke-width="2"/>
+    <text x="370" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block 1</text>
+    <text x="370" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">32-63</text>
+    <text x="370" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">WRITING</text>
+    
+    <path d="M 330 470 A 120 120 0 0 1 210 350 L 330 350 Z" fill="#F0F0F0" stroke="#888" stroke-width="2"/>
+    <text x="290" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block 2</text>
+    <text x="290" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">64-95</text>
+    <text x="290" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">IDLE</text>
+    
+    <path d="M 210 350 A 120 120 0 0 1 330 230 L 330 350 Z" fill="#F0F0F0" stroke="#888" stroke-width="2"/>
+    <text x="290" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block 3</text>
+    <text x="290" y="305" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">96-127</text>
+    <text x="290" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">IDLE</text>
+    
+    <circle cx="330" cy="350" r="3" fill="#000"/>
+    <g>
+      <text x="530" y="250" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Block States:</text>
+      
+      <rect x="530" y="270" width="20" height="20" fill="#FFE6E6" stroke="#FF6B6B" stroke-width="1"/>
+      <text x="560" y="285" font-family="Arial, sans-serif" font-size="12">PROCESSING - Algorithm reading/processing data</text>
+      
+      <rect x="530" y="300" width="20" height="20" fill="#E6F7F7" stroke="#4ECDC4" stroke-width="1"/>
+      <text x="560" y="315" font-family="Arial, sans-serif" font-size="12">WRITING - User/Input writing new data</text>
+      
+      <rect x="530" y="330" width="20" height="20" fill="#F0F0F0" stroke="#888" stroke-width="1"/>
+      <text x="560" y="345" font-family="Arial, sans-serif" font-size="12">IDLE - Ready for next operation</text>
+    </g>
+  </g>
+  <g>
+    <text x="50" y="520" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Ping-Pong Buffering Operation:</text>
+    
+    <text x="50" y="545" font-family="Arial, sans-serif" font-size="12">• <tspan font-weight="bold">Current State:</tspan> Algorithm processes Block 0 while user writes to Block 1</text>
+    <text x="50" y="565" font-family="Arial, sans-serif" font-size="12">• <tspan font-weight="bold">Next State:</tspan> Algorithm moves to Block 1, user writes to Block 2 (user should not write to block 3 until block 0 is finished processing)</text>
+    <text x="50" y="585" font-family="Arial, sans-serif" font-size="12">• <tspan font-weight="bold">Advantage:</tspan> Continuous operation without blocking</text>
+    <text x="50" y="605" font-family="Arial, sans-serif" font-size="12">• <tspan font-weight="bold">Buffer Size:</tspan> 128 elements total (4 blocks × 32 elements each)</text>
+    <text x="50" y="625" font-family="Arial, sans-serif" font-size="12">• <tspan font-weight="bold">Circular Nature:</tspan> After Block 3, wraps around to Block 0</text>
+  </g>
+  
+  <g>
+    <text x="50" y="660" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Block Progression:</text>
+    <text x="50" y="680" font-family="Arial, sans-serif" font-size="11">Block 0 → Block 1 → Block 2 → Block 3 → Block 0 (circular)</text>
+  </g>
+</svg>

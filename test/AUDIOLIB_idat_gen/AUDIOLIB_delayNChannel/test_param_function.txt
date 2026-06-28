@@ -1,0 +1,11 @@
+/*
+ *  Sends the test parameter structure and number of tests
+ */
+void AUDIOLIB_delayNChannel_getTestParams (
+    AUDIOLIB_delayNChannel_testParams_t **params,
+    int32_t *                                 numTests)
+{
+   *params = testParams;
+   *numTests =
+       sizeof (testParams) / sizeof (AUDIOLIB_delayNChannel_testParams_t);
+}

@@ -1,0 +1,21 @@
+// Copyright (C) 2026 Texas Instruments Incorporated
+//
+// SPDX-License-Identifier: Apache-2.0
+
+#ifndef COMMON_TI_CACHE_H_
+#define COMMON_TI_CACHE_H_ 1
+
+#if defined(__C7100__) || defined(__C7120__) || defined(__C7502__) || defined(__C7504__) || defined(__C7508__) ||      \
+    defined(__C7524__)
+#include "c71/TI_cache.h"
+#elif defined(_TMS320C6600)
+#include "c6x/TI_cache.h"
+#else
+#ifdef C7X
+#error invalid target
+#else
+#include "A53/TI_cache.h"
+#endif
+#endif
+
+#endif /* COMMON_TI_CACHE_H_ */

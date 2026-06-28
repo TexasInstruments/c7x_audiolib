@@ -1,0 +1,158 @@
+cmake_minimum_required(VERSION 3.16.0)
+
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/colorized_messages.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/clang-format.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/cmake/FindMathJax.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/doxygen.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/coverage.cmake)
+
+# CMake custom util functions
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/utils.cmake)
+
+# Check if CGT7X_ROOT env variable is set message("CGT7X_ROOT:$ENV{CGT7X_ROOT}")
+if(NOT DEFINED ENV{CGT7X_ROOT})
+  message(
+    FATAL_ERROR
+      "${BoldRed} CGT7X_ROOT env variable is not set, CMake will exit.")
+endif()
+
+# if defined, use local DSPLIB (DSPLIB_C7X_ROOT)
+if(NOT DEFINED ENV{DSPLIB_C7X_ROOT})
+  message(
+    FATAL_ERROR
+      "${BoldRed} DSPLIB_C7X_ROOT env variable is not set, CMake will exit.")
+endif()
+
+# build from dsplib residing in remote bitbucket
+# set(extDirName external)
+
+# add dsplib
+# AUDIOLIB_add_extProj_dependencies(dsplib ${extDirName})
+
+# set(AUDIOLIB_DSPLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${extDirName}/dsplib")
+set(AUDIOLIB_DSPLIB_ROOT $ENV{DSPLIB_C7X_ROOT})
+
+add_custom_target(dsplib
+  COMMAND ${CMAKE_COMMAND} -E echo "Found DSPLIB at ${AUDIOLIB_DSPLIB_ROOT}"
+    WORKING_DIRECTORY ${AUDIOLIB_DSPLIB_ROOT}
+)
+
+# Set release as default build type
+if(NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+  if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE
+        "Release"
+        CACHE STRING "" FORCE)
+  endif()
+endif()
+
+audiolib_print_build_details()
+
+if(TARGET_PLATFORM STREQUAL "PC")
+  set(CMAKE_EXPORT_COMPILE_COMMANDS
+      ON
+      CACHE INTERNAL "")
+
+endif()
+
+set(CMAKE_CXX_STANDARD 14)
+
+# ##############################################################################
+# Pick the correct tool chain file of HE vs C7x ##
+# ##############################################################################
+
+# TI CGT package has different naming convention for C7524
+set(DEVICE_C7524 "C7524-MMA2_256")
+
+if(TARGET_PLATFORM STREQUAL "PC")
+
+  if(DEVICE STREQUAL "C7524")
+    set(C7x_INCLUDES "$ENV{CGT7X_ROOT}/host_emulation/include/${DEVICE_C7524}"
+                     "${AUDIOLIB_DSPLIB_ROOT}/src")
+  else()
+    set(C7x_INCLUDES "$ENV{CGT7X_ROOT}/host_emulation/include/${DEVICE}"
+                     "${AUDIOLIB_DSPLIB_ROOT}/src")
+  endif()
+
+  set(DSPLIB_C7X
+      ${AUDIOLIB_DSPLIB_ROOT}/lib/${CMAKE_BUILD_TYPE}/DSPLIB_${DEVICE}_x86_64.a 
+      ${AUDIOLIB_DSPLIB_ROOT}/lib/${CMAKE_BUILD_TYPE}/DSPLIB_common_${DEVICE}_x86_64.a)
+
+
+  if(CMAKE_HOST_WIN32)
+    set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_LIST_DIR}/cmake/msvc.cmake")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+
+    # Place all bins static libs in known place
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/")
+  else()
+    set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_LIST_DIR}/cmake/gcc.cmake")
+    # Place all bins static libs in known place
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+        "${CMAKE_CURRENT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+        "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+  endif()
+
+else()
+
+  # Place all bins static libs in known place
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+      "${CMAKE_CURRENT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+      "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+
+  set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_LIST_DIR}/cmake/c7x.cmake")
+  include_directories(BEFORE SYSTEM $ENV{CGT7X_ROOT}/include ${AUDIOLIB_DSPLIB_ROOT}/src)
+
+  set(DSPLIB_C7X
+      ${AUDIOLIB_DSPLIB_ROOT}/lib/${CMAKE_BUILD_TYPE}/DSPLIB_${DEVICE}.lib
+      ${AUDIOLIB_DSPLIB_ROOT}/lib/${CMAKE_BUILD_TYPE}/DSPLIB_common_${DEVICE}.lib)
+
+endif()
+
+# Set compilation flags for release and debug based on TARGET_PLATFORM
+
+audiolib_compile_options()
+audiolib_include_xlib_headers()
+
+project(AUDIOLIB)
+
+# Place all bins static libs in known place
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+    "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS
+    ON
+    CACHE INTERNAL "") # works
+# ##############################################################################
+# Create dependency based on testing a kernel or running the example for a given
+# kernel #
+# ##############################################################################
+
+if(BUILD_TEST)
+
+  add_subdirectory(test)
+
+elseif(AUTO_TEST)
+
+  set(BUILD_LIB 1)
+  add_subdirectory(test)
+
+elseif(BUILD_EXAMPLE)
+
+  set(BUILD_LIB 1)
+  add_subdirectory(examples)
+
+  # if (TARGET_PLATFORM STREQUAL "DSP") # set(CMAKE_EXE_LINKER_FLAGS
+  # "--library=${CMAKE_CURRENT_LIST_DIR}/build/bin/libAUDIOLIB.a
+  # ${CMAKE_EXE_LINKER_FLAGS}") # message("This is the updated
+  # CMAKE_EXE_LINKER_FLAGS:${CMAKE_EXE_LINKER_FLAGS}") endif()
+
+endif()
+
+# Rules for building src directory
+add_subdirectory(src bin)

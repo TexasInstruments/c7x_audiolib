@@ -1,0 +1,14 @@
+manifest:
+  self:
+    path: audiolib
+    west-commands: west-commands.yml
+
+  remotes:
+    - name: origin
+      url-base: https://github.com/TexasInstruments
+
+  projects:
+    - name: c7x_dsplib
+      remote: origin
+      path: dsplib
+      revision: main

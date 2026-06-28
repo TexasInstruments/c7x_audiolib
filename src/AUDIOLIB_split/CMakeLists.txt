@@ -1,0 +1,1 @@
+AUDIOLIB_create_object_lib_for_kernel()

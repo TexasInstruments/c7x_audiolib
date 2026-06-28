@@ -1,0 +1,198 @@
+<svg viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Title -->
+  <text x="500" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">
+    Channel Interleaved Data Organization (20 samples, 5 channels)
+  </text>
+  
+  <!-- Legend -->
+  <g transform="translate(150, 50)">
+    <text x="0" y="0" font-size="14" font-weight="bold" fill="#333">Channel Legend:</text>
+    <rect x="0" y="10" width="20" height="15" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+    <text x="25" y="22" font-size="12" fill="#333">Channel 0</text>
+    <rect x="100" y="10" width="20" height="15" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+    <text x="125" y="22" font-size="12" fill="#333">Channel 1</text>
+    <rect x="200" y="10" width="20" height="15" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+    <text x="225" y="22" font-size="12" fill="#333">Channel 2</text>
+    <rect x="300" y="10" width="20" height="15" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+    <text x="325" y="22" font-size="12" fill="#333">Channel 3</text>
+    <rect x="400" y="10" width="20" height="15" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+    <text x="425" y="22" font-size="12" fill="#333">Channel 4</text>
+  </g>
+  
+  <!-- 2D Representation -->
+  <g transform="translate(200, 120)">
+    <text x="0" y="0" font-size="16" font-weight="bold" fill="#333">2D Conceptual View:</text>
+    
+    <!-- Headers -->
+    <text x="60" y="25" font-size="12" font-weight="bold" fill="#333" text-anchor="middle">Ch0</text>
+    <text x="110" y="25" font-size="12" font-weight="bold" fill="#333" text-anchor="middle">Ch1</text>
+    <text x="160" y="25" font-size="12" font-weight="bold" fill="#333" text-anchor="middle">Ch2</text>
+    <text x="210" y="25" font-size="12" font-weight="bold" fill="#333" text-anchor="middle">Ch3</text>
+    <text x="260" y="25" font-size="12" font-weight="bold" fill="#333" text-anchor="middle">Ch4</text>
+    
+    <!-- Sample rows -->
+    <g id="sample-grid">
+      <!-- Row headers -->
+      <text x="15" y="50" font-size="12" fill="#333">S0:</text>
+      <text x="15" y="75" font-size="12" fill="#333">S1:</text>
+      <text x="15" y="100" font-size="12" fill="#333">S2:</text>
+      <text x="15" y="125" font-size="12" fill="#333">S3:</text>
+      
+      <!-- Sample 0 -->
+      <rect x="40" y="35" width="40" height="20" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+      <text x="60" y="48" font-size="10" fill="white" text-anchor="middle">C0S0</text>
+      <rect x="90" y="35" width="40" height="20" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+      <text x="110" y="48" font-size="10" fill="white" text-anchor="middle">C1S0</text>
+      <rect x="140" y="35" width="40" height="20" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+      <text x="160" y="48" font-size="10" fill="white" text-anchor="middle">C2S0</text>
+      <rect x="190" y="35" width="40" height="20" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+      <text x="210" y="48" font-size="10" fill="white" text-anchor="middle">C3S0</text>
+      <rect x="240" y="35" width="40" height="20" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+      <text x="260" y="48" font-size="10" fill="white" text-anchor="middle">C4S0</text>
+      
+      <!-- Sample 1 -->
+      <rect x="40" y="60" width="40" height="20" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+      <text x="60" y="73" font-size="10" fill="white" text-anchor="middle">C0S1</text>
+      <rect x="90" y="60" width="40" height="20" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+      <text x="110" y="73" font-size="10" fill="white" text-anchor="middle">C1S1</text>
+      <rect x="140" y="60" width="40" height="20" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+      <text x="160" y="73" font-size="10" fill="white" text-anchor="middle">C2S1</text>
+      <rect x="190" y="60" width="40" height="20" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+      <text x="210" y="73" font-size="10" fill="white" text-anchor="middle">C3S1</text>
+      <rect x="240" y="60" width="40" height="20" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+      <text x="260" y="73" font-size="10" fill="white" text-anchor="middle">C4S1</text>
+      
+      <!-- Sample 2 -->
+      <rect x="40" y="85" width="40" height="20" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+      <text x="60" y="98" font-size="10" fill="white" text-anchor="middle">C0S2</text>
+      <rect x="90" y="85" width="40" height="20" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+      <text x="110" y="98" font-size="10" fill="white" text-anchor="middle">C1S2</text>
+      <rect x="140" y="85" width="40" height="20" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+      <text x="160" y="98" font-size="10" fill="white" text-anchor="middle">C2S2</text>
+      <rect x="190" y="85" width="40" height="20" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+      <text x="210" y="98" font-size="10" fill="white" text-anchor="middle">C3S2</text>
+      <rect x="240" y="85" width="40" height="20" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+      <text x="260" y="98" font-size="10" fill="white" text-anchor="middle">C4S2</text>
+      
+      <!-- Sample 3 -->
+      <rect x="40" y="110" width="40" height="20" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+      <text x="60" y="123" font-size="10" fill="white" text-anchor="middle">C0S3</text>
+      <rect x="90" y="110" width="40" height="20" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+      <text x="110" y="123" font-size="10" fill="white" text-anchor="middle">C1S3</text>
+      <rect x="140" y="110" width="40" height="20" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+      <text x="160" y="123" font-size="10" fill="white" text-anchor="middle">C2S3</text>
+      <rect x="190" y="110" width="40" height="20" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+      <text x="210" y="123" font-size="10" fill="white" text-anchor="middle">C3S3</text>
+      <rect x="240" y="110" width="40" height="20" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+      <text x="260" y="123" font-size="10" fill="white" text-anchor="middle">C4S3</text>
+    </g>
+    
+    <!-- Dimension labels -->
+    <text x="310" y="80" font-size="12" fill="#333">bufParams.dim_y = 4</text>
+    <text x="140" y="155" font-size="12" fill="#333">bufParams.dim_x = 5</text>
+  </g>
+  
+  <!-- Linear Buffer Representation -->
+  <g transform="translate(50, 300)">
+    <text x="0" y="0" font-size="16" font-weight="bold" fill="#333">Linear Buffer Layout (20 elements total):</text>
+    
+    <!-- Buffer index labels -->
+    <text x="25" y="25" font-size="10" fill="#666" text-anchor="middle">0</text>
+    <text x="65" y="25" font-size="10" fill="#666" text-anchor="middle">1</text>
+    <text x="105" y="25" font-size="10" fill="#666" text-anchor="middle">2</text>
+    <text x="145" y="25" font-size="10" fill="#666" text-anchor="middle">3</text>
+    <text x="185" y="25" font-size="10" fill="#666" text-anchor="middle">4</text>
+    <text x="225" y="25" font-size="10" fill="#666" text-anchor="middle">5</text>
+    <text x="265" y="25" font-size="10" fill="#666" text-anchor="middle">6</text>
+    <text x="305" y="25" font-size="10" fill="#666" text-anchor="middle">7</text>
+    <text x="345" y="25" font-size="10" fill="#666" text-anchor="middle">8</text>
+    <text x="385" y="25" font-size="10" fill="#666" text-anchor="middle">9</text>
+    <text x="425" y="25" font-size="10" fill="#666" text-anchor="middle">10</text>
+    <text x="465" y="25" font-size="10" fill="#666" text-anchor="middle">11</text>
+    <text x="505" y="25" font-size="10" fill="#666" text-anchor="middle">12</text>
+    <text x="545" y="25" font-size="10" fill="#666" text-anchor="middle">13</text>
+    <text x="585" y="25" font-size="10" fill="#666" text-anchor="middle">14</text>
+    <text x="625" y="25" font-size="10" fill="#666" text-anchor="middle">15</text>
+    <text x="665" y="25" font-size="10" fill="#666" text-anchor="middle">16</text>
+    <text x="705" y="25" font-size="10" fill="#666" text-anchor="middle">17</text>
+    <text x="745" y="25" font-size="10" fill="#666" text-anchor="middle">18</text>
+    <text x="785" y="25" font-size="10" fill="#666" text-anchor="middle">19</text>
+    
+    <!-- Buffer cells -->
+    <rect x="5" y="30" width="40" height="30" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+    <text x="25" y="48" font-size="9" fill="white" text-anchor="middle">C0S0</text>
+    
+    <rect x="45" y="30" width="40" height="30" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+    <text x="65" y="48" font-size="9" fill="white" text-anchor="middle">C1S0</text>
+    
+    <rect x="85" y="30" width="40" height="30" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+    <text x="105" y="48" font-size="9" fill="white" text-anchor="middle">C2S0</text>
+    
+    <rect x="125" y="30" width="40" height="30" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+    <text x="145" y="48" font-size="9" fill="white" text-anchor="middle">C3S0</text>
+    
+    <rect x="165" y="30" width="40" height="30" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+    <text x="185" y="48" font-size="9" fill="white" text-anchor="middle">C4S0</text>
+    
+    <rect x="205" y="30" width="40" height="30" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+    <text x="225" y="48" font-size="9" fill="white" text-anchor="middle">C0S1</text>
+    
+    <rect x="245" y="30" width="40" height="30" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+    <text x="265" y="48" font-size="9" fill="white" text-anchor="middle">C1S1</text>
+    
+    <rect x="285" y="30" width="40" height="30" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+    <text x="305" y="48" font-size="9" fill="white" text-anchor="middle">C2S1</text>
+    
+    <rect x="325" y="30" width="40" height="30" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+    <text x="345" y="48" font-size="9" fill="white" text-anchor="middle">C3S1</text>
+    
+    <rect x="365" y="30" width="40" height="30" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+    <text x="385" y="48" font-size="9" fill="white" text-anchor="middle">C4S1</text>
+    
+    <rect x="405" y="30" width="40" height="30" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+    <text x="425" y="48" font-size="9" fill="white" text-anchor="middle">C0S2</text>
+    
+    <rect x="445" y="30" width="40" height="30" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+    <text x="465" y="48" font-size="9" fill="white" text-anchor="middle">C1S2</text>
+    
+    <rect x="485" y="30" width="40" height="30" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+    <text x="505" y="48" font-size="9" fill="white" text-anchor="middle">C2S2</text>
+    
+    <rect x="525" y="30" width="40" height="30" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+    <text x="545" y="48" font-size="9" fill="white" text-anchor="middle">C3S2</text>
+    
+    <rect x="565" y="30" width="40" height="30" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+    <text x="585" y="48" font-size="9" fill="white" text-anchor="middle">C4S2</text>
+    
+    <rect x="605" y="30" width="40" height="30" fill="#FF6B6B" stroke="#333" stroke-width="1"/>
+    <text x="625" y="48" font-size="9" fill="white" text-anchor="middle">C0S3</text>
+    
+    <rect x="645" y="30" width="40" height="30" fill="#4ECDC4" stroke="#333" stroke-width="1"/>
+    <text x="665" y="48" font-size="9" fill="white" text-anchor="middle">C1S3</text>
+    
+    <rect x="685" y="30" width="40" height="30" fill="#45B7D1" stroke="#333" stroke-width="1"/>
+    <text x="705" y="48" font-size="9" fill="white" text-anchor="middle">C2S3</text>
+    
+    <rect x="725" y="30" width="40" height="30" fill="#96CEB4" stroke="#333" stroke-width="1"/>
+    <text x="745" y="48" font-size="9" fill="white" text-anchor="middle">C3S3</text>
+    
+    <rect x="765" y="30" width="40" height="30" fill="#DDA0DD" stroke="#333" stroke-width="1"/>
+    <text x="785" y="48" font-size="9" fill="white" text-anchor="middle">C4S3</text>
+    
+    <!-- Arrow showing direction -->
+    <path d="M 5 85 L 805 85" stroke="#333" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+    <text x="405" y="105" font-size="12" fill="#333" text-anchor="middle">Memory addresses increase →</text>
+    
+    <!-- Pattern explanation -->
+    <text x="0" y="130" font-size="14" fill="#333">Pattern: All channels for sample N, then all channels for sample N+1</text>
+    <text x="0" y="150" font-size="12" fill="#666">Formula: buffer[sample * num_channels + channel] = CchannelSsample</text>
+    <text x="0" y="170" font-size="12" fill="#666">Total elements: 4 samples × 5 channels = 20 elements</text>
+  </g>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+</svg>

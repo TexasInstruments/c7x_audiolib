@@ -1,0 +1,120 @@
+<svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold">
+    NLMS Adaptive Filter - Internal Structure
+  </text>
+
+  <!-- Input Signal x[n] -->
+  <g id="input">
+    <rect x="20" y="120" width="100" height="50" rx="5" fill="#E6F3FF" stroke="#2196F3" stroke-width="2"/>
+    <text x="70" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">x[n]</text>
+    <text x="70" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">Input (Noisy)</text>
+  </g>
+
+  <!-- Arrow from input to FIR Filter -->
+  <line x1="120" y1="145" x2="180" y2="145" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- FIR Filter Block -->
+  <g id="fir-filter">
+    <rect x="180" y="110" width="120" height="70" rx="5" fill="#E8F5E9" stroke="#4CAF50" stroke-width="2"/>
+    <text x="240" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">FIR Filter</text>
+    <text x="240" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">w[n] coefficients</text>
+    <text x="240" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">y = Σ w[k]·x[n-k]</text>
+  </g>
+
+  <!-- Arrow from FIR Filter to output -->
+  <line x1="300" y1="145" x2="630" y2="145" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Output Signal y[n] -->
+  <g id="output">
+    <rect x="630" y="120" width="60" height="50" rx="5" fill="#E6F3FF" stroke="#2196F3" stroke-width="2"/>
+    <text x="660" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">y[n]</text>
+    <text x="660" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">Output</text>
+  </g>
+
+  <!-- Junction point on y[n] line going down to summation -->
+  <circle cx="520" cy="145" r="4" fill="#333"/>
+  <line x1="520" y1="145" x2="520" y2="270" stroke="#333" stroke-width="2"/>
+  <line x1="520" y1="270" x2="485" y2="270" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Reference Signal d[n] -->
+  <g id="reference">
+    <rect x="380" y="200" width="100" height="50" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="2"/>
+    <text x="430" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">d[n]</text>
+    <text x="430" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">Reference (Clean)</text>
+  </g>
+
+  <!-- Arrow from reference to summation -->
+  <line x1="430" y1="250" x2="430" y2="255" stroke="#333" stroke-width="2"/>
+  <line x1="430" y1="255" x2="430" y2="270" stroke="#333" stroke-width="2"/>
+  <line x1="430" y1="270" x2="455" y2="270" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Summation Block (Error calculation) -->
+  <g id="summation">
+    <circle cx="470" cy="270" r="20" fill="#FFEBEE" stroke="#F44336" stroke-width="2"/>
+    <text x="470" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Σ</text>
+    <text x="455" y="262" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">+</text>
+    <text x="485" y="262" text-anchor="middle" font-family="Arial, sans-serif" font-size="10">−</text>
+  </g>
+
+  <!-- Arrow from summation to error output -->
+  <line x1="470" y1="290" x2="470" y2="340" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Error Signal e[n] -->
+  <g id="error">
+    <rect x="420" y="340" width="100" height="50" rx="5" fill="#FCE4EC" stroke="#E91E63" stroke-width="2"/>
+    <text x="470" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold">e[n] = d[n] - y[n]</text>
+    <text x="470" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">Error Signal</text>
+  </g>
+
+  <!-- Arrow from error to coefficient update -->
+  <line x1="420" y1="365" x2="320" y2="365" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Coefficient Update Block -->
+  <g id="coeff-update">
+    <rect x="140" y="330" width="180" height="80" rx="5" fill="#F3E5F5" stroke="#9C27B0" stroke-width="2"/>
+    <text x="230" y="355" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Coefficient Update</text>
+    <text x="230" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="9">(NLMS Algorithm)</text>
+    <text x="230" y="395" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">w[n+1] = w[n] + μ·e[n]·x[n]/‖x[n]‖²</text>
+  </g>
+
+  <!-- Arrow from coefficient update to FIR filter (feedback) -->
+  <line x1="230" y1="330" x2="230" y2="180" stroke="#9C27B0" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowhead-purple)"/>
+  <text x="215" y="255" font-family="Arial, sans-serif" font-size="10" fill="#9C27B0" font-weight="bold">w[n]</text>
+
+  <!-- Arrow from input junction to coefficient update -->
+  <circle cx="70" cy="280" r="4" fill="#333"/>
+  <line x1="70" y1="170" x2="70" y2="370" stroke="#333" stroke-width="2"/>
+  <line x1="70" y1="370" x2="140" y2="370" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="85" y="390" font-family="Arial, sans-serif" font-size="9" fill="#666">x[n]</text>
+
+  <!-- Legend -->
+  <g id="legend" transform="translate(20, 440)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="11" font-weight="bold">Legend:</text>
+    
+    <rect x="0" y="10" width="15" height="15" fill="#E6F3FF" stroke="#2196F3" stroke-width="1"/>
+    <text x="20" y="22" font-family="Arial, sans-serif" font-size="9">Input/Output Signals</text>
+    
+    <rect x="120" y="10" width="15" height="15" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1"/>
+    <text x="140" y="22" font-family="Arial, sans-serif" font-size="9">FIR Filter</text>
+    
+    <rect x="210" y="10" width="15" height="15" fill="#FFF3E0" stroke="#FF9800" stroke-width="1"/>
+    <text x="230" y="22" font-family="Arial, sans-serif" font-size="9">Reference Signal</text>
+    
+    <rect x="330" y="10" width="15" height="15" fill="#F3E5F5" stroke="#9C27B0" stroke-width="1"/>
+    <text x="350" y="22" font-family="Arial, sans-serif" font-size="9">Adaptation (NLMS)</text>
+    
+    <circle cx="455" cy="17" r="8" fill="#FFEBEE" stroke="#F44336" stroke-width="1"/>
+    <text x="470" y="22" font-family="Arial, sans-serif" font-size="9">Error Calculation</text>
+  </g>
+
+  <!-- Arrow marker definitions -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+    <marker id="arrowhead-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#9C27B0"/>
+    </marker>
+  </defs>
+</svg>

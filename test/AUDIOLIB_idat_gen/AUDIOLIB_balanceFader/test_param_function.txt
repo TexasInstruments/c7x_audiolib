@@ -1,0 +1,11 @@
+/*
+ *  Sends the test parameter structure and number of tests
+ */
+void AUDIOLIB_balanceFader_getTestParams (
+    AUDIOLIB_balanceFader_testParams_t **params,
+    int32_t *                                 numTests)
+{
+   *params = testParams;
+   *numTests =
+       sizeof (testParams) / sizeof (AUDIOLIB_balanceFader_testParams_t);
+}
