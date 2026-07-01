@@ -9,27 +9,30 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NUM_OUTPUTS (2)                                // Number of output buffers
-#define NUM_SAMPLES (8)                                // Samples per channel
-#define TOTAL_IN_CHANNELS (4)                          // Total channels in the input buffer
-#define OUT_CHANNELS (TOTAL_IN_CHANNELS / NUM_OUTPUTS) // Channels per output
+#define NUM_OUTPUTS (2) // Number of output buffers
+#define NUM_SAMPLES (8) // Samples per channel
 
-// Input buffer: 4 channels x 8 samples (non-interleaved, row = channel)
+// Dynamic channel support: each output buffer may receive a DIFFERENT channel count.
+#define OUT0_CHANNELS (1)
+#define OUT1_CHANNELS (3)
+#define TOTAL_IN_CHANNELS (OUT0_CHANNELS + OUT1_CHANNELS) // Total channels in the input buffer
+
+// Input buffer: TOTAL_IN_CHANNELS channels x 8 samples (non-interleaved, row = channel)
 static float input[TOTAL_IN_CHANNELS * NUM_SAMPLES];
 
-// Output buffers: 2 outputs, each 2 channels x 8 samples
-static float output0[OUT_CHANNELS * NUM_SAMPLES];
-static float output1[OUT_CHANNELS * NUM_SAMPLES];
+// Output buffers, each sized to its own channel count
+static float output0[OUT0_CHANNELS * NUM_SAMPLES];
+static float output1[OUT1_CHANNELS * NUM_SAMPLES];
 
 // Array of pointers to output buffers
 static void* pOutputs[NUM_OUTPUTS] = {(void*) output0, (void*) output1};
 
+// Per-output channel counts (drives the dynamic channel handling in the kernel)
+static uint32_t outChannels[NUM_OUTPUTS] = {OUT0_CHANNELS, OUT1_CHANNELS};
+
 static void initializeInputData(void)
 {
-   // Fill channel 0: [ 0,  1,  2,  3,  4,  5,  6,  7]
-   // Fill channel 1: [10, 11, 12, 13, 14, 15, 16, 17]
-   // Fill channel 2: [20, 21, 22, 23, 24, 25, 26, 27]
-   // Fill channel 3: [30, 31, 32, 33, 34, 35, 36, 37]
+   // Fill channel c: [c*10 + 0, c*10 + 1, ...]
    for (int ch = 0; ch < TOTAL_IN_CHANNELS; ch++) {
       for (int s = 0; s < NUM_SAMPLES; s++) {
          input[ch * NUM_SAMPLES + s] = (float) (ch * 10 + s);
@@ -58,9 +61,9 @@ static void printOutputs(void)
 
    for (int out = 0; out < NUM_OUTPUTS; out++) {
       float* pBuf = (float*) pOutputs[out];
-      printf("  Output %d (%d channels x %d samples):\n", out, OUT_CHANNELS, NUM_SAMPLES);
-      for (int ch = 0; ch < OUT_CHANNELS; ch++) {
-         printf("    Channel %d: ", ch);
+      printf("  Output %d (%u channels x %d samples):\n", out, outChannels[out], NUM_SAMPLES);
+      for (uint32_t ch = 0; ch < outChannels[out]; ch++) {
+         printf("    Channel %u: ", ch);
          for (int s = 0; s < NUM_SAMPLES; s++) {
             printf("%5.0f ", pBuf[ch * NUM_SAMPLES + s]);
          }
@@ -80,7 +83,7 @@ int main(void)
    printf("  - Total input channels: %d\n", TOTAL_IN_CHANNELS);
    printf("  - Samples per channel:  %d\n", NUM_SAMPLES);
    printf("  - Number of outputs:    %d\n", NUM_OUTPUTS);
-   printf("  - Channels per output:  %d\n", OUT_CHANNELS);
+   printf("  - Channels per output:  %d, %d\n", OUT0_CHANNELS, OUT1_CHANNELS);
    printf("  - Format: Non-interleaved\n");
    printf("==============================================\n");
 
@@ -95,10 +98,11 @@ int main(void)
    // Setup initialization arguments
    AUDIOLIB_split_InitArgs kerInitArgs;
    memset(&kerInitArgs, 0, sizeof(kerInitArgs));
-   kerInitArgs.funcStyle         = AUDIOLIB_FUNCTION_OPTIMIZED;
-   kerInitArgs.numOutputs        = NUM_OUTPUTS;
-   kerInitArgs.outChannels       = OUT_CHANNELS;
-   kerInitArgs.isInputInterleave = 0; // Non-interleaved
+   kerInitArgs.funcStyle          = AUDIOLIB_FUNCTION_OPTIMIZED;
+   kerInitArgs.numOutputs         = NUM_OUTPUTS;
+   kerInitArgs.outChannels        = outChannels; // Per-output channel counts
+   kerInitArgs.totalInputChannels = TOTAL_IN_CHANNELS;
+   kerInitArgs.isInputInterleave  = 0; // Non-interleaved
 
    // Get handle size and allocate
    int32_t handleSize = AUDIOLIB_split_getHandleSize(&kerInitArgs);
@@ -117,12 +121,12 @@ int main(void)
    bufParamsIn.dim_y     = TOTAL_IN_CHANNELS; // Total channels
    bufParamsIn.stride_y  = NUM_SAMPLES * sizeof(float);
 
-   // Setup output buffer parameters (each output has OUT_CHANNELS channels)
+   // Setup output buffer parameters (dim_y = that output's channel count)
    AUDIOLIB_bufParams2D_t bufParamsOut[NUM_OUTPUTS];
    for (int i = 0; i < NUM_OUTPUTS; i++) {
       bufParamsOut[i].data_type = AUDIOLIB_FLOAT32;
-      bufParamsOut[i].dim_x     = NUM_SAMPLES;  // Samples per channel
-      bufParamsOut[i].dim_y     = OUT_CHANNELS; // Channels per output
+      bufParamsOut[i].dim_x     = NUM_SAMPLES;     // Samples per channel
+      bufParamsOut[i].dim_y     = outChannels[i];  // Channels for this output
       bufParamsOut[i].stride_y  = NUM_SAMPLES * sizeof(float);
    }
 
@@ -173,8 +177,8 @@ int main(void)
    printf("\nVerification:\n");
    printf("  Input ch0[0:2]    = %5.0f, %5.0f, %5.0f\n", input[0], input[1], input[2]);
    printf("  Output0 ch0[0:2]  = %5.0f, %5.0f, %5.0f\n", output0[0], output0[1], output0[2]);
-   printf("  Input ch2[0:2]    = %5.0f, %5.0f, %5.0f\n", input[2 * NUM_SAMPLES], input[2 * NUM_SAMPLES + 1],
-          input[2 * NUM_SAMPLES + 2]);
+   printf("  Input ch1[0:2]    = %5.0f, %5.0f, %5.0f\n", input[NUM_SAMPLES], input[NUM_SAMPLES + 1],
+          input[NUM_SAMPLES + 2]);
    printf("  Output1 ch0[0:2]  = %5.0f, %5.0f, %5.0f\n", output1[0], output1[1], output1[2]);
 
    // Cleanup

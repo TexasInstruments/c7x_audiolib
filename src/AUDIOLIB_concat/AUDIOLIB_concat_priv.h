@@ -15,12 +15,20 @@
  */
 #define MAX_SE_PARAMS (64)
 #define SE_PARAM_BASE (0x0000)
+// One SE template per input (interleaved and non-interleaved both read per-input)
 #define SE_SE0_PARAM_OFFSET (SE_PARAM_BASE)
+// Single SA template used by the non-interleaved (contiguous output) path
 #define SE_SA0_PARAM_OFFSET (SE_SE0_PARAM_OFFSET + MAX_SE_PARAMS * SE_PARAM_SIZE)
-// Offset for the iteration count scalar stored after the SA template
-#define SE_ITERCOUNT_PARAM_OFFSET (SE_SA0_PARAM_OFFSET + SA_PARAM_SIZE)
+// One SA template per input used by the interleaved path
+#define SE_SA1_PARAM_OFFSET (SE_SA0_PARAM_OFFSET + SA_PARAM_SIZE)
+// Per-input output channel offsets (one uint32_t per input)
+#define SE_OUTOFFSET_PARAM_OFFSET (SE_SA1_PARAM_OFFSET + MAX_SE_PARAMS * SA_PARAM_SIZE)
+// Per-input vector iteration counts (one uint32_t per input)
+#define SE_ITERCOUNT_PARAM_OFFSET (SE_OUTOFFSET_PARAM_OFFSET + MAX_SE_PARAMS * sizeof(uint32_t))
 
-#define AUDIOLIB_CONCAT_IXX_IXX_OXX_PBLOCK_SIZE (MAX_SE_PARAMS * SE_PARAM_SIZE + SA_PARAM_SIZE + sizeof(uint32_t))
+#define AUDIOLIB_CONCAT_IXX_IXX_OXX_PBLOCK_SIZE                                                                        \
+   (MAX_SE_PARAMS * SE_PARAM_SIZE + SA_PARAM_SIZE + MAX_SE_PARAMS * SA_PARAM_SIZE +                                    \
+    2 * MAX_SE_PARAMS * sizeof(uint32_t))
 
 /*!
  *  @brief This is a function pointer type that conforms to the
@@ -66,13 +74,14 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
                                         const AUDIOLIB_concat_InitArgs *pKerInitArgs);
 
 /*!
- *  @brief This function is the optimized C7x execution function for
- *         concatenating multiple input buffers into a single output buffer.
+ *  @brief Optimized C7x execution function that stores the whole output with a
+ *         single store agent opened once.
  *
- * @details This kernel supports both interleaved and non-interleaved layouts.
- *          For non-interleaved, it uses a 2D SE per input and a single 2D SA
- *          on the output. For interleaved, it uses a 2D SE per input and a
- *          3D SA that advances the channel offset across inputs.
+ * @details Uses one 2D SE template per input and a single SA opened once that
+ *          advances across all inputs. Used for the non-interleaved (planar)
+ *          layout, and for the interleaved layout when every input has the same
+ *          channel count (a 3D SA folds the input dimension via DIM2/ICNT2).
+ *          Each input may have a different channel count in the planar case.
  *
  *  @param [in]  handle      : Active handle to the kernel
  *  @param [in]  pIn         : Pointer to array of N input buffer pointers
@@ -89,6 +98,25 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
  */
 template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_concat_exec_ci(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut);
+
+/*!
+ *  @brief Optimized C7x execution function for the interleaved layout when
+ *         inputs have different channel counts.
+ *
+ * @details Uses one SE template and one SA template per input. Each input is
+ *          written to the output at its cumulative channel offset so that the
+ *          channels of all inputs interleave correctly per sample.
+ *
+ *  @param [in]  handle      : Active handle to the kernel
+ *  @param [in]  pIn         : Pointer to array of N input buffer pointers
+ *  @param [out] pOut        : Pointer to the aggregated output buffer
+ *
+ *  @return      Status value indicating success or failure. Refer to @ref
+ *               AUDIOLIB_STATUS.
+ */
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_concatPerInputStore_exec_ci(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut);
 /*!
  *  @brief This function is the natural C reference implementation of the
  *         input aggregator kernel. The function declaration conforms
@@ -123,12 +151,17 @@ typedef struct {
    uint32_t numInputs;
    /*! @brief Flag: 1 if data is in interleaved format, 0 if non-interleaved */
    uint8_t isInterleave;
-   /*! @brief Number of channels per input buffer (uniform across all inputs) */
-   uint32_t inChannels;
-   /*! @brief Number of samples per channel per input buffer */
+   /*! @brief Flag: 1 if all inputs have the same channel count (enables the single-store
+    *         fast path for the interleaved layout), 0 otherwise */
+   uint8_t inChannelsUniform;
+   /*! @brief Pointer to array of channel counts for each input buffer */
+   uint32_t *inChannels;
+   /*! @brief Total number of channels across all inputs (sum of inChannels) */
+   uint32_t totalInChannels;
+   /*! @brief Number of samples per channel per input buffer (uniform across inputs) */
    uint32_t inSamples;
-   /*! @brief Input buffer stride in elements (stride_y / sizeof(element)) */
-   uint32_t strideIn;
+   /*! @brief Pointer to array of input buffer strides in elements (stride_y / sizeof(element)) */
+   uint32_t *strideIn;
    /*! @brief Output buffer stride in elements (stride_y / sizeof(element)) */
    uint32_t strideOut;
    /*! @brief Parameter block storing SE/SA templates and iteration count for C7x */

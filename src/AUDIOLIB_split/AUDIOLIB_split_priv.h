@@ -14,7 +14,22 @@
  *
  */
 
-#define AUDIOLIB_SPLIT_IXX_IXX_OXX_PBLOCK_SIZE (2 * SE_PARAM_SIZE)
+#define MAX_SE_PARAMS (64)
+#define SE_PARAM_BASE (0x0000)
+// Single SE template streaming the whole contiguous input (deinterleaved / planar path)
+#define SE_SE0_SINGLE_PARAM_OFFSET (SE_PARAM_BASE)
+// One SE template per output (interleaved path: each output reads a channel window)
+#define SE_SE0_PARAM_OFFSET (SE_SE0_SINGLE_PARAM_OFFSET + SE_PARAM_SIZE)
+// One SA template per output (both paths)
+#define SE_SA0_PARAM_OFFSET (SE_SE0_PARAM_OFFSET + MAX_SE_PARAMS * SE_PARAM_SIZE)
+// Per-output input element offsets (interleaved path; one uint32_t per output)
+#define SE_INOFFSET_PARAM_OFFSET (SE_SA0_PARAM_OFFSET + MAX_SE_PARAMS * SA_PARAM_SIZE)
+// Per-output vector iteration counts (one uint32_t per output)
+#define SE_ITERCOUNT_PARAM_OFFSET (SE_INOFFSET_PARAM_OFFSET + MAX_SE_PARAMS * sizeof(uint32_t))
+
+#define AUDIOLIB_SPLIT_IXX_IXX_OXX_PBLOCK_SIZE                                                                         \
+   (SE_PARAM_SIZE + MAX_SE_PARAMS * SE_PARAM_SIZE + MAX_SE_PARAMS * SA_PARAM_SIZE +                                    \
+    2 * MAX_SE_PARAMS * sizeof(uint32_t))
 
 /*!
  *  @brief This is a function pointer type that conforms to the
@@ -60,15 +75,14 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
                                        const AUDIOLIB_split_InitArgs *pKerInitArgs);
 
 /*!
- *  @brief This function is the optimized C7x execution function for splitting
- *         a single input buffer into N output buffers.
+ *  @brief Optimized C7x execution function that loads the whole input with a single
+ *         streaming engine opened once.
  *
- * @details This kernel splits a single input audio buffer containing multiple
- *          channels into several output buffers, distributing channels across
- *          the outputs. It supports both interleaved and non-interleaved data
- *          layouts. The function uses the streaming engine (SE) to read from
- *          the input buffer and the streaming address generator (SA) to write
- *          channels to each output buffer.
+ * @details A single SE is opened once and streamed across all outputs; only the streaming
+ *          address generator (SA) is opened per output. Used for the deinterleaved (planar)
+ *          layout, and for the interleaved layout when every output has the same channel
+ *          count (a 3D SE folds the output dimension via DIM2/ICNT2). Each output may have a
+ *          different channel count in the planar case.
  *
  *  @param [in]  handle      : Active handle to the kernel
  *  @param [in]  pIn         : Pointer to the input buffer containing all channels
@@ -85,6 +99,24 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
  */
 template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_split_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void **restrict pOut);
+
+/*!
+ *  @brief Optimized C7x execution function for the interleaved layout when outputs have
+ *         different channel counts.
+ *
+ * @details Each output's channels are non-contiguous in the interleaved input, so one SE
+ *          and one SA template are opened per output, reading a channel window of the input
+ *          at the output's cumulative channel offset.
+ *
+ *  @param [in]  handle      : Active handle to the kernel
+ *  @param [in]  pIn         : Pointer to the input buffer containing all channels
+ *  @param [out] pOut        : Pointer to array of output buffer pointers
+ *
+ *  @return      Status value indicating success or failure. Refer to @ref
+ *               AUDIOLIB_STATUS.
+ */
+template <typename dataType>
+AUDIOLIB_STATUS AUDIOLIB_splitPerOutput_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void **restrict pOut);
 /*!
  *  @brief This function is the natural C reference implementation of the
  *         split kernel. The function declaration conforms
@@ -110,34 +142,29 @@ extern AUDIOLIB_STATUS AUDIOLIB_split_exec_cn(AUDIOLIB_kernelHandle handle, void
  * @brief Structure that is reserved for internal use by the split kernel
  */
 typedef struct {
-   /*! @brief Function pointer to the selected execution variant between
-    *         @ref AUDIOLIB_split_exec_cn and
-    *         @ref AUDIOLIB_splitDeinterleaveToDeinterleave_exec_ci or
-    *         @ref AUDIOLIB_split_exec_ci. */
+   /*! @brief Function pointer to the selected execution variant:
+    *         @ref AUDIOLIB_split_exec_cn, @ref AUDIOLIB_split_exec_ci, or
+    *         @ref AUDIOLIB_splitPerOutput_exec_ci. */
    pFxnAUDIOLIB_split_exec execute;
 
    /*! @brief Number of output buffers to split into */
    uint32_t numOutputs;
-   /*! @brief Total number of samples in the input buffer */
+   /*! @brief Total number of samples per channel in the input buffer */
    uint32_t numInputSamples;
-   /*! @brief Total number of channels in the input buffer */
+   /*! @brief Total number of channels in the input buffer (sum of outChannels) */
    uint32_t numInputChannels;
-   /*! @brief Total number of output channels per output buffer */
-   uint32_t numOutputChannels;
+   /*! @brief Pointer to array of channel counts for each output buffer */
+   uint32_t *outChannels;
 
-   /*! @brief Number of vectorized loop iterations per output buffer.
-    *         For interleaved input:
-    *           ceilingDiv(numOutputChannels, eleCount) * numInputSamples
-    *         For deinterleaved input:
-    *           ceilingDiv(numInputSamples, eleCount) * numOutputChannels
-    *         where eleCount is the number of elements per C7x vector. */
-   uint32_t iterCount;
-   /*! @brief Byte stride between consecutive rows of the input buffer */
+   /*! @brief Stride in elements between consecutive rows of the input buffer */
    uint32_t strideIn;
-   /*! @brief Byte stride between consecutive rows of each output buffer */
-   uint32_t strideOut;
+   /*! @brief Pointer to array of strides in elements for each output buffer */
+   uint32_t *strideOut;
    /*! @brief Input data format: 1 for interleaved, 0 for deinterleaved */
    uint32_t isInputInterleave;
+   /*! @brief Flag: 1 if all outputs have the same channel count (enables the single-load
+    *         fast path for the interleaved layout), 0 otherwise */
+   uint8_t outChannelsUniform;
    /*! @brief Parameter block array storing SE/SA templates for C7x execution */
    uint8_t bufPblock[AUDIOLIB_SPLIT_IXX_IXX_OXX_PBLOCK_SIZE];
 

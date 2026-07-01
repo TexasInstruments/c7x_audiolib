@@ -16,26 +16,27 @@ extern "C" {
  * @brief Kernel for aggregating multiple input buffers into a single output buffer
  *
  * @details
- * This kernel concatenates multiple input audio buffers, each with the same
- * channel count, into a single unified output buffer. It supports both
- * interleaved and non-interleaved data layouts (output format matches input).
+ * This kernel concatenates multiple input audio buffers, each with a
+ * potentially different channel count, into a single unified output buffer. It
+ * supports both interleaved and non-interleaved data layouts (output format
+ * matches input).
  *
  * ---
  * **Input Aggregation:**
  *
- * Given \f$ M \f$ input buffers, each with the same \f$ C \f$ channels:
+ * Given \f$ M \f$ input buffers where input \f$ i \f$ has \f$ C_i \f$ channels:
  *
  *   \f[
- *     \text{Input}_0: C \text{ channels}, \quad
- *     \text{Input}_1: C \text{ channels}, \quad
+ *     \text{Input}_0: C_0 \text{ channels}, \quad
+ *     \text{Input}_1: C_1 \text{ channels}, \quad
  *     \ldots, \quad
- *     \text{Input}_{M-1}: C \text{ channels}
+ *     \text{Input}_{M-1}: C_{M-1} \text{ channels}
  *   \f]
  *
  * The output buffer contains all channels concatenated:
  *
  *   \f[
- *     \text{Output}: C_{\text{total}} = M \times C \text{ channels}
+ *     \text{Output}: C_{\text{total}} = \sum_{i=0}^{M-1} C_i \text{ channels}
  *   \f]
  *
  * ---
@@ -75,9 +76,9 @@ extern "C" {
  *
  * Where:
  *   - \f$ M \f$ = number of input buffers
- *   - \f$ C \f$ = number of channels per input buffer (same for all inputs)
+ *   - \f$ C_i \f$ = number of channels in input buffer \f$ i \f$
  *   - \f$ N \f$ = number of samples per channel (same for all inputs)
- *   - \f$ C_{\text{total}} = M \times C \f$ = total output channels
+ *   - \f$ C_{\text{total}} = \sum_{i=0}^{M-1} C_i \f$ = total output channels
  *
  * @ingroup  AUDIOLIB
  */
@@ -90,10 +91,13 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function, refer to @ref AUDIOLIB_FUNCTION_STYLE */
    int8_t funcStyle;
-   /** @brief Number of channels for each input buffer (all inputs have same channel count) */
-   int32_t inChannels;
+   /** @brief Pointer to array containing the channel count for each input buffer
+    *         (each input may have a different channel count) */
+   uint32_t *inChannels;
    /** @brief Number of input buffers to aggregate */
    uint32_t numInputs;
+   /** @brief Total number of channels across all input buffers (sum of inChannels) */
+   uint32_t totalInChannels;
    /** @brief Flag indicating if data is in interleaved format (1) or non-interleaved (0). Output format matches input
     * format */
    uint8_t isInterleave;

@@ -44,7 +44,8 @@ def write_header_file(
     )  # C_total - total input channels
     dType = testCase["dType"]
     numOutputs = int(testCase["numOutputs"])
-    channelsPerOutput = int(totalChannels / numOutputs)
+    # Per-output channel counts (each output may have a different channel count)
+    outChannelsList = testCase["outChannelsList"]
 
     attributesIn0 = (
         '__attribute__((section(".staticData"))) __attribute__((unused)) static '
@@ -97,11 +98,12 @@ def write_header_file(
                 + "[]=\n",
             )
 
+            channelsThisOutput = outChannelsList[idx]
             if dataFormat == "DEINTERLEAVED":
-                # output is deinterleaved: (channelsPerOutput, samples)
-                out_reshaped = np.array(out).reshape((channelsPerOutput, samples))
+                # output is deinterleaved: (channelsThisOutput, samples)
+                out_reshaped = np.array(out).reshape((channelsThisOutput, samples))
                 # Print per-channel, per-sample
-                for ch_idx in range(channelsPerOutput):
+                for ch_idx in range(channelsThisOutput):
                     for sample_idx in range(samples):
                         print(
                             "{:>8.1f}".format(out_reshaped[ch_idx, sample_idx]),
@@ -110,11 +112,11 @@ def write_header_file(
                         )
                     print(" ", file=f)
             else:  # INTERLEAVED
-                # Reshape output to (samples, channelsPerOutput) for proper formatting
-                out_reshaped = np.array(out).reshape((samples, channelsPerOutput))
+                # Reshape output to (samples, channelsThisOutput) for proper formatting
+                out_reshaped = np.array(out).reshape((samples, channelsThisOutput))
                 # Print row by row (sample by sample)
                 for sample_idx in range(samples):
-                    for ch_idx in range(channelsPerOutput):
+                    for ch_idx in range(channelsThisOutput):
                         print(
                             "{:>2}".format(out_reshaped[sample_idx, ch_idx]),
                             file=f,

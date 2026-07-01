@@ -16,7 +16,8 @@ typedef struct {
    void   **staticIn;           // Pointer to an array of input buffer pointers
    void    *staticOut;          // Output buffer pointer
    uint32_t inSamples;          // Number of samples
-   int32_t  inChannels;         // Number of channels for each input (same for all inputs)
+   uint32_t totalInChannels;    // Total number of channels across all inputs (sum of inChannels)
+   uint32_t *inChannels;        // Pointer to array of channel counts (one per input; may differ)
    uint8_t  isInterleave;       // Flag indicating if data is interleaved (1) or non-interleaved (0)
    uint32_t numInputs;          // Number of inputs
    uint32_t strideIn0;          // Stride for input (aligned to 64 bytes)

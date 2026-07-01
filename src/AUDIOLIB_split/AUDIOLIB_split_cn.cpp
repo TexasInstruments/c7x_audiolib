@@ -14,12 +14,12 @@ AUDIOLIB_STATUS AUDIOLIB_split_exec_cn(AUDIOLIB_kernelHandle handle, void *restr
 
    uint32_t inChannelOffset = 0;
    uint32_t numSamples      = pKerPrivArgs->numInputSamples;
-   uint32_t numChannels     = pKerPrivArgs->numOutputChannels;
    uint32_t strideIn        = pKerPrivArgs->strideIn;
-   uint32_t strideOut       = pKerPrivArgs->strideOut;
 
    for (uint32_t i = 0; i < pKerPrivArgs->numOutputs; i++) {
       dataType *restrict pOutLocal = (dataType *) pOut[i];
+      uint32_t numChannels         = pKerPrivArgs->outChannels[i];
+      uint32_t strideOut           = pKerPrivArgs->strideOut[i];
       if (pKerPrivArgs->isInputInterleave) {
          for (uint32_t s = 0; s < numSamples; s++) {
             for (uint32_t c = 0; c < numChannels; c++) {

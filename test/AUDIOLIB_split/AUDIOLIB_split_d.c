@@ -64,15 +64,16 @@ int AUDIOLIB_split_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 
    TI_profile_init("AUDIOLIB_split");
    FILE *fpOutputCSV = fopen("AUDIOLIB_split.csv", "w+");
-   fprintf(fpOutputCSV, "Test ID, Bit Width, inSamples, inOutputChannels, EVM Cycles, estCycles, Pass/Fail\n");
+   fprintf(fpOutputCSV, "Test ID, Bit Width, isInputInterleave, inSamples, inOutputChannels, EVM Cycles, estCycles, Pass/Fail\n");
 
    for (tpi = 0; tpi < test_cases; tpi++) {
       numReps                       = prm[tpi].numReps;
       testNum                       = prm[tpi].testID;
       currPrm                       = prm[tpi];
-      kerInitArgs.numOutputs        = currPrm.numOutputs;
-      kerInitArgs.outChannels       = (uint32_t) (currPrm.totalInputChannels / currPrm.numOutputs);
-      kerInitArgs.isInputInterleave = currPrm.isInputInterleave;
+      kerInitArgs.numOutputs         = currPrm.numOutputs;
+      kerInitArgs.outChannels        = currPrm.outChannels;
+      kerInitArgs.totalInputChannels = currPrm.totalInputChannels;
+      kerInitArgs.isInputInterleave  = currPrm.isInputInterleave;
 
       int32_t               handleSize = AUDIOLIB_split_getHandleSize(&kerInitArgs);
       AUDIOLIB_kernelHandle handle     = malloc(handleSize);
@@ -109,7 +110,7 @@ int AUDIOLIB_split_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             // INTERLEAVED: dim_x = channels, dim_y = samples
             for (i = 0; i < currPrm.numOutputs; i++) {
                bufParamsOut[i].data_type = currPrm.dataType;
-               bufParamsOut[i].dim_x     = (uint32_t) (currPrm.totalInputChannels / currPrm.numOutputs);
+               bufParamsOut[i].dim_x     = currPrm.outChannels[i]; // channels (per output)
                bufParamsOut[i].dim_y     = currPrm.inSamples;
                bufParamsOut[i].stride_y  = bufParamsOut[i].dim_x * AUDIOLIB_sizeof(bufParamsOut[i].data_type);
             }
@@ -124,7 +125,7 @@ int AUDIOLIB_split_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             for (i = 0; i < currPrm.numOutputs; i++) {
                bufParamsOut[i].data_type = currPrm.dataType;
                bufParamsOut[i].dim_x     = currPrm.inSamples;
-               bufParamsOut[i].dim_y     = (uint32_t) (currPrm.totalInputChannels / currPrm.numOutputs);
+               bufParamsOut[i].dim_y     = currPrm.outChannels[i]; // channels (per output)
                bufParamsOut[i].stride_y  = bufParamsOut[i].dim_x * AUDIOLIB_sizeof(bufParamsOut[i].data_type);
             }
 
@@ -338,8 +339,8 @@ int AUDIOLIB_split_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             sprintf(desc, "%s generated input | inSamples = %d, outChannels = %d", testPatternString, currPrm.inSamples,
                     currPrm.totalInputChannels);
             AUDIOLIB_split_perfEst(handle, &archCycles, &estCycles);
-            fprintf(fpOutputCSV, "%d, %d, %d, %d, %d, %lu, %d\n", currPrm.testID, AUDIOLIB_sizeof(currPrm.dataType) * 8,
-                    currPrm.inSamples, currPrm.totalInputChannels, pProfile[3 * tpi + 1], estCycles, !currentTestFail);
+            fprintf(fpOutputCSV, "%d, %d, %d, %d, %d, %d, %lu, %d\n", currPrm.testID, AUDIOLIB_sizeof(currPrm.dataType) * 8,
+                    currPrm.isInputInterleave, currPrm.inSamples, currPrm.totalInputChannels, pProfile[3 * tpi + 1], estCycles, !currentTestFail);
 
             TI_profile_add_test(testNum++, (currPrm.inSamples * currPrm.totalInputChannels), archCycles, estCycles,
                                 currentTestFail, desc);
@@ -454,10 +455,12 @@ int coverage_test_main()
    int32_t outChannels = 16;
 
    /* dim_x carries channels in the buffers below, so mark the input as interleaved and set the
-    * per-output channel count consistently (total 16 / numOutputs 2 = 8) so the dimension checks
+    * per-output channel counts consistently (total 16 = 8 + 8) so the dimension checks
     * in init_checkParams pass for the type-validation cases. */
-   kerInitArgs.isInputInterleave = 1;
-   kerInitArgs.outChannels       = (uint32_t) (outChannels / 2);
+   uint32_t covOutChannels[2]     = {(uint32_t) (outChannels / 2), (uint32_t) (outChannels / 2)};
+   kerInitArgs.isInputInterleave  = 1;
+   kerInitArgs.outChannels        = covOutChannels;
+   kerInitArgs.totalInputChannels = (uint32_t) outChannels;
 
    bufParamsIn.data_type = AUDIOLIB_FLOAT32;
    bufParamsIn.dim_x     = outChannels;
@@ -533,43 +536,43 @@ int coverage_test_main()
       case 1004:
          /* input channels != numOutputs * outChannels -> AUDIOLIB_ERR_INVALID_DIMENSION */
          bufParamsInTemp.dim_x = 20; /* 20 != numOutputs(2) * outChannels(8) = 16 */
-         status_opt      = AUDIOLIB_split_init_checkParams(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_split_init_checkParams(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
          currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION);
          break;
 
       case 1005:
          /* one output's channel count != outChannels -> AUDIOLIB_ERR_INVALID_DIMENSION */
          bufParamsOutTemp[1].dim_x = 4; /* 4 != outChannels(8); input total still 16 = 2*8 */
-         status_opt      = AUDIOLIB_split_init_checkParams(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_split_init_checkParams(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
          currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION);
          break;
 
       case 1006:
          /* AUDIOLIB_split_init with NULL handle -> AUDIOLIB_ERR_NULL_POINTER */
          kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt            = AUDIOLIB_split_init(NULL, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
-         currentTestFail       = (status_opt != AUDIOLIB_ERR_NULL_POINTER);
+         status_opt = AUDIOLIB_split_init(NULL, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = (status_opt != AUDIOLIB_ERR_NULL_POINTER);
          break;
 
       case 1007:
          /* AUDIOLIB_split_init NATC with unsupported type -> AUDIOLIB_ERR_INVALID_TYPE */
          bufParamsInTemp.data_type = AUDIOLIB_UINT32;
          kerInitArgs.funcStyle     = AUDIOLIB_FUNCTION_NATC;
-         status_nat                = AUDIOLIB_split_init(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
-         currentTestFail           = (status_nat != AUDIOLIB_ERR_INVALID_TYPE);
+         status_nat = AUDIOLIB_split_init(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = (status_nat != AUDIOLIB_ERR_INVALID_TYPE);
          break;
 
       case 1008:
          /* AUDIOLIB_split_init OPTIMIZED with unsupported type -> AUDIOLIB_ERR_INVALID_TYPE */
          bufParamsInTemp.data_type = AUDIOLIB_UINT32;
          kerInitArgs.funcStyle     = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt                = AUDIOLIB_split_init(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
-         currentTestFail           = (status_opt != AUDIOLIB_ERR_INVALID_TYPE);
+         status_opt = AUDIOLIB_split_init(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_TYPE);
          break;
 
       case 1009:
          /* AUDIOLIB_split_exec_checkParams with NULL input -> AUDIOLIB_ERR_NULL_POINTER */
-         status_opt      = AUDIOLIB_split_exec_checkParams(handle, NULL, NULL);
+         status_opt = AUDIOLIB_split_exec_checkParams(handle, NULL, NULL);
          currentTestFail = (status_opt != AUDIOLIB_ERR_NULL_POINTER);
          break;
 
@@ -578,8 +581,8 @@ int coverage_test_main()
          kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
          (void) AUDIOLIB_split_init(handle, &bufParamsInTemp, bufParamsOutTemp, &kerInitArgs); /* sets numOutputs */
          const void *pOutArr[2] = {(const void *) &bufParamsIn, NULL};
-         status_opt             = AUDIOLIB_split_exec_checkParams(handle, (const void *) &bufParamsIn, pOutArr);
-         currentTestFail        = (status_opt != AUDIOLIB_ERR_NULL_POINTER);
+         status_opt = AUDIOLIB_split_exec_checkParams(handle, (const void *) &bufParamsIn, pOutArr);
+         currentTestFail = (status_opt != AUDIOLIB_ERR_NULL_POINTER);
          break;
       }
 

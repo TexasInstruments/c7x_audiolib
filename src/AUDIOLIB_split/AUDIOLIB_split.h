@@ -17,27 +17,27 @@ extern "C" {
  *
  * @details
  * This kernel splits a single input audio buffer containing multiple channels into
- * multiple output buffers, each with the same channel count (\f$ C_{\text{total}} / M \f$).
+ * multiple output buffers, each with a potentially different channel count.
  * It supports interleaved and non-interleaved layouts; each output buffer uses the same
  * layout as the input (the kernel does not convert between layouts).
  *
  * ---
  * **Input Splitting:**
  *
- * Given a single input buffer with \f$ C_{\text{total}} \f$ total channels split evenly into
- * \f$ M \f$ output buffers, each with \f$ C = C_{\text{total}} / M \f$ channels:
+ * Given a single input buffer with \f$ C_{\text{total}} \f$ total channels split into
+ * \f$ M \f$ output buffers, where output \f$ i \f$ has \f$ C_i \f$ channels:
  *
  *   \f[
- *     \text{Input}: C_{\text{total}} = M \times C \text{ channels}
+ *     \text{Input}: C_{\text{total}} = \sum_{i=0}^{M-1} C_i \text{ channels}
  *   \f]
  *
- * The output buffers each receive an equal, contiguous share of channels:
+ * The output buffers each receive a contiguous share of channels:
  *
  *   \f[
- *     \text{Output}_0: C \text{ channels}, \quad
- *     \text{Output}_1: C \text{ channels}, \quad
+ *     \text{Output}_0: C_0 \text{ channels}, \quad
+ *     \text{Output}_1: C_1 \text{ channels}, \quad
  *     \ldots, \quad
- *     \text{Output}_{M-1}: C \text{ channels}
+ *     \text{Output}_{M-1}: C_{M-1} \text{ channels}
  *   \f]
  *
  * ---
@@ -77,9 +77,9 @@ extern "C" {
  *
  * Where:
  *   - \f$ M \f$ = number of output buffers
- *   - \f$ C \f$ = channels per output buffer (\f$ C = C_{\text{total}} / M \f$, same for all outputs)
+ *   - \f$ C_i \f$ = channels in output buffer \f$ i \f$
  *   - \f$ N \f$ = number of samples per channel (same across input and all outputs)
- *   - \f$ C_{\text{total}} \f$ = total input channels
+ *   - \f$ C_{\text{total}} = \sum_{i=0}^{M-1} C_i \f$ = total input channels
  *
  * @ingroup  AUDIOLIB
  */
@@ -92,10 +92,13 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function, refer to @ref AUDIOLIB_FUNCTION_STYLE */
    int8_t funcStyle;
-   /** @brief channel count for each output buffer */
-   uint32_t outChannels;
+   /** @brief Pointer to array containing the channel count for each output buffer
+    *         (each output may have a different channel count) */
+   uint32_t *outChannels;
    /** @brief Number of output buffers to split into */
    uint32_t numOutputs;
+   /** @brief Total number of input channels to split (sum of outChannels) */
+   uint32_t totalInputChannels;
    /** @brief Flag indicating if input data is in interleaved format (1) or non-interleaved (0) */
    uint8_t isInputInterleave;
 } AUDIOLIB_split_InitArgs;
