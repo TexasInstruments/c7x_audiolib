@@ -51,6 +51,7 @@ def gen_testCaseParams(testParamsFile, currPrm):
         inChannelsArrayName = f"inChannelsCase{testId}"
 
     else:
+        pInputs = "NULL"
         input_buffers = ["NULL"] * numInputs
         out = "NULL"
         inChannelsArrayName = "NULL"

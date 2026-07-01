@@ -16,20 +16,20 @@ void AUDIOLIB_split_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, 
    uint64_t splitOperationCycles = 0;
    uint64_t splitOverheadCycles  = 0;
 
-   // Planar, or interleaved with uniform channels, load the whole input with a single SE
-   // opened once (per-output SA). Only interleaved with differing channels opens an SE per output.
-   bool singleLoad = (!pKerPrivArgs->isInputInterleave) || (pKerPrivArgs->outChannelsUniform != 0);
-   if (singleLoad) {
-      splitStartupCycles = 27; // single SE open
+   /* Planar, or interleaved with uniform channels, load the whole input with a single SE
+    * opened once (per-output SA). Only interleaved with differing channels opens an SE per output. */
+   uint8_t singleLoad = ((pKerPrivArgs->isInputInterleave == 0U) || (pKerPrivArgs->outChannelsUniform != 0U)) ? 1U : 0U;
+   if (singleLoad != 0U) {
+      splitStartupCycles = 27; /* single SE open */
       for (uint32_t i = 0; i < pKerPrivArgs->numOutputs; i++) {
          uint32_t iterationCount = pIterCountLocal[i];
          splitOperationCycles += 14 + 1 + iterationCount * 1;
-         splitTeardownCycles += 9; // SA close per output
+         splitTeardownCycles += 9; /* SA close per output */
       }
-      splitTeardownCycles += 1; // SE close
+      splitTeardownCycles += 1; /* SE close */
    }
    else {
-      // Interleaved with differing channels: both SE and SA are opened per output.
+      /* Interleaved with differing channels: both SE and SA are opened per output. */
       splitStartupCycles = 7;
       for (uint32_t i = 0; i < pKerPrivArgs->numOutputs; i++) {
          uint32_t iterationCount = pIterCountLocal[i];
@@ -70,8 +70,8 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
    uint32_t *restrict pIterCountLocal = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
 
    if (!pKerPrivArgs->isInputInterleave) {
-      // Deinterleaved (planar) input: one SE streams the whole contiguous input; the SA is
-      // opened per output. The SE advances continuously across outputs.
+      /* Deinterleaved (planar) input: one SE streams the whole contiguous input; the SA is
+       * opened per output. The SE advances continuously across outputs. */
       __SE_TEMPLATE_v1 seSingle = __gen_SE_TEMPLATE_v1();
       seSingle.ELETYPE          = SE_ELETYPE;
       seSingle.VECLEN           = SE_VECLEN;
@@ -97,9 +97,9 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
       memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, sizeof(sa0Params));
    }
    else if (pKerPrivArgs->outChannelsUniform) {
-      // Interleaved input, all outputs share one channel count C: a single 3D SE folds the
-      // output dimension (DIM2 = C, ICNT2 = numOutputs), so it is opened once and advanced
-      // across outputs. One 2D SA per output drains it.
+      /* Interleaved input, all outputs share one channel count C: a single 3D SE folds the
+       * output dimension (DIM2 = C, ICNT2 = numOutputs), so it is opened once and advanced
+       * across outputs. One 2D SA per output drains it. */
       uint32_t channelsPerOutput = pKerPrivArgs->outChannels[0];
       __SE_TEMPLATE_v1 seSingle = __gen_SE_TEMPLATE_v1();
       seSingle.ELETYPE          = SE_ELETYPE;
@@ -126,13 +126,13 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
       memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, sizeof(sa0Params));
    }
    else {
-      // Interleaved input with differing channel counts: each output reads a non-contiguous
-      // channel window, so one SE and one SA template are built per output, with a per-output
-      // input offset.
+      /* Interleaved input with differing channel counts: each output reads a non-contiguous
+       * channel window, so one SE and one SA template are built per output, with a per-output
+       * input offset. */
       __SE_TEMPLATE_v1 se0Params[pKerPrivArgs->numOutputs];
       __SE_TEMPLATE_v1 *restrict pSe0Params = se0Params;
 
-      uint32_t cumulativeOffset = 0; // cumulative input channel offset (in channels)
+      uint32_t cumulativeOffset = 0; /* cumulative input channel offset (in channels) */
 
       for (uint32_t i = 0; i < pKerPrivArgs->numOutputs; i++) {
          uint32_t outCh = pKerPrivArgs->outChannels[i];
@@ -152,7 +152,7 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
          pSa0Params[i].ICNT0  = outCh;
          pSa0Params[i].ICNT1  = pKerPrivArgs->numInputSamples;
 
-         pInOffsetLocal[i]  = cumulativeOffset; // channel offset within each input sample row
+         pInOffsetLocal[i]  = cumulativeOffset; /* channel offset within each input sample row */
          pIterCountLocal[i] = (AUDIOLIB_ceilingDiv(outCh, eleCount)) * pKerPrivArgs->numInputSamples;
 
          cumulativeOffset += outCh;
@@ -190,7 +190,7 @@ AUDIOLIB_split_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void **
    __SA_TEMPLATE_v1 *restrict sa0Params = (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
    uint32_t *restrict pIterCountLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
 
-   // Open the SE once on the whole contiguous input; it advances across all outputs.
+   /* Open the SE once on the whole contiguous input; it advances across all outputs. */
    __SE0_OPEN(pInLocal, se0Params);
    for (uint32_t i = 0; i < pKerPrivArgs->numOutputs; i++) {
       dataType *restrict pOutLocalI = (dataType *) pOut[i];

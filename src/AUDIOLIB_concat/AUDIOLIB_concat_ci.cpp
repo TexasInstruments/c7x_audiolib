@@ -15,17 +15,17 @@ void AUDIOLIB_concat_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles,
    uint64_t concatOperationCycles = 0;
    uint64_t concatOverheadCycles  = 0;
 
-   // Planar, or interleaved with uniform channels, store the whole output with a single SA
-   // opened once (per-input SE). Only interleaved with differing channels opens an SA per input.
-   bool singleStore = (!pKerPrivArgs->isInterleave) || (pKerPrivArgs->inChannelsUniform != 0);
-   if (singleStore) {
+   /* Planar, or interleaved with uniform channels, store the whole output with a single SA
+    * opened once (per-input SE). Only interleaved with differing channels opens an SA per input. */
+   uint8_t singleStore = ((pKerPrivArgs->isInterleave == 0U) || (pKerPrivArgs->inChannelsUniform != 0U)) ? 1U : 0U;
+   if (singleStore != 0U) {
       concatStartupCycles = 13;
       for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
          uint32_t iterationCount = pIterCountLocal[i];
          concatOperationCycles += 29 + 1 + iterationCount * 1;
-         concatTeardownCycles += 2 + 1; // SE close per input
+         concatTeardownCycles += 2 + 1; /* SE close per input */
       }
-      concatTeardownCycles += 1; // SA close
+      concatTeardownCycles += 1; /* SA close */
    }
    else {
       concatStartupCycles = 9;
@@ -71,7 +71,7 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
    uint32_t *restrict pIterCountLocal = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
 
    if (!pKerInitArgs->isInterleave) {
-      // Non-interleaved (planar) input and output: one 2D SE per input, single 2D SA.
+      /* Non-interleaved (planar) input and output: one 2D SE per input, single 2D SA. */
       for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
          pSe0Params[i]         = __gen_SE_TEMPLATE_v1();
          pSe0Params[i].ICNT0   = pKerPrivArgs->inSamples;
@@ -91,9 +91,9 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
       sa0Params.DIMFMT = __SA_DIMFMT_2D;
    }
    else if (pKerPrivArgs->inChannelsUniform) {
-      // Interleaved input and output, all inputs share one channel count C: a single 3D SA
-      // folds the input dimension (DIM2 = C, ICNT2 = numInputs), so it is opened once and
-      // advanced across inputs. One 2D SE per input feeds it.
+      /* Interleaved input and output, all inputs share one channel count C: a single 3D SA
+       * folds the input dimension (DIM2 = C, ICNT2 = numInputs), so it is opened once and
+       * advanced across inputs. One 2D SE per input feeds it. */
       uint32_t channelsPerInput = pKerPrivArgs->inChannels[0];
       for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
          pSe0Params[i]         = __gen_SE_TEMPLATE_v1();
@@ -116,8 +116,8 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
       sa0Params.DIMFMT = __SA_DIMFMT_3D;
    }
    else {
-      // Interleaved input and output with differing channel counts: one SE and one SA template
-      // per input, with each input written at its cumulative channel offset in the output.
+      /* Interleaved input and output with differing channel counts: one SE and one SA template
+       * per input, with each input written at its cumulative channel offset in the output. */
       uint32_t cumulativeOffset = 0;
       for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
          pSe0Params[i]         = __gen_SE_TEMPLATE_v1();
@@ -141,10 +141,10 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
          cumulativeOffset += pKerPrivArgs->inChannels[i];
          pIterCountLocal[i] = (AUDIOLIB_ceilingDiv(pKerPrivArgs->inChannels[i], eleCount)) * pKerPrivArgs->inSamples;
       }
+      memcpy((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET, sa1Params, sizeof(sa1Params));
    }
 
    memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, sizeof(se0Params));
-   memcpy((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET, sa1Params, sizeof(sa1Params));
 
    *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
 

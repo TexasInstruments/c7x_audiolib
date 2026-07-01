@@ -7,9 +7,12 @@
 
 int32_t AUDIOLIB_concat_getHandleSize(AUDIOLIB_concat_InitArgs *pKerInitArgs)
 {
-   int32_t privBufSize = sizeof(AUDIOLIB_concat_PrivArgs);
-   /* Trailing memory for the per-input inChannels[] and strideIn[] arrays */
-   privBufSize += 2 * sizeof(uint32_t) * pKerInitArgs->numInputs;
+   int32_t privBufSize = -1;
+   if (pKerInitArgs != NULL) {
+      privBufSize = sizeof(AUDIOLIB_concat_PrivArgs);
+      /* Trailing memory for the per-input inChannels[] and strideIn[] arrays */
+      privBufSize += 2 * sizeof(uint32_t) * pKerInitArgs->numInputs;
+   }
    return privBufSize;
 }
 
@@ -65,6 +68,13 @@ AUDIOLIB_concat_init_checkParams(AUDIOLIB_kernelHandle           handle,
                }
             }
             totalInChannels += pKerInitArgs->inChannels[i];
+         }
+
+         if (status == AUDIOLIB_SUCCESS) {
+            /* Cross-check: caller-declared total must match computed sum */
+            if (pKerInitArgs->totalInChannels != totalInChannels) {
+               status = AUDIOLIB_ERR_INVALID_VALUE;
+            }
          }
 
          if (status == AUDIOLIB_SUCCESS) {
@@ -175,15 +185,16 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init(AUDIOLIB_kernelHandle           handle,
 
          /* Planar, or interleaved with uniform channel counts, use the single-store fast
           * path; only interleaved with differing channel counts needs the per-input store. */
-         bool useSingleStore = (!pKerInitArgs->isInterleave) || (pKerPrivArgs->inChannelsUniform != 0);
+         uint8_t useSingleStore =
+             ((pKerInitArgs->isInterleave == 0U) || (pKerPrivArgs->inChannelsUniform != 0U)) ? 1U : 0U;
          if (bufParamsIn->data_type == AUDIOLIB_FLOAT32) {
             pKerPrivArgs->execute =
-                useSingleStore ? AUDIOLIB_concat_exec_ci<float> : AUDIOLIB_concatPerInputStore_exec_ci<float>;
+                (useSingleStore != 0U) ? AUDIOLIB_concat_exec_ci<float> : AUDIOLIB_concatPerInputStore_exec_ci<float>;
             status = AUDIOLIB_concat_init_ci<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
          }
          else if (bufParamsIn->data_type == AUDIOLIB_FLOAT64) {
             pKerPrivArgs->execute =
-                useSingleStore ? AUDIOLIB_concat_exec_ci<double> : AUDIOLIB_concatPerInputStore_exec_ci<double>;
+                (useSingleStore != 0U) ? AUDIOLIB_concat_exec_ci<double> : AUDIOLIB_concatPerInputStore_exec_ci<double>;
             status = AUDIOLIB_concat_init_ci<double>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
          }
          else {

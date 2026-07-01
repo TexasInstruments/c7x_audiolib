@@ -7,9 +7,12 @@
 
 int32_t AUDIOLIB_split_getHandleSize(AUDIOLIB_split_InitArgs *pKerInitArgs)
 {
-   int32_t privBufSize = sizeof(AUDIOLIB_split_PrivArgs);
-   /* Trailing memory for the per-output outChannels[] and strideOut[] arrays */
-   privBufSize += 2 * sizeof(uint32_t) * pKerInitArgs->numOutputs;
+   int32_t privBufSize = -1;
+   if (pKerInitArgs != NULL) {
+      privBufSize = sizeof(AUDIOLIB_split_PrivArgs);
+      /* Trailing memory for the per-output outChannels[] and strideOut[] arrays */
+      privBufSize += 2 * sizeof(uint32_t) * pKerInitArgs->numOutputs;
+   }
    return privBufSize;
 }
 
@@ -155,15 +158,16 @@ AUDIOLIB_STATUS AUDIOLIB_split_init(AUDIOLIB_kernelHandle          handle,
       else {
          /* Planar, or interleaved with uniform channel counts, use the single-load fast path;
           * only interleaved with differing channel counts needs the per-output load. */
-         bool useSingleLoad = (!pKerInitArgs->isInputInterleave) || (pKerPrivArgs->outChannelsUniform != 0);
+         uint8_t useSingleLoad =
+             ((pKerInitArgs->isInputInterleave == 0U) || (pKerPrivArgs->outChannelsUniform != 0U)) ? 1U : 0U;
          if (bufParamsIn->data_type == AUDIOLIB_FLOAT32) {
             pKerPrivArgs->execute =
-                useSingleLoad ? AUDIOLIB_split_exec_ci<float> : AUDIOLIB_splitPerOutput_exec_ci<float>;
+                (useSingleLoad != 0U) ? AUDIOLIB_split_exec_ci<float> : AUDIOLIB_splitPerOutput_exec_ci<float>;
             status = AUDIOLIB_split_init_ci<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
          }
          else if (bufParamsIn->data_type == AUDIOLIB_FLOAT64) {
             pKerPrivArgs->execute =
-                useSingleLoad ? AUDIOLIB_split_exec_ci<double> : AUDIOLIB_splitPerOutput_exec_ci<double>;
+                (useSingleLoad != 0U) ? AUDIOLIB_split_exec_ci<double> : AUDIOLIB_splitPerOutput_exec_ci<double>;
             status = AUDIOLIB_split_init_ci<double>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
          }
          else {
