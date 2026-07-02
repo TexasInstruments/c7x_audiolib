@@ -73,9 +73,10 @@ int AUDIOLIB_concat_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
       testNum                  = prm[tpi].testID;
       currPrm                  = prm[tpi];
       isInterleave             = prm[tpi].isInterleave;
-      kerInitArgs.numInputs    = currPrm.numInputs;
-      kerInitArgs.inChannels   = currPrm.inChannels;
-      kerInitArgs.isInterleave = currPrm.isInterleave;
+      kerInitArgs.numInputs       = currPrm.numInputs;
+      kerInitArgs.inChannels      = currPrm.inChannels;
+      kerInitArgs.totalInChannels = currPrm.totalInChannels;
+      kerInitArgs.isInterleave    = currPrm.isInterleave;
 
       int32_t               handleSize = AUDIOLIB_concat_getHandleSize(&kerInitArgs);
       AUDIOLIB_kernelHandle handle     = malloc(handleSize);
@@ -106,18 +107,18 @@ int AUDIOLIB_concat_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
          for (i = 0; i < currPrm.numInputs; i++) {
             bufParamsInX[i].data_type = currPrm.dataType;
             if (isInterleave == 1) {
-               bufParamsInX[i].dim_x    = currPrm.inChannels; // Channels
-               bufParamsInX[i].dim_y    = currPrm.inSamples;  // Samples
+               bufParamsInX[i].dim_x    = currPrm.inChannels[i]; // Channels (per input)
+               bufParamsInX[i].dim_y    = currPrm.inSamples;     // Samples
                bufParamsInX[i].stride_y = bufParamsInX[i].dim_x * AUDIOLIB_sizeof(bufParamsInX[i].data_type);
             }
             else {
-               bufParamsInX[i].dim_x    = currPrm.inSamples;  // Samples
-               bufParamsInX[i].dim_y    = currPrm.inChannels; // Channels
+               bufParamsInX[i].dim_x    = currPrm.inSamples;     // Samples
+               bufParamsInX[i].dim_y    = currPrm.inChannels[i]; // Channels (per input)
                bufParamsInX[i].stride_y = bufParamsInX[i].dim_x * AUDIOLIB_sizeof(bufParamsInX[i].data_type);
             }
          }
 
-         uint32_t totalOutChannels = currPrm.inChannels * currPrm.numInputs;
+         uint32_t totalOutChannels = currPrm.totalInChannels;
          if (isInterleave == 1) {
             bufParamsOut.data_type = currPrm.dataType;
             bufParamsOut.dim_x     = totalOutChannels;
@@ -433,6 +434,11 @@ int coverage_test_main()
    bufParamsOut.dim_y     = inSamples;
    bufParamsOut.stride_y  = bufParamsOut.dim_y * AUDIOLIB_sizeof(bufParamsOut.data_type);
 
+   // Per-input channel-count array (each input may have a different channel count)
+   uint32_t covInChannels[2]   = {(uint32_t) inChannels, (uint32_t) inChannels};
+   kerInitArgs.inChannels      = covInChannels;
+   kerInitArgs.totalInChannels = (uint32_t) (inChannels + inChannels);
+
    // Temps for modification inside loop
    AUDIOLIB_bufParams2D_t bufParamsInTemp[2];
    AUDIOLIB_bufParams2D_t bufParamsOutTemp;
@@ -460,7 +466,6 @@ int coverage_test_main()
       case 1001:
          // Test Case: Invalid Data Type (Input)
          kerInitArgs.numInputs        = 2;
-         kerInitArgs.inChannels       = 16;
          bufParamsInTemp[0].data_type = AUDIOLIB_UINT32; // Invalid type
 
          kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
@@ -475,7 +480,6 @@ int coverage_test_main()
       case 1002:
          // Test Case: Invalid Data Type (Output Mismatch)
          kerInitArgs.numInputs      = 2;
-         kerInitArgs.inChannels     = 16;
          bufParamsOutTemp.data_type = AUDIOLIB_UINT32; // Mismatch with float inputs
 
          kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
@@ -496,18 +500,16 @@ int coverage_test_main()
       case 1003:
          // Test Case: numInputs == 0 -> INVALID_VALUE
          kerInitArgs.numInputs  = 0;
-         kerInitArgs.inChannels = 16;
          kerInitArgs.funcStyle  = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt      = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_VALUE);
          break;
 
       case 1004:
-         // Test Case: numInputs exceeds MAX_SE_PARAMS (handle bufPblock bound) -> INVALID_VALUE
+         // Test Case: numInputs exceeds MAX_INPUTS (handle bufPblock bound) -> INVALID_VALUE
          kerInitArgs.numInputs  = 65;
-         kerInitArgs.inChannels = 16;
          kerInitArgs.funcStyle  = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt      = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_VALUE);
          break;
 
@@ -515,7 +517,6 @@ int coverage_test_main()
          // Test Case: per-input dimension mismatch -> INVALID_DIMENSION
          // (non-interleave: channel axis = dim_y; in[1] channel count != inChannels)
          kerInitArgs.numInputs    = 2;
-         kerInitArgs.inChannels   = 16;
          kerInitArgs.isInterleave = 0;
          bufParamsInTemp[0].dim_x = inSamples;
          bufParamsInTemp[0].dim_y = inChannels;
@@ -524,7 +525,7 @@ int coverage_test_main()
          bufParamsOutTemp.dim_x   = inSamples;
          bufParamsOutTemp.dim_y   = 2 * inChannels;
          kerInitArgs.funcStyle    = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt      = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION);
          break;
 
@@ -532,7 +533,6 @@ int coverage_test_main()
          // Test Case: output dimension mismatch -> INVALID_DIMENSION
          // (inputs consistent; output channels != numInputs * inChannels)
          kerInitArgs.numInputs    = 2;
-         kerInitArgs.inChannels   = 16;
          kerInitArgs.isInterleave = 0;
          bufParamsInTemp[0].dim_x = inSamples;
          bufParamsInTemp[0].dim_y = inChannels;
@@ -541,57 +541,53 @@ int coverage_test_main()
          bufParamsOutTemp.dim_x   = inSamples;
          bufParamsOutTemp.dim_y   = inChannels; // should be 2 * inChannels
          kerInitArgs.funcStyle    = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt      = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION);
          break;
 
       case 1007:
          // Test Case: init() with NULL handle -> NULL_POINTER
          kerInitArgs.numInputs  = 2;
-         kerInitArgs.inChannels = 16;
          kerInitArgs.funcStyle  = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt             = AUDIOLIB_concat_init(NULL, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         currentTestFail        = (status_opt != AUDIOLIB_ERR_NULL_POINTER);
+         status_opt = AUDIOLIB_concat_init(NULL, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = (status_opt != AUDIOLIB_ERR_NULL_POINTER);
          break;
 
       case 1008:
          // Test Case: init() with numInputs == 0 -> INVALID_VALUE
          kerInitArgs.numInputs  = 0;
-         kerInitArgs.inChannels = 16;
          kerInitArgs.funcStyle  = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt             = AUDIOLIB_concat_init(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         currentTestFail        = (status_opt != AUDIOLIB_ERR_INVALID_VALUE);
+         status_opt = AUDIOLIB_concat_init(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_VALUE);
          break;
 
       case 1009:
          // Test Case: init() dispatch with unsupported type -> INVALID_TYPE (NATC and OPTIMIZED else paths)
          kerInitArgs.numInputs        = 2;
-         kerInitArgs.inChannels       = 16;
          kerInitArgs.isInterleave     = 0;
          bufParamsInTemp[0].data_type = AUDIOLIB_UINT32;
          bufParamsInTemp[1].data_type = AUDIOLIB_UINT32;
 
          kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
-         status_nat            = AUDIOLIB_concat_init(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_nat = AUDIOLIB_concat_init(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
 
          kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt            = AUDIOLIB_concat_init(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_concat_init(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
          break;
 
       case 1010:
          // Test Case: output dimension mismatch (isInterleave=1) -> INVALID_DIMENSION
          kerInitArgs.numInputs    = 2;
-         kerInitArgs.inChannels   = 16;
          kerInitArgs.isInterleave = 1;
          bufParamsInTemp[0].dim_x = inChannels;
          bufParamsInTemp[0].dim_y = inSamples;
          bufParamsInTemp[1].dim_x = inChannels;
          bufParamsInTemp[1].dim_y = inSamples;
          bufParamsOutTemp.dim_x   = inChannels; // should be 2 * inChannels
-         bufParamsOutTemp.dim_y   = inSamples;
+         bufParamsOutTemp.dim_y   = inSamples; 
          kerInitArgs.funcStyle    = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt      = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION);
          break;
 

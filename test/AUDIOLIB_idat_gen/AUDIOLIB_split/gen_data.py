@@ -11,6 +11,7 @@ import sys
 import os
 import csv
 import math
+import ast
 import numpy as np
 import argparse
 
@@ -79,6 +80,14 @@ def gen_testCaseParams(idatFile, currPrm):
         "%s, // totalInputChannels (C_total = %d channels from input)\n"
         % (totalInputChannels, totalInputChannels)
     )
+    if testType == "STATIC":
+        outChannelsArrayName = "outChannelsCase" + testId
+    else:
+        outChannelsArrayName = "NULL"
+    idatFile.write(
+        "%s, // outChannels (pointer to array of per-output channel counts)\n"
+        % outChannelsArrayName
+    )
     idatFile.write("%s, // numOutputs \n" % ((numOutputs)))
     idatFile.write(
         "AUDIOLIB_CALC_STRIDE(%s * sizeof(%s), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideIn \n"
@@ -134,7 +143,7 @@ def gen_idat_file(idatFile, testCases):
         if testCase["testType"] == "STATIC":
             testId = testCase["ID"]
             numOutputs = int(testCase["numOutputs"])
-            channelsPerOutput = int(testCase["totalInputChannels"]) // numOutputs
+            outChannelsList = testCase["outChannelsList"]
             demoCase = testCase["demoCase"]
 
             # Write conditional #ifdef guard matching the test case (same as header includes)
@@ -159,10 +168,10 @@ def gen_idat_file(idatFile, testCases):
             idatFile.write(f"    {out_ptrs}\n")
             idatFile.write("};\n\n")
 
-            # Output channels array - each output gets channelsPerOutput channels
-            channels_list = ", ".join([str(channelsPerOutput)] * numOutputs)
+            # Output channels array - one entry per output (may differ per output)
+            channels_list = ", ".join(str(ch) for ch in outChannelsList)
             idatFile.write(
-                f"__attribute__((unused)) static int32_t outChannelsCase{testId}[] = {{\n"
+                f"__attribute__((unused)) static uint32_t outChannelsCase{testId}[] = {{\n"
             )
             idatFile.write(f"    {channels_list}\n")
             idatFile.write("};\n\n")
@@ -195,14 +204,26 @@ def process_test_case(testCase):
     """
 
     testCase["testId"] = int(testCase["ID"])
-    # testCase["channelsPerOutput"] = int(testCase["channelsPerOutput"])  # Ch per output
-    testCase["totalInputChannels"] = int(
-        testCase["totalInputChannels"]
-    )  # Total input channels
     testCase["inSamples"] = int(testCase["samples"])
-    testCase["numOutputs"] = int(testCase["numOutputs"])
     testCase["strideIn0"] = int(testCase["strideInElements"])
     testCase["strideOut"] = int(testCase["strideOutElements"])
+
+    # Per-output channel counts. The totalInputChannels column may hold either a
+    # bracketed list (e.g. "[8,4,4]") giving each output's channel count, or a scalar
+    # (legacy) that is split evenly across the numOutputs column.
+    try:
+        outChannelsList = ast.literal_eval(testCase["totalInputChannels"])
+        if not isinstance(outChannelsList, list):
+            raise ValueError("totalInputChannels must be a list")
+    except (ValueError, SyntaxError):
+        numOutputs = int(testCase["numOutputs"])
+        total = int(testCase["totalInputChannels"])
+        channelsPerOutput = total // numOutputs
+        outChannelsList = [channelsPerOutput] * numOutputs
+
+    testCase["outChannelsList"] = outChannelsList
+    testCase["numOutputs"] = len(outChannelsList)
+    testCase["totalInputChannels"] = sum(outChannelsList)
     return testCase
 
 
@@ -235,14 +256,14 @@ def gen_test_case_header_file(testCase):
 
     # Total input channels to be split
     totalInChannels = testCase["totalInputChannels"]
+    outChannelsList = testCase["outChannelsList"]
 
     # Create an instance of AUDIOLIB_split
     isInputInterleave = int(testCase.get("isInterleave", 1))
     split_processor = AUDIOLIB_split(
         dType=dType,
-        numChannels=totalInChannels,
+        outChannelsList=outChannelsList,
         numSamples=inSamples,
-        numOutputs=numOutputs,
         isInputInterleave=isInputInterleave,
     )
 

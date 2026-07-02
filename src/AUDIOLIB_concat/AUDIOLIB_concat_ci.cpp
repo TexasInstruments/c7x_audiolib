@@ -6,20 +6,36 @@
 
 void AUDIOLIB_concat_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, uint64_t *estCycles)
 {
-   AUDIOLIB_concat_PrivArgs *pKerPrivArgs   = (AUDIOLIB_concat_PrivArgs *) handle;
-   uint8_t                  *pBlock         = pKerPrivArgs->bufPblock;
-   uint32_t                  iterationCount = *(uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   AUDIOLIB_concat_PrivArgs *pKerPrivArgs    = (AUDIOLIB_concat_PrivArgs *) handle;
+   uint8_t                  *pBlock          = pKerPrivArgs->bufPblock;
+   uint32_t *restrict pIterCountLocal        = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
 
-   uint64_t concatStartupCycles   = 13;
+   uint64_t concatStartupCycles   = 0;
    uint64_t concatTeardownCycles  = 0;
    uint64_t concatOperationCycles = 0;
    uint64_t concatOverheadCycles  = 0;
 
-   for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
-      concatOperationCycles += 26 + 2 + 1 + iterationCount * 1;
-      concatTeardownCycles += 2 + 1;
+   /* Planar, or interleaved with uniform channels, store the whole output with a single SA
+    * opened once (per-input SE). Only interleaved with differing channels opens an SA per input. */
+   uint8_t singleStore = ((pKerPrivArgs->isInterleave == 0U) || (pKerPrivArgs->inChannelsUniform != 0U)) ? 1U : 0U;
+   if (singleStore != 0U) {
+      concatStartupCycles = 13;
+      for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
+         uint32_t iterationCount = pIterCountLocal[i];
+         concatOperationCycles += 29 + 1 + iterationCount * 1;
+         concatTeardownCycles += 2 + 1; /* SE close per input */
+      }
+      concatTeardownCycles += 1; /* SA close */
    }
-   concatTeardownCycles += 1;
+   else {
+      concatStartupCycles = 9;
+      for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
+         uint32_t iterationCount = pIterCountLocal[i];
+         concatOperationCycles += 29 + 1 + iterationCount * 1;
+         concatTeardownCycles += 2;
+      }
+      concatTeardownCycles += 1;
+   }
 
    concatOverheadCycles += concatStartupCycles + concatTeardownCycles;
    *estCycles  = concatOperationCycles + concatOverheadCycles;
@@ -45,61 +61,91 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
    __SA_VECLEN  SA_VECLEN  = c7x::sa_veclen<vec>::value;
 
    __SA_TEMPLATE_v1 sa0Params = __gen_SA_TEMPLATE_v1();
-   __SE_TEMPLATE_v1 se0Params = __gen_SE_TEMPLATE_v1();
+   __SE_TEMPLATE_v1 se0Params[MAX_INPUTS];
+   __SA_TEMPLATE_v1 sa1Params[MAX_INPUTS];
 
+   __SE_TEMPLATE_v1 *restrict pSe0Params = se0Params;
+   __SA_TEMPLATE_v1 *restrict pSa1Params = sa1Params;
+
+   uint32_t *restrict pOutOffsetLocal = (uint32_t *) ((uint8_t *) pBlock + SE_OUTOFFSET_PARAM_OFFSET);
    uint32_t *restrict pIterCountLocal = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
 
    if (!pKerInitArgs->isInterleave) {
-      /**********************************************************************/
-      /* Prepare streaming engine 0 to fetch input samples                  */
-      /**********************************************************************/
-      se0Params.ICNT0   = pKerPrivArgs->inSamples;
-      se0Params.ICNT1   = pKerPrivArgs->inChannels;
-      se0Params.DIM1    = pKerPrivArgs->strideIn;
-      se0Params.DIMFMT  = __SE_DIMFMT_2D;
-      se0Params.ELETYPE = SE_ELETYPE;
-      se0Params.VECLEN  = SE_VECLEN;
+      /* Non-interleaved (planar) input and output: one 2D SE per input, single 2D SA. */
+      for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
+         pSe0Params[i]         = __gen_SE_TEMPLATE_v1();
+         pSe0Params[i].ICNT0   = pKerPrivArgs->inSamples;
+         pSe0Params[i].ICNT1   = pKerPrivArgs->inChannels[i];
+         pSe0Params[i].DIM1    = pKerPrivArgs->strideIn[i];
+         pSe0Params[i].DIMFMT  = __SE_DIMFMT_2D;
+         pSe0Params[i].ELETYPE = SE_ELETYPE;
+         pSe0Params[i].VECLEN  = SE_VECLEN;
 
-      *pIterCountLocal = (AUDIOLIB_ceilingDiv(pKerPrivArgs->inSamples, eleCount)) * pKerPrivArgs->inChannels;
+         pIterCountLocal[i] = (AUDIOLIB_ceilingDiv(pKerPrivArgs->inSamples, eleCount)) * pKerPrivArgs->inChannels[i];
+      }
 
-      /********************************************************************* */
-      /* Prepare SA0 template to store output                                */
-      /********************************************************************* */
-      uint32_t totalOutChannels = pKerPrivArgs->inChannels * pKerPrivArgs->numInputs;
-      sa0Params.ICNT0           = pKerPrivArgs->inSamples;
-      sa0Params.DIM1            = pKerPrivArgs->strideOut;
-      sa0Params.ICNT1           = totalOutChannels;
-      sa0Params.VECLEN          = SA_VECLEN;
-      sa0Params.DIMFMT          = __SA_DIMFMT_2D;
+      sa0Params.ICNT0  = pKerPrivArgs->inSamples;
+      sa0Params.DIM1   = pKerPrivArgs->strideOut;
+      sa0Params.ICNT1  = pKerPrivArgs->totalInChannels;
+      sa0Params.VECLEN = SA_VECLEN;
+      sa0Params.DIMFMT = __SA_DIMFMT_2D;
    }
+   else if (pKerPrivArgs->inChannelsUniform) {
+      /* Interleaved input and output, all inputs share one channel count C: a single 3D SA
+       * folds the input dimension (DIM2 = C, ICNT2 = numInputs), so it is opened once and
+       * advanced across inputs. One 2D SE per input feeds it. */
+      uint32_t channelsPerInput = pKerPrivArgs->inChannels[0];
+      for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
+         pSe0Params[i]         = __gen_SE_TEMPLATE_v1();
+         pSe0Params[i].ICNT0   = channelsPerInput;
+         pSe0Params[i].ICNT1   = pKerPrivArgs->inSamples;
+         pSe0Params[i].DIM1    = pKerPrivArgs->strideIn[i];
+         pSe0Params[i].ELETYPE = SE_ELETYPE;
+         pSe0Params[i].VECLEN  = SE_VECLEN;
+         pSe0Params[i].DIMFMT  = __SE_DIMFMT_2D;
 
-   else {
-      // Interleave: samples in dim_y, channels in dim_x
-      /**********************************************************************/
-      /* Prepare streaming engine 0 to fetch input samples                  */
-      /**********************************************************************/
-      se0Params.ICNT0   = pKerPrivArgs->inChannels;
-      se0Params.ICNT1   = pKerPrivArgs->inSamples;
-      se0Params.DIM1    = pKerPrivArgs->strideIn;
-      se0Params.ELETYPE = SE_ELETYPE;
-      se0Params.VECLEN  = SE_VECLEN;
-      se0Params.DIMFMT  = __SE_DIMFMT_2D;
+         pIterCountLocal[i] = (AUDIOLIB_ceilingDiv(channelsPerInput, eleCount)) * pKerPrivArgs->inSamples;
+      }
 
-      /********************************************************************* */
-      /* Prepare SA0 template to store output (3D for multiple inputs)       */
-      /********************************************************************* */
-      sa0Params.ICNT0  = pKerPrivArgs->inChannels;
+      sa0Params.ICNT0  = channelsPerInput;
       sa0Params.DIM1   = pKerPrivArgs->strideOut;
       sa0Params.ICNT1  = pKerPrivArgs->inSamples;
-      sa0Params.DIM2   = pKerPrivArgs->inChannels;
+      sa0Params.DIM2   = channelsPerInput;
       sa0Params.ICNT2  = pKerPrivArgs->numInputs;
       sa0Params.VECLEN = SA_VECLEN;
       sa0Params.DIMFMT = __SA_DIMFMT_3D;
-
-      // Store iteration count
-      *pIterCountLocal = (AUDIOLIB_ceilingDiv(pKerPrivArgs->inChannels, eleCount)) * pKerPrivArgs->inSamples;
    }
-   *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET) = se0Params;
+   else {
+      /* Interleaved input and output with differing channel counts: one SE and one SA template
+       * per input, with each input written at its cumulative channel offset in the output. */
+      uint32_t cumulativeOffset = 0;
+      for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
+         pSe0Params[i]         = __gen_SE_TEMPLATE_v1();
+         pSe0Params[i].ICNT0   = pKerPrivArgs->inChannels[i];
+         pSe0Params[i].ICNT1   = pKerPrivArgs->inSamples;
+         pSe0Params[i].DIM1    = pKerPrivArgs->strideIn[i];
+         pSe0Params[i].ELETYPE = SE_ELETYPE;
+         pSe0Params[i].VECLEN  = SE_VECLEN;
+         pSe0Params[i].DIMFMT  = __SE_DIMFMT_2D;
+
+         pSa1Params[i]        = __gen_SA_TEMPLATE_v1();
+         pSa1Params[i].ICNT0  = pKerPrivArgs->inChannels[i];
+         pSa1Params[i].DIM1   = pKerPrivArgs->strideOut;
+         pSa1Params[i].ICNT1  = pKerPrivArgs->inSamples;
+         pSa1Params[i].DIM2   = eleCount;
+         pSa1Params[i].ICNT2  = AUDIOLIB_ceilingDiv(pKerPrivArgs->totalInChannels, eleCount);
+         pSa1Params[i].VECLEN = SA_VECLEN;
+         pSa1Params[i].DIMFMT = __SA_DIMFMT_3D;
+
+         pOutOffsetLocal[i] = cumulativeOffset;
+         cumulativeOffset += pKerPrivArgs->inChannels[i];
+         pIterCountLocal[i] = (AUDIOLIB_ceilingDiv(pKerPrivArgs->inChannels[i], eleCount)) * pKerPrivArgs->inSamples;
+      }
+      memcpy((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET, sa1Params, pKerPrivArgs->numInputs * sizeof(sa1Params[0]));
+   }
+
+   memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, pKerPrivArgs->numInputs * sizeof(se0Params[0]));
+
    *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
 
    return status;
@@ -116,9 +162,9 @@ template AUDIOLIB_STATUS AUDIOLIB_concat_init_ci<double>(AUDIOLIB_kernelHandle  
                                                          const AUDIOLIB_concat_InitArgs *pKerInitArgs);
 
 template <typename dataType>
-AUDIOLIB_STATUS AUDIOLIB_concat_exec_ci(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut)
+AUDIOLIB_STATUS
+AUDIOLIB_concat_exec_ci(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut)
 {
-
    typedef typename c7x::make_full_vector<dataType>::type vec;
    AUDIOLIB_concat_PrivArgs                              *pKerPrivArgs = (AUDIOLIB_concat_PrivArgs *) handle;
    AUDIOLIB_STATUS                                        status       = AUDIOLIB_SUCCESS;
@@ -127,22 +173,20 @@ AUDIOLIB_STATUS AUDIOLIB_concat_exec_ci(AUDIOLIB_kernelHandle handle, void **res
    dataType *restrict pOutLocal = (dataType *) pOut;
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_concat_exec_ci");
 
-   __SA_TEMPLATE_v1 sa0Params      = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
-   uint32_t         iterationCount = *(uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
-
-   __SE_TEMPLATE_v1 se0ParamsLocal = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SE_TEMPLATE_v1 *restrict se0Params = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa0Params           = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
+   uint32_t *restrict pIterCountLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
 
    __SA0_OPEN(sa0Params);
    for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
 
       dataType *restrict pInLocal = (dataType *) pIn[i];
+      uint32_t iterationCount     = pIterCountLocal[i];
 
-      __SE0_OPEN(pInLocal, se0ParamsLocal);
-      // 1 + iterationCount * 1
+      __SE0_OPEN(pInLocal, se0Params[i]);
       for (uint32_t j = 0; j < iterationCount; j++) {
          vec inputSe0 = c7x::strm_eng<0, vec>::get_adv();
 
-         // store outputSa0 to output buffer pOutLocal
          __vpred tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
          vec    *outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
          __vstore_pred(tmpSa0, outPtrSa0, inputSe0);
@@ -154,8 +198,56 @@ AUDIOLIB_STATUS AUDIOLIB_concat_exec_ci(AUDIOLIB_kernelHandle handle, void **res
    return status;
 }
 
-template AUDIOLIB_STATUS
-AUDIOLIB_concat_exec_ci<float>(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut);
+template AUDIOLIB_STATUS AUDIOLIB_concat_exec_ci<float>(AUDIOLIB_kernelHandle handle,
+                                                                                  void **restrict pIn,
+                                                                                  void *restrict pOut);
+
+template AUDIOLIB_STATUS AUDIOLIB_concat_exec_ci<double>(AUDIOLIB_kernelHandle handle,
+                                                                                   void **restrict pIn,
+                                                                                   void *restrict pOut);
+
+template <typename dataType>
+AUDIOLIB_STATUS AUDIOLIB_concatPerInputStore_exec_ci(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut)
+{
+   typedef typename c7x::make_full_vector<dataType>::type vec;
+   AUDIOLIB_concat_PrivArgs                              *pKerPrivArgs = (AUDIOLIB_concat_PrivArgs *) handle;
+   AUDIOLIB_STATUS                                        status       = AUDIOLIB_SUCCESS;
+   uint8_t                                               *pBlock       = pKerPrivArgs->bufPblock;
+
+   dataType *restrict pOutLocal  = (dataType *) pOut;
+   dataType *restrict pOutLocal1 = (dataType *) pOut;
+
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_concatPerInputStore_exec_ci");
+
+   __SE_TEMPLATE_v1 *restrict se0Params = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 *restrict sa1Params = (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET);
+   uint32_t *restrict pOutOffsetLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_OUTOFFSET_PARAM_OFFSET);
+   uint32_t *restrict pIterCountLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+
+   for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
+      dataType *restrict pInLocal = (dataType *) pIn[i];
+      uint32_t offset             = pOutOffsetLocal[i];
+      pOutLocal1                  = pOutLocal + offset;
+      uint32_t iterationCount     = pIterCountLocal[i];
+
+      __SA0_OPEN(sa1Params[i]);
+      __SE0_OPEN(pInLocal, se0Params[i]);
+      for (uint32_t j = 0; j < iterationCount; j++) {
+         vec inputSe0 = c7x::strm_eng<0, vec>::get_adv();
+
+         __vpred tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
+         vec    *outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal1);
+         __vstore_pred(tmpSa0, outPtrSa0, inputSe0);
+      }
+      __SE0_CLOSE();
+      __SA0_CLOSE();
+   }
+
+   return status;
+}
 
 template AUDIOLIB_STATUS
-AUDIOLIB_concat_exec_ci<double>(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut);
+AUDIOLIB_concatPerInputStore_exec_ci<float>(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut);
+
+template AUDIOLIB_STATUS
+AUDIOLIB_concatPerInputStore_exec_ci<double>(AUDIOLIB_kernelHandle handle, void **restrict pIn, void *restrict pOut);

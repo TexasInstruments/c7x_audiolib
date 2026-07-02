@@ -16,12 +16,12 @@ AUDIOLIB_STATUS AUDIOLIB_concat_exec_cn(AUDIOLIB_kernelHandle handle, void **res
    dataType *restrict pOutLocal = (dataType *) pOut;
    uint32_t outChannelOffset    = 0;
    uint32_t numSamples          = pKerPrivArgs->inSamples;
-   uint32_t numChannels         = pKerPrivArgs->inChannels;
-   uint32_t strideIn            = pKerPrivArgs->strideIn;
 
    for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
 
       dataType *restrict pInLocal = (dataType *) pIn[i];
+      uint32_t numChannels        = pKerPrivArgs->inChannels[i];
+      uint32_t strideIn           = pKerPrivArgs->strideIn[i];
 
       if (pKerPrivArgs->isInterleave) {
          // Interleave: samples in dim_y, channels in dim_x

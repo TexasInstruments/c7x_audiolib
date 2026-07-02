@@ -32,7 +32,7 @@ def gen_testCaseParams(testParamsFile, currPrm):
 
     testId = currPrm["ID"]
     dType = currPrm["dType"]
-    inChannels = currPrm["inChannels"]
+    totalInChannels = currPrm["totalInChannels"]
     inSamples = currPrm["inSamples"]
     isInterleave = currPrm["isInterleave"]
     strideIn0 = currPrm["strideInElements"]
@@ -48,10 +48,13 @@ def gen_testCaseParams(testParamsFile, currPrm):
         # Dynamically generate input buffer names based on the number of input groups
         pInputs = f"staticRefInCase{testId}"
         out = "staticRefOutCase" + testId
+        inChannelsArrayName = f"inChannelsCase{testId}"
 
     else:
+        pInputs = "NULL"
         input_buffers = ["NULL"] * numInputs
         out = "NULL"
+        inChannelsArrayName = "NULL"
 
     if C7100 == "FALSE":
         testParamsFile.write("#if !defined(__C7100__)\n")
@@ -73,7 +76,8 @@ def gen_testCaseParams(testParamsFile, currPrm):
     )
     idatFile.write("%s, // Output buffer \n" % ((out)))
     idatFile.write("%s, // inSamples \n" % ((inSamples)))
-    idatFile.write("%s, // inChannels \n" % ((inChannels)))
+    idatFile.write("%s, // totalInChannels \n" % ((totalInChannels)))
+    idatFile.write("%s, // Pointer to array of per-input channel counts \n" % inChannelsArrayName)
     idatFile.write("%s, // isInterleave \n" % ((isInterleave)))
     idatFile.write("%d, // numInputs \n" % numInputs)
     idatFile.write(
@@ -134,6 +138,7 @@ def gen_idat_file(idatFile, testCases):
         if testCase["testType"] == "STATIC":
             testId = testCase["ID"]
             numInputs = testCase["numInputs"]
+            inChannelsList = ast.literal_eval(testCase["inChannels"])
 
             idatFile.write(
                 f"#if (defined(ALL_TEST_CASES) || (TEST_CASE == {testId}))\n"
@@ -143,6 +148,11 @@ def gen_idat_file(idatFile, testCases):
             for i in range(numInputs):
                 idatFile.write(f"    (void *)staticRefInput{i}Case{testId},\n")
             idatFile.write("};\n")
+            # Create the static array of per-input channel counts
+            channelsStr = ", ".join(str(ch) for ch in inChannelsList)
+            idatFile.write(
+                f"static uint32_t inChannelsCase{testId}[{numInputs}] = {{ {channelsStr} }};\n"
+            )
             idatFile.write("#endif\n\n")
 
     # generate parameters for test cases
@@ -161,23 +171,35 @@ def gen_idat_file(idatFile, testCases):
 
 def process_test_case(testCase):
     """
-    Convert str to numbers for necessary parameters and processes the inChannels scalar.
+    Convert str to numbers for necessary parameters and process the inChannels list.
+
+    inChannels may be either a bracketed list (e.g. "[2,1,3]") giving a per-input
+    channel count, or a scalar (legacy) which is expanded to numInputs uniform
+    inputs. numInputs and totalInChannels are derived from the resulting list.
     """
-    # print(f"Processing test case ID {testCase['ID']}: strideOutElements = '{testCase['strideOutElements']}'")
     try:
         testCase["testId"] = int(testCase["ID"])
         testCase["inSamples"] = int(testCase["inSamples"])
         testCase["isInterleave"] = int(testCase["isInterleave"])
         testCase["strideInElements"] = int(testCase["strideInElements"])
         testCase["strideOutElements"] = int(testCase["strideOutElements"])
-        testCase["inChannels"] = int(testCase["inChannels"])
-        testCase["numInputs"] = int(testCase["numInputs"])
     except ValueError as e:
         print(f"Error converting parameters for test case ID {testCase['ID']}: {e}")
         raise
 
-    # Derive totalOutChannels for reference
-    testCase["totalOutChannels"] = testCase["inChannels"] * testCase["numInputs"]
+    try:
+        inChannelsList = ast.literal_eval(testCase["inChannels"])
+        if not isinstance(inChannelsList, list):
+            raise ValueError("inChannels must be a list")
+    except (ValueError, SyntaxError):
+        # Legacy scalar form: expand uniformly across the numInputs column
+        scalar = int(testCase["inChannels"])
+        numInputs = int(testCase.get("numInputs", 1))
+        inChannelsList = [scalar] * numInputs
+
+    testCase["inChannels"] = str(inChannelsList)
+    testCase["numInputs"] = len(inChannelsList)
+    testCase["totalInChannels"] = sum(inChannelsList)
 
     return testCase
 
@@ -190,13 +212,12 @@ def gen_test_case_header_file(testCase):
     testId = testCase["ID"]
     dType = testCase["dType"]
     inSamples = testCase["inSamples"]
-    inChannels = testCase["inChannels"]
     isInterleave = bool(testCase["isInterleave"])
     numInputs = testCase["numInputs"]
     [minVal, maxVal] = [-10, 10]
 
-    # Create a list of channel counts where all inputs have the same number of channels
-    inChannelsList = [inChannels] * numInputs
+    # Per-input channel counts (each input may have a different channel count)
+    inChannelsList = ast.literal_eval(testCase["inChannels"])
 
     # 1. Generate individual input arrays using the concat module
     individual_inputs = c.generate_inputs(
@@ -217,7 +238,7 @@ def gen_test_case_header_file(testCase):
 
     # 3. Write the individual inputs and the final merged output to the header file
     headerFileName = f"staticRefCase{testId}.h"
-    inChannelsArrayStr = ", ".join(str(inChannels) for _ in range(numInputs))
+    inChannelsArrayStr = ", ".join(str(ch) for ch in inChannelsList)
     file_io.write_header_file(
         individual_inputs,
         final_merged_output,
