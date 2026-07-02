@@ -9,27 +9,28 @@
 #include "AUDIOLIB_split.h"
 
 /*!
- * @brief Macro to define the size of bufPblock array of
- *        @ref AUDIOLIB_split_PrivArgs structure.
+ * @brief Maximum number of output buffers a split handle can support. Sizes
+ *        the per-output SE/SA template slots in the bufPblock array of
+ *        @ref AUDIOLIB_split_PrivArgs as well as its outChannels[] and
+ *        strideOut[] arrays.
  *
  */
 
-#define MAX_SE_PARAMS (64)
+#define MAX_OUTPUTS (64)
 #define SE_PARAM_BASE (0x0000)
 // Single SE template streaming the whole contiguous input (deinterleaved / planar path)
 #define SE_SE0_SINGLE_PARAM_OFFSET (SE_PARAM_BASE)
 // One SE template per output (interleaved path: each output reads a channel window)
 #define SE_SE0_PARAM_OFFSET (SE_SE0_SINGLE_PARAM_OFFSET + SE_PARAM_SIZE)
 // One SA template per output (both paths)
-#define SE_SA0_PARAM_OFFSET (SE_SE0_PARAM_OFFSET + MAX_SE_PARAMS * SE_PARAM_SIZE)
+#define SE_SA0_PARAM_OFFSET (SE_SE0_PARAM_OFFSET + MAX_OUTPUTS * SE_PARAM_SIZE)
 // Per-output input element offsets (interleaved path; one uint32_t per output)
-#define SE_INOFFSET_PARAM_OFFSET (SE_SA0_PARAM_OFFSET + MAX_SE_PARAMS * SA_PARAM_SIZE)
+#define SE_INOFFSET_PARAM_OFFSET (SE_SA0_PARAM_OFFSET + MAX_OUTPUTS * SA_PARAM_SIZE)
 // Per-output vector iteration counts (one uint32_t per output)
-#define SE_ITERCOUNT_PARAM_OFFSET (SE_INOFFSET_PARAM_OFFSET + MAX_SE_PARAMS * sizeof(uint32_t))
+#define SE_ITERCOUNT_PARAM_OFFSET (SE_INOFFSET_PARAM_OFFSET + MAX_OUTPUTS * sizeof(uint32_t))
 
 #define AUDIOLIB_SPLIT_IXX_IXX_OXX_PBLOCK_SIZE                                                                         \
-   (SE_PARAM_SIZE + MAX_SE_PARAMS * SE_PARAM_SIZE + MAX_SE_PARAMS * SA_PARAM_SIZE +                                    \
-    2 * MAX_SE_PARAMS * sizeof(uint32_t))
+   (SE_PARAM_SIZE + MAX_OUTPUTS * SE_PARAM_SIZE + MAX_OUTPUTS * SA_PARAM_SIZE + 2 * MAX_OUTPUTS * sizeof(uint32_t))
 
 /*!
  *  @brief This is a function pointer type that conforms to the
@@ -153,13 +154,13 @@ typedef struct {
    uint32_t numInputSamples;
    /*! @brief Total number of channels in the input buffer (sum of outChannels) */
    uint32_t numInputChannels;
-   /*! @brief Pointer to array of channel counts for each output buffer */
-   uint32_t *outChannels;
+   /*! @brief Per-output channel counts (one entry per output buffer) */
+   uint32_t outChannels[MAX_OUTPUTS];
 
    /*! @brief Stride in elements between consecutive rows of the input buffer */
    uint32_t strideIn;
-   /*! @brief Pointer to array of strides in elements for each output buffer */
-   uint32_t *strideOut;
+   /*! @brief Per-output buffer strides in elements (one entry per output buffer) */
+   uint32_t strideOut[MAX_OUTPUTS];
    /*! @brief Input data format: 1 for interleaved, 0 for deinterleaved */
    uint32_t isInputInterleave;
    /*! @brief Flag: 1 if all outputs have the same channel count (enables the single-load

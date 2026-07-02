@@ -61,8 +61,8 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
    __SA_VECLEN  SA_VECLEN  = c7x::sa_veclen<vec>::value;
 
    __SA_TEMPLATE_v1 sa0Params = __gen_SA_TEMPLATE_v1();
-   __SE_TEMPLATE_v1 se0Params[pKerPrivArgs->numInputs];
-   __SA_TEMPLATE_v1 sa1Params[pKerPrivArgs->numInputs];
+   __SE_TEMPLATE_v1 se0Params[MAX_INPUTS];
+   __SA_TEMPLATE_v1 sa1Params[MAX_INPUTS];
 
    __SE_TEMPLATE_v1 *restrict pSe0Params = se0Params;
    __SA_TEMPLATE_v1 *restrict pSa1Params = sa1Params;
@@ -141,10 +141,10 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
          cumulativeOffset += pKerPrivArgs->inChannels[i];
          pIterCountLocal[i] = (AUDIOLIB_ceilingDiv(pKerPrivArgs->inChannels[i], eleCount)) * pKerPrivArgs->inSamples;
       }
-      memcpy((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET, sa1Params, sizeof(sa1Params));
+      memcpy((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET, sa1Params, pKerPrivArgs->numInputs * sizeof(sa1Params[0]));
    }
 
-   memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, sizeof(se0Params));
+   memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, pKerPrivArgs->numInputs * sizeof(se0Params[0]));
 
    *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
 

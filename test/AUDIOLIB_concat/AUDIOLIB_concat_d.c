@@ -506,7 +506,7 @@ int coverage_test_main()
          break;
 
       case 1004:
-         // Test Case: numInputs exceeds MAX_SE_PARAMS (handle bufPblock bound) -> INVALID_VALUE
+         // Test Case: numInputs exceeds MAX_INPUTS (handle bufPblock bound) -> INVALID_VALUE
          kerInitArgs.numInputs  = 65;
          kerInitArgs.funcStyle  = AUDIOLIB_FUNCTION_OPTIMIZED;
          status_opt = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);

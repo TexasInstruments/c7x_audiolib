@@ -271,7 +271,7 @@ static void *staticRefInCase19[2] = {
    (void *) staticRefInput0Case19,
    (void *) staticRefInput1Case19,
 };
-static uint32_t inChannelsCase19[2] = { 4, 4 };
+static uint32_t inChannelsCase19[2] = { 7, 1 };
 #endif
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 20))
@@ -281,7 +281,7 @@ static void *staticRefInCase20[4] = {
    (void *) staticRefInput2Case20,
    (void *) staticRefInput3Case20,
 };
-static uint32_t inChannelsCase20[4] = { 3, 3, 3, 3 };
+static uint32_t inChannelsCase20[4] = { 1, 2, 4, 5 };
 #endif
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 21))
@@ -289,7 +289,7 @@ static void *staticRefInCase21[2] = {
    (void *) staticRefInput0Case21,
    (void *) staticRefInput1Case21,
 };
-static uint32_t inChannelsCase21[2] = { 16, 16 };
+static uint32_t inChannelsCase21[2] = { 20, 12 };
 #endif
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 22))
@@ -298,7 +298,7 @@ static void *staticRefInCase22[3] = {
    (void *) staticRefInput1Case22,
    (void *) staticRefInput2Case22,
 };
-static uint32_t inChannelsCase22[3] = { 20, 20, 20 };
+static uint32_t inChannelsCase22[3] = { 24, 16, 20 };
 #endif
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 23))
@@ -306,7 +306,7 @@ static void *staticRefInCase23[2] = {
    (void *) staticRefInput0Case23,
    (void *) staticRefInput1Case23,
 };
-static uint32_t inChannelsCase23[2] = { 8, 8 };
+static uint32_t inChannelsCase23[2] = { 10, 6 };
 #endif
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 24))
@@ -316,7 +316,7 @@ static void *staticRefInCase24[4] = {
    (void *) staticRefInput2Case24,
    (void *) staticRefInput3Case24,
 };
-static uint32_t inChannelsCase24[4] = { 5, 5, 5, 5 };
+static uint32_t inChannelsCase24[4] = { 2, 6, 4, 8 };
 #endif
 
 static AUDIOLIB_concat_testParams_t testParams[] = {

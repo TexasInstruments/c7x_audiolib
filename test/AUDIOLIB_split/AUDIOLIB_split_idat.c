@@ -676,7 +676,7 @@ __attribute__((unused))
      };
 
 __attribute__((unused))
-     static uint32_t outChannelsCase44[] = { 4, 4 };
+     static uint32_t outChannelsCase44[] = { 7, 1 };
 
 #endif
 
@@ -688,7 +688,7 @@ __attribute__((unused))
      };
 
 __attribute__((unused))
-     static uint32_t outChannelsCase45[] = { 3, 3, 3, 3 };
+     static uint32_t outChannelsCase45[] = { 1, 2, 4, 5 };
 
 #endif
 
@@ -699,7 +699,7 @@ __attribute__((unused))
      };
 
 __attribute__((unused))
-     static uint32_t outChannelsCase46[] = { 16, 16 };
+     static uint32_t outChannelsCase46[] = { 20, 12 };
 
 #endif
 
@@ -710,7 +710,7 @@ __attribute__((unused))
      };
 
 __attribute__((unused))
-     static uint32_t outChannelsCase47[] = { 20, 20, 20 };
+     static uint32_t outChannelsCase47[] = { 24, 16, 20 };
 
 #endif
 
@@ -721,7 +721,7 @@ __attribute__((unused))
      };
 
 __attribute__((unused))
-     static uint32_t outChannelsCase48[] = { 8, 8 };
+     static uint32_t outChannelsCase48[] = { 10, 6 };
 
 #endif
 
@@ -733,7 +733,7 @@ __attribute__((unused))
      };
 
 __attribute__((unused))
-     static uint32_t outChannelsCase49[] = { 5, 5, 5, 5 };
+     static uint32_t outChannelsCase49[] = { 2, 6, 4, 8 };
 
 #endif
 

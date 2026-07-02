@@ -10,8 +10,6 @@ int32_t AUDIOLIB_concat_getHandleSize(AUDIOLIB_concat_InitArgs *pKerInitArgs)
    int32_t privBufSize = -1;
    if (pKerInitArgs != NULL) {
       privBufSize = sizeof(AUDIOLIB_concat_PrivArgs);
-      /* Trailing memory for the per-input inChannels[] and strideIn[] arrays */
-      privBufSize += 2 * sizeof(uint32_t) * pKerInitArgs->numInputs;
    }
    return privBufSize;
 }
@@ -34,9 +32,9 @@ AUDIOLIB_concat_init_checkParams(AUDIOLIB_kernelHandle           handle,
       if (pKerInitArgs->numInputs == 0 || pKerInitArgs->inChannels == NULL) {
          status = AUDIOLIB_ERR_INVALID_VALUE;
       }
-      else if (pKerInitArgs->numInputs > MAX_SE_PARAMS) {
+      else if (pKerInitArgs->numInputs > MAX_INPUTS) {
          /* Each input consumes one SE-template slot in the handle's bufPblock, which
-          * is sized for MAX_SE_PARAMS inputs; reject more to avoid overrunning it. */
+          * is sized for MAX_INPUTS inputs; reject more to avoid overrunning it. */
          status = AUDIOLIB_ERR_INVALID_VALUE;
       }
       else {
@@ -138,7 +136,7 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init(AUDIOLIB_kernelHandle           handle,
    }
 
    if (status == AUDIOLIB_SUCCESS) {
-      if (pKerInitArgs->numInputs == 0) {
+      if (pKerInitArgs->numInputs == 0 || pKerInitArgs->numInputs > MAX_INPUTS) {
          status = AUDIOLIB_ERR_INVALID_VALUE;
       }
    }
@@ -146,13 +144,6 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init(AUDIOLIB_kernelHandle           handle,
    if (status == AUDIOLIB_SUCCESS) {
       pKerPrivArgs->numInputs    = pKerInitArgs->numInputs;
       pKerPrivArgs->isInterleave = pKerInitArgs->isInterleave;
-
-      /* Carve the per-input inChannels[] and strideIn[] arrays out of the
-       * trailing handle memory reserved by AUDIOLIB_concat_getHandleSize. */
-      uint8_t *ptr             = (uint8_t *) (pKerPrivArgs + 1);
-      pKerPrivArgs->inChannels = (uint32_t *) ptr;
-      ptr += pKerInitArgs->numInputs * sizeof(uint32_t);
-      pKerPrivArgs->strideIn = (uint32_t *) ptr;
 
       pKerPrivArgs->inSamples         = pKerInitArgs->isInterleave ? bufParamsIn[0].dim_y : bufParamsIn[0].dim_x;
       pKerPrivArgs->totalInChannels   = 0;

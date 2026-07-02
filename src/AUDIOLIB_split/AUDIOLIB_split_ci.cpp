@@ -63,7 +63,7 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
 
    uint32_t eleCount = c7x::element_count_of<vec>::value;
 
-   __SA_TEMPLATE_v1 sa0Params[pKerPrivArgs->numOutputs];
+   __SA_TEMPLATE_v1 sa0Params[MAX_OUTPUTS];
    __SA_TEMPLATE_v1 *restrict pSa0Params = sa0Params;
 
    uint32_t *restrict pInOffsetLocal  = (uint32_t *) ((uint8_t *) pBlock + SE_INOFFSET_PARAM_OFFSET);
@@ -94,7 +94,7 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
       }
 
       *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_SINGLE_PARAM_OFFSET) = seSingle;
-      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, sizeof(sa0Params));
+      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, pKerPrivArgs->numOutputs * sizeof(sa0Params[0]));
    }
    else if (pKerPrivArgs->outChannelsUniform) {
       /* Interleaved input, all outputs share one channel count C: a single 3D SE folds the
@@ -123,13 +123,13 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
       }
 
       *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_SINGLE_PARAM_OFFSET) = seSingle;
-      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, sizeof(sa0Params));
+      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, pKerPrivArgs->numOutputs * sizeof(sa0Params[0]));
    }
    else {
       /* Interleaved input with differing channel counts: each output reads a non-contiguous
        * channel window, so one SE and one SA template are built per output, with a per-output
        * input offset. */
-      __SE_TEMPLATE_v1 se0Params[pKerPrivArgs->numOutputs];
+      __SE_TEMPLATE_v1 se0Params[MAX_OUTPUTS];
       __SE_TEMPLATE_v1 *restrict pSe0Params = se0Params;
 
       uint32_t cumulativeOffset = 0; /* cumulative input channel offset (in channels) */
@@ -158,8 +158,8 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
          cumulativeOffset += outCh;
       }
 
-      memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, sizeof(se0Params));
-      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, sizeof(sa0Params));
+      memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, pKerPrivArgs->numOutputs * sizeof(se0Params[0]));
+      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, pKerPrivArgs->numOutputs * sizeof(sa0Params[0]));
    }
 
    return status;

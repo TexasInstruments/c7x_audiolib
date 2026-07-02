@@ -10,8 +10,6 @@ int32_t AUDIOLIB_split_getHandleSize(AUDIOLIB_split_InitArgs *pKerInitArgs)
    int32_t privBufSize = -1;
    if (pKerInitArgs != NULL) {
       privBufSize = sizeof(AUDIOLIB_split_PrivArgs);
-      /* Trailing memory for the per-output outChannels[] and strideOut[] arrays */
-      privBufSize += 2 * sizeof(uint32_t) * pKerInitArgs->numOutputs;
    }
    return privBufSize;
 }
@@ -34,9 +32,9 @@ AUDIOLIB_split_init_checkParams(AUDIOLIB_kernelHandle          handle,
       if (pKerInitArgs->numOutputs <= 0 || pKerInitArgs->outChannels == NULL) {
          status = AUDIOLIB_ERR_INVALID_VALUE;
       }
-      else if (pKerInitArgs->numOutputs > MAX_SE_PARAMS) {
+      else if (pKerInitArgs->numOutputs > MAX_OUTPUTS) {
          /* Each output consumes one SE/SA-template slot in the handle's bufPblock, which
-          * is sized for MAX_SE_PARAMS outputs; reject more to avoid overrunning it. */
+          * is sized for MAX_OUTPUTS outputs; reject more to avoid overrunning it. */
          status = AUDIOLIB_ERR_INVALID_VALUE;
       }
       else {
@@ -114,6 +112,12 @@ AUDIOLIB_STATUS AUDIOLIB_split_init(AUDIOLIB_kernelHandle          handle,
    }
 
    if (status == AUDIOLIB_SUCCESS) {
+      if (pKerInitArgs->numOutputs == 0 || pKerInitArgs->numOutputs > MAX_OUTPUTS) {
+         status = AUDIOLIB_ERR_INVALID_VALUE;
+      }
+   }
+
+   if (status == AUDIOLIB_SUCCESS) {
       pKerPrivArgs->numOutputs        = pKerInitArgs->numOutputs;
       pKerPrivArgs->isInputInterleave = pKerInitArgs->isInputInterleave;
 
@@ -126,13 +130,6 @@ AUDIOLIB_STATUS AUDIOLIB_split_init(AUDIOLIB_kernelHandle          handle,
          pKerPrivArgs->numInputChannels = bufParamsIn->dim_x;  // interleaved: dim_x = channels
       }
       pKerPrivArgs->strideIn = bufParamsIn->stride_y / AUDIOLIB_sizeof(bufParamsIn->data_type);
-
-      /* Carve the per-output outChannels[] and strideOut[] arrays out of the
-       * trailing handle memory reserved by AUDIOLIB_split_getHandleSize. */
-      uint8_t *ptr              = (uint8_t *) (pKerPrivArgs + 1);
-      pKerPrivArgs->outChannels = (uint32_t *) ptr;
-      ptr += pKerInitArgs->numOutputs * sizeof(uint32_t);
-      pKerPrivArgs->strideOut = (uint32_t *) ptr;
 
       pKerPrivArgs->outChannelsUniform = 1;
       for (uint32_t i = 0; i < pKerInitArgs->numOutputs; i++) {
