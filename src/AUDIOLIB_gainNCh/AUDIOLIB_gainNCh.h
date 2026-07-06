@@ -231,7 +231,6 @@ AUDIOLIB_gainNCh_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *re
  *  @param [out] archCycles     :  Arch compute cycles obtained from asm
  *  @param [out] estCycles      :  Cycles estimated for that particular kernel
  *
- *  @return      None
  *
  *  @remarks     None
  */

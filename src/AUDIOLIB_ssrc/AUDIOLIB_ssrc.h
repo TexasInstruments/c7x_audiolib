@@ -100,12 +100,12 @@ extern "C" {
  *
  * **Usage Flow:**
  * @if C7X
- *  - Determine optimal buffer format using @ref AUDIOLIB_ssrc_optimalBufferFormat based on input/output sample rates,
+ *  - Determine optimal buffer format using @c AUDIOLIB_ssrc_optimalBufferFormat based on input/output sample rates,
  *    input sample count, number of channels, data format, and MMA enablement. This function returns the recommended
  *    buffer format (@ref AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR or @ref AUDIOLIB_SSRC_BUFFER_FORMAT_PING_PONG_CIRCULAR)
  *    for optimal performance based on the specific use case parameters. Note: running this function is not mandatory
  *    and it's best that user trys both buffer formats and selects the one that works best for the specific use case.
- *    @ref AUDIOLIB_ssrc_optimalBufferFormat is developed using prerecorded performance data which might be different
+ *    @c AUDIOLIB_ssrc_optimalBufferFormat is developed using prerecorded performance data which might be different
  for
  *    user's application due to instruction cache behavior.
  *  - Allocate memory to all required buffers and third party kernels used by SSRC kernel. Ex:- fir, 2d block copy.
@@ -125,7 +125,7 @@ extern "C" {
  * - **Interleaved Format:**
  *   - Input: Channels are stored in a single array with samples for each channel interleaved.
  * @if C7X
- *   - The user has to manage the ping pong buffering when the data format is @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED and
+ *   - The user has to manage the ping pong buffering when the data format is @c AUDIOLIB_DATA_FORMAT_INTERLEAVED and
  *     the buffer format is @ref AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR.
  *     - Ex: Maintain two \a pIn buffers. Once the execution is started on the first \a pIn buffer, the user can start
  * filling the second \a pIn buffer with new data.
@@ -138,7 +138,7 @@ extern "C" {
  * \image html AUDIOLIB_asrc_channel_interleaved_fmt.svg "Channel Interleaved Format Data Organization"
  * @else
  * @if ARM_A53
- *    - The user has to manage the ping pong buffering when the data format is @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED
+ *    - The user has to manage the ping pong buffering when the data format is @c AUDIOLIB_DATA_FORMAT_INTERLEAVED
  * since only @ref AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR buffer format is supported on ARM Cortex-A53.
  *     - Ex: Maintain two \a pIn buffers. Once the execution is started on the first \a pIn buffer, the user can start
  * filling the second \a pIn buffer with new data.
@@ -254,13 +254,13 @@ typedef struct {
    ssrc_sample_rate_t outputSampleRate;
    /** @brief number of ssrc channels requested by the user. */
    uint8_t numChannels;
-   /** @brief data format of the input samples. This could either be @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
-    * @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0. */
+   /** @brief data format of the input samples. This could either be @c AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
+    * @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0. */
    uint8_t dataFormat;
-   /** @brief Buffer format needed for optimal performance when the data format is @ref
+   /** @brief Buffer format needed for optimal performance when the data format is @c
     * AUDIOLIB_DATA_FORMAT_INTERLEAVED. This could either be @ref AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR or
     * @ref AUDIOLIB_SSRC_BUFFER_FORMAT_PING_PONG_CIRCULAR. When the data format is
-    * @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED the bufferFormat should be ONLY be @ref
+    * @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED the bufferFormat should be ONLY be @ref
     * AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR.*/
    AUDIOLIB_ssrc_buffer_format_t bufferFormat;
 #ifdef C7X
@@ -437,8 +437,6 @@ uint32_t AUDIOLIB_ssrc_getSampleHistoryLength(ssrc_sample_rate_t inputSampleRate
  * @param [in] outputSampleRate  : Output sample rate
  * @param [in] bufferFormat      : Buffer format – @ref AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR or
  *                                 @ref AUDIOLIB_SSRC_BUFFER_FORMAT_PING_PONG_CIRCULAR
- * @param [in] enableMMA         : Flag to indicate whether to use MMA unit (1) or not (0)
- * @param [in] mmaSize           : MMA size related to precision
  * @param [in] sampleDataType    : Data type of the samples (e.g., AUDIOLIB_FLOAT32)
  *
  * @return Size of the filter coefficients buffer in bytes
@@ -469,8 +467,6 @@ int32_t AUDIOLIB_ssrc_getFilterCoeffSize(ssrc_sample_rate_t            inputSamp
  * @param [in] outputSampleRate  : Output sample rate
  * @param [in] bufferFormat      : Buffer format – @ref AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR or
  *                                 @ref AUDIOLIB_SSRC_BUFFER_FORMAT_PING_PONG_CIRCULAR
- * @param [in] enableMMA         : Flag to indicate whether to use MMA unit (1) or not (0)
- * @param [in] mmaSize           : MMA size related to precision
  * @param [in] sampleDataType    : Data type of the samples (e.g., AUDIOLIB_FLOAT32)
  * @param [in] downsampleStage1  : Pointer to the downsampling stage 1 filter coefficients
  * @param [in] downsampleStage2  : Pointer to the downsampling stage 2 filter coefficients
@@ -520,6 +516,7 @@ AUDIOLIB_STATUS AUDIOLIB_ssrc_copyFilterCoeffs(ssrc_sample_rate_t            inp
  */
 uint32_t AUDIOLIB_ssrc_getNextPowerOf2(uint32_t value);
 
+#ifdef C7X
 /**
  * @brief  Recommends which buffer **format** (linear vs circular) should be used
  *         for a particular SSRC configuration based on the prerecorded performance data.
@@ -539,15 +536,13 @@ uint32_t AUDIOLIB_ssrc_getNextPowerOf2(uint32_t value);
  * @param[in]  inputSampleCount  Number of input samples per block
  *                               (the value passed to @c kerInitArgs.inputSampleCount).
  * @param[in]  numChannels       Number of audio channels.
- * @param[in]  dataFormat        Data format – @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
- * @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0.
+ * @param[in]  dataFormat        Data format – 1 for interleaved or 0 for non-interleaved.
  * @param[in]  enableMMA         Flag to indicate whether to use MMA unit (1) or not (0).
  *
  * @return  One of @c AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR or
  *          @c AUDIOLIB_SSRC_BUFFER_FORMAT_PING_PONG_CIRCULAR.
  *
  */
-#ifdef C7X
 AUDIOLIB_ssrc_buffer_format_t AUDIOLIB_ssrc_optimalBufferFormat(ssrc_sample_rate_t inputSampleRate,
                                                                 ssrc_sample_rate_t outputSampleRate,
                                                                 uint32_t           inputSampleCount,
@@ -569,7 +564,7 @@ uint32_t AUDIOLIB_ssrc_convertSampleRateToInt(ssrc_sample_rate_t rate);
  * @brief Utility function to calculate the circular buffer parameters
  *
  * This function calculates the required buffer size, alignment, and stride for circular buffer mode based on ,
- * input/output sample rates, and other parameters. Data format supported @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED ONLY
+ * input/output sample rates, and other parameters. Data format supported @c AUDIOLIB_DATA_FORMAT_INTERLEAVED ONLY
  *
  * @param [in] inputSampleRate    : Input sample rate
  * @param [in] outputSampleRate   : Output sample rate
@@ -598,8 +593,8 @@ AUDIOLIB_STATUS AUDIOLIB_ssrc_getCircularBufferParams(ssrc_sample_rate_t        
  * @param [in] inputSampleCount  : Number of input samples
  * @param [in] numChannels       : Number of audio channels
  * @param [in] sampleDataType    : Data type of the samples (e.g., AUDIOLIB_FLOAT32)
- * @param [in] dataFormat        : Data format – @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
- * @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0.
+ * @param [in] dataFormat        : Data format – @c AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
+ * @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0.
  * @param [out] pBufferParams     : Pointer to store the calculated buffer parameters (size, alignment, stride)
  *
  * @return Size of the state buffer in bytes
@@ -622,15 +617,15 @@ AUDIOLIB_STATUS AUDIOLIB_ssrc_getStateBufferParams(ssrc_sample_rate_t           
  * This function calculates the required size of the input buffer based on the
  * input parameters and data format. For interleaved format, it uses matrix transpose
  * row stride calculation to ensure proper alignment for vector operations. This utility function should only be used
- * for linear buffer format ONLY. For circular buffers use @ref AUDIOLIB_ssrc_getCircularInputBufferSize
+ * for linear buffer format ONLY. For circular buffers use @c AUDIOLIB_ssrc_getCircularBufferParams
  *
  * @param [in] inputSampleRate   : Input sample rate
  * @param [in] outputSampleRate  : Output sample rate
  * @param [in] inputSampleCount  : Number of input samples
  * @param [in] numChannels       : Number of audio channels
  * @param [in] sampleDataType    : Data type of the samples (e.g., AUDIOLIB_FLOAT32)
- * @param [in] dataFormat        : Data format – @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
- * @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0.
+ * @param [in] dataFormat        : Data format – @c AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
+ * @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0.
  *
  * @return Size of the input buffer in bytes
  *
@@ -704,7 +699,7 @@ AUDIOLIB_ssrc_init_checkParams(AUDIOLIB_kernelHandle         handle,
  *
  *  @param [in]  handle       : Active handle to the kernel
  *  @param [in]  mode         : Operation mode
- *                              - @ref AUDIOLIB_SSRC_MODE_RESET: Resets the filter state
+ *                              - @ref AUDIOLIB_SSRC_MODE_RESET Resets the filter state
  *  @param [in]  pIn          : Pointer to buffer holding the input data.
  *  @param [in]  pState       : Pointer to buffer holding the state data.
  *
@@ -713,12 +708,12 @@ AUDIOLIB_ssrc_init_checkParams(AUDIOLIB_kernelHandle         handle,
  *  @par Assumptions:
  *    - The kernel handle must be active and valid
  *    - pIn must not be NULL when mode is @ref AUDIOLIB_SSRC_MODE_RESET.
- *    - When the input data format is @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED, and the if buffer format is @ref
+ *    - When the input data format is @c AUDIOLIB_DATA_FORMAT_INTERLEAVED, and the if buffer format is @ref
  * AUDIOLIB_SSRC_BUFFER_FORMAT_PING_PONG_CIRCULAR, pIn must be aligned to the size recommended by the @ref
  * AUDIOLIB_ssrc_getCircularBufferParams function.
  *    - If this alignment is not set properly streaming engine circular buffer will not work and the algorithm will
  * break!!!
- *    - When the input data format is @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, pIn must be aligned to the size of
+ *    - When the input data format is @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, pIn must be aligned to the size of
  * 64-bytes.
  *
  *  @par Performance Considerations:
@@ -759,14 +754,14 @@ AUDIOLIB_ssrc_set(AUDIOLIB_kernelHandle handle, uint8_t mode, void *restrict pIn
  *    - Memory pointed by \a pIn, \a pOut shall NOT be shared.
  *      Library code is using the restrict keyword to optimize the kernel. So any of these pointer should not point to
  *      the same memory region at any time.
- *    - When the input data format is @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED, and the if buffer format is @ref
+ *    - When the input data format is @c AUDIOLIB_DATA_FORMAT_INTERLEAVED, and the if buffer format is @ref
  * AUDIOLIB_SSRC_BUFFER_FORMAT_PING_PONG_CIRCULAR, pIn must be aligned to the size recommended by the @ref
  * AUDIOLIB_ssrc_getCircularBufferParams function.
  *    - If this alignment is not set properly streaming engine circular buffer will not work and the algorithm will
  * break!!!
- *    - When the input data format is @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, and the if buffer format is @ref
+ *    - When the input data format is @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, and the if buffer format is @ref
  * AUDIOLIB_SSRC_BUFFER_FORMAT_LINEAR, pIn must be aligned to the size of 64-bytes.
- *    - When the input data format is @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, pIn must be aligned to the size of
+ *    - When the input data format is @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, pIn must be aligned to the size of
  * 64-bytes.
  *
  *  @par Performance Considerations:

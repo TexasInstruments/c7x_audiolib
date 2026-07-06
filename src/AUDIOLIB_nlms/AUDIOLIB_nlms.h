@@ -66,7 +66,6 @@ extern "C" {
  * **Internal Structure of the NLMS Adaptive Filter:**
  *
  * @image html AUDIOLIB_nlms_block_diagram.svg "Internal structure of the NLMS adaptive filter"
- * @image latex AUDIOLIB_nlms_block_diagram.pdf "Internal structure of the NLMS adaptive filter" width=14cm
  *
  * The diagram shows:
  * - Input x[n] feeds the FIR filter and coefficient update mechanism
@@ -223,12 +222,9 @@ AUDIOLIB_nlms_exec(AUDIOLIB_kernelHandle handle,
  *                estimate cycles of the loop used in the execution kernel.
  *
  *  @param [in]  handle         :  Active handle to the kernel
- *  @param [in]  dataType       :  Datatype of purticular test case
  *  @param [in]  archCycles     :  Arch compute cycles obtained from asm
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
  *
  *  @remarks     None
  */

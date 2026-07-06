@@ -54,7 +54,7 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
    int8_t  funcStyle;
-   uint8_t isInterleave;
+   uint8_t isInterleave; /**< Data layout flag: 1 for interleaved, 0 for non-interleaved (planar). */
 
 } AUDIOLIB_crossfade_InitArgs;
 
@@ -177,8 +177,6 @@ void AUDIOLIB_crossfade_perfEst(AUDIOLIB_kernelHandle handle,
  *                                information of sine gain
  *  @param [out] pOut   :  Pointer to the buffer containing dimensional
  *                                information of output
- *  @param [in]  pKerInitArgs  :  Pointer to the structure holding init
- *
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.

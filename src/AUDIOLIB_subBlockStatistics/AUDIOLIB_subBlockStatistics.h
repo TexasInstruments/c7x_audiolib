@@ -28,47 +28,47 @@ extern "C" {
  *
  * @details
  * This kernel computes statistics over sub-blocks of the input signal.
- * In the formulas below, let $$x_i$$ represent the i-th sample within the set of samples being processed, and let $$N$$
- * be the total number of samples in that set. The mean, $$\mu$$, is defined as $$\mu = \frac{1}{N} \sum_{i=1}^{N}
- * x_i$$.
+ * In the formulas below, let \f$x_i\f$ represent the i-th sample within the set of samples being processed, and let \f$N\f$
+ * be the total number of samples in that set. The mean, \f$\mu\f$, is defined as \f$\mu = \frac{1}{N} \sum_{i=1}^{N}
+ * x_i\f$.
  *
- * The definition of $$N$$ depends on the `flagPerChanStats` parameter:
+ * The definition of \f$N\f$ depends on the `flagPerChanStats` parameter:
  * - When `flagPerChanStats = 0` (FALSE), statistics are computed across all channels combined.
- * In this case, $$N = \text{subBlockSize} \times \text{numChannels}$$.
+ * In this case, \f$N = \text{subBlockSize} \times \text{numChannels}\f$.
  * - When `flagPerChanStats = 1` (TRUE), statistics are computed for each channel independently.
- * In this case, $$N = \text{subBlockSize}$$.
+ * In this case, \f$N = \text{subBlockSize}\f$.
  *
  * ---
  *
  * - **Maximum** (`AUDIOLIB_STAT_MAX`)
- * $$ \max(x_1, x_2, ..., x_N) $$
+ * \f[ \max(x_1, x_2, ..., x_N) \f]
  *
  * - **Minimum** (`AUDIOLIB_STAT_MIN`)
- * $$ \min(x_1, x_2, ..., x_N) $$
+ * \f[ \min(x_1, x_2, ..., x_N) \f]
  *
  * - **Maximum Absolute** (`AUDIOLIB_STAT_MAX_ABS`)
- * $$ \max(|x_1|, |x_2|, ..., |x_N|) $$
+ * \f[ \max(|x_1|, |x_2|, ..., |x_N|) \f]
  *
  * - **Mean** (`AUDIOLIB_STAT_MEAN`)
- * $$ \mu = \frac{1}{N} \sum_{i=1}^{N} x_i $$
+ * \f[ \mu = \frac{1}{N} \sum_{i=1}^{N} x_i \f]
  *
  * - **Root Mean Square (RMS)** (`AUDIOLIB_STAT_RMS`)
- * $$ \sqrt{\frac{1}{N} \sum_{i=1}^{N} x_i^2} $$
+ * \f[ \sqrt{\frac{1}{N} \sum_{i=1}^{N} x_i^2} \f]
  *
  * - **Standard Deviation** (`AUDIOLIB_STAT_STDDEV`)
- * $$ \sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2} $$
+ * \f[ \sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2} \f]
  *
  * - **Variance** (`AUDIOLIB_STAT_VARIANCE`)
- * $$ \sigma^2 = \frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2 $$
+ * \f[ \sigma^2 = \frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2 \f]
  *
  * - **Average Energy** (`AUDIOLIB_STAT_AVG_ENERGY`)
- * $$ \frac{1}{N} \sum_{i=1}^{N} x_i^2 $$
+ * \f[ \frac{1}{N} \sum_{i=1}^{N} x_i^2 \f]
  *
  * - **Sum** (`AUDIOLIB_STAT_SUM`)
- * $$ \sum_{i=1}^{N} x_i $$
+ * \f[ \sum_{i=1}^{N} x_i \f]
  *
  * - **Sum of Squares** (`AUDIOLIB_STAT_SUM_SQUARES`)
- * $$ \sum_{i=1}^{N} x_i^2 $$
+ * \f[ \sum_{i=1}^{N} x_i^2 \f]
  *
  */
 
@@ -235,7 +235,6 @@ AUDIOLIB_STATUS AUDIOLIB_subBlockStatistics_exec_checkParams(AUDIOLIB_kernelHand
  *  @param [in]  archCycles     :  Arch cycles used in that particular kernel
  *  @param [in]  estCycles      :  Cycles estimated for that particular kenel
  *
- *  @return      Void.
  *
  *  @remarks     None
  */

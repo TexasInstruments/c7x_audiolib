@@ -34,16 +34,12 @@ extern "C" {
  *   \text{minVal} = \min(\mathbf{x}), \;
  *   \text{maxVal} = \max(\mathbf{x}), \;
  *   \text{tableSamples} = M \\[6pt]
- * %
  * \textbf{Divisor calculation:} \quad
  * & \text{divisor} = \frac{M - 1}{\text{maxVal} - \text{minVal}} \\[6pt]
- * %
  * \textbf{Normalization and scaling:} \quad
  * & \mathbf{s} = (\mathbf{x} - \text{minVal}) \cdot \text{divisor} + 0.5 \\[6pt]
- * %
  * \textbf{Index computation:} \quad
  * & \mathbf{i} = \lfloor \mathbf{s} \rfloor \\[6pt]
- * %
  * \textbf{Lookup with boundary handling:} \quad
  * y_n =
  * \begin{cases}
@@ -106,9 +102,9 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
    int8_t   funcStyle;
-   float    minVal;
-   float    maxVal;
-   uint32_t tableLookupSize;
+   float    minVal;          /**< Minimum input value corresponding to the first table entry. */
+   float    maxVal;          /**< Maximum input value corresponding to the last table entry. */
+   uint32_t tableLookupSize; /**< Number of entries in the lookup table. */
 
 } AUDIOLIB_tableLookup_InitArgs;
 
@@ -205,6 +201,10 @@ AUDIOLIB_STATUS AUDIOLIB_tableLookup_exec_checkParams(AUDIOLIB_kernelHandle hand
                                                       const void *restrict pIn1,
                                                       const void *restrict pOut);
 
+/** @brief Set the lookup table pointer for the C-intrinsic variant.
+ *  @param [in] handle Active handle to the kernel.
+ *  @param [in] pIn1   Pointer to the lookup table buffer.
+ */
 void AUDIOLIB_tableLookup_set_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn1);
 
 /**

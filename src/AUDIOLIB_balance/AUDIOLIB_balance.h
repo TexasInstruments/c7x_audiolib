@@ -21,31 +21,31 @@ extern "C" {
  * This parameter is used to calculate target gains for the left
  * and right channels using a constant-power panning law.
  *
- * The angle $$ \theta $$ is first calculated from the balance parameter balance:
- * $$ \theta = (1 + balance) \cdot \frac{\pi}{4} $$
+ * The angle \f$\theta\f$ is first calculated from the balance parameter balance:
+ * \f[ \theta = (1 + balance) \cdot \frac{\pi}{4} \f]
  *
  * The target gains are then determined by sine-cosine panning law:
- * $$ G_{L, \text{target}} = \cos(\theta) $$
- * $$ G_{R, \text{target}} = \sin(\theta) $$
+ * \f[ G_{L, \text{target}} = \cos(\theta) \f]
+ * \f[ G_{R, \text{target}} = \sin(\theta) \f]
  *
  * To prevent abrupt changes when the balance is modified, the gains applied to the
- * signal, $$ G_L[n] $$ and $$ G_R[n] $$, are smoothed over time using a first-order
+ * signal, \f$G_L[n]\f$ and \f$G_R[n]\f$, are smoothed over time using a first-order
  * low-pass filter (exponential smoothing). The update equations for the current
  * gains at sample n are:
- * $$ G_L[n] = \alpha \cdot G_L[n-1] + (1 - \alpha) \cdot G_{L, \text{target}} $$
- * $$ G_R[n] = \alpha \cdot G_R[n-1] + (1 - \alpha) \cdot G_{R, \text{target}} $$
+ * \f[ G_L[n] = \alpha \cdot G_L[n-1] + (1 - \alpha) \cdot G_{L, \text{target}} \f]
+ * \f[ G_R[n] = \alpha \cdot G_R[n-1] + (1 - \alpha) \cdot G_{R, \text{target}} \f]
  *
- * The smoothing coefficient $$ \alpha $$ is derived from the `smoothingTime` $$ T_{\text{smooth}} $$
- * (in ms) and the `samplingRate` $$ f_s $$ (in Hz):
- * $$ \alpha = e^{\frac{-1}{f_s \cdot (T_{\text{smooth}} / 1000)}} $$
+ * The smoothing coefficient \f$\alpha\f$ is derived from the `smoothingTime` \f$T_{\text{smooth}}\f$
+ * (in ms) and the `samplingRate` \f$f_s\f$ (in Hz):
+ * \f[ \alpha = e^{\frac{-1}{f_s \cdot (T_{\text{smooth}} / 1000)}} \f]
  *
  * If `smoothingTime` is set to zero, this smoothing is bypassed, and the target gains
  * are applied directly.
  *
- * The final output signals, $$ y_L[n] $$ and $$ y_R[n] $$, are computed by applying the
- * current (and possibly smoothed) gains to the input signals, $$ x_L[n] $$ and $$ x_R[n] $$:
- * $$ y_L[n] = x_L[n] \cdot G_L[n] $$
- * $$ y_R[n] = x_R[n] \cdot G_R[n] $$
+ * The final output signals, \f$y_L[n]\f$ and \f$y_R[n]\f$, are computed by applying the
+ * current (and possibly smoothed) gains to the input signals, \f$x_L[n]\f$ and \f$x_R[n]\f$:
+ * \f[ y_L[n] = x_L[n] \cdot G_L[n] \f]
+ * \f[ y_R[n] = x_R[n] \cdot G_R[n] \f]
  *
  * @ingroup  AUDIOLIB
  */
@@ -190,8 +190,10 @@ void AUDIOLIB_balance_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles
  *               @ref AUDIOLIB_balance_init is called.
  *
  *  @param [in]  handle    :  Active handle to the kernel
- *  @param [in]  pIn       :  Pointer to the structure input buffer
- *  @param [out] pout      :  Pointer to the output buffer
+ *  @param [in]  pInL      :  Pointer to the left channel input buffer
+ *  @param [in]  pInR      :  Pointer to the right channel input buffer
+ *  @param [out] pOutL     :  Pointer to the left channel output buffer
+ *  @param [out] pOutR     :  Pointer to the right channel output buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.

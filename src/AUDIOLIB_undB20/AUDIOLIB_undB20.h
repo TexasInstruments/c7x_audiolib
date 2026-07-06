@@ -22,9 +22,9 @@ extern "C" {
  *  |    1    | float   | float   |
  *
  ** @par Method
- * \[
+ * \f[
  * \text{undB20}(y) = 10^{\frac{y}{20}}
- * \]
+ * \f]
  *
  * @ingroup  AUDIOLIB
  *
@@ -36,12 +36,12 @@ extern "C" {
  *
  * @brief Get N such that |N - x * 16 / ln(2)| is minimized.
  *
- * Find the integer \(N\) that minimizes:
+ * Find the integer \f$N\f$ that minimizes:
  * @f[
  * \left| N - \frac{16 \cdot x}{\ln(2)} \right|
  * @f]
  *
- * @brief Perform argument reduction, compute \(r\), and polynomial approximation \(\text{pol}(r)\).
+ * @brief Perform argument reduction, compute \f$r\f$, and polynomial approximation \f$\text{pol}(r)\f$.
  *
  * Argument reduction:
  * @f[
@@ -55,12 +55,12 @@ extern "C" {
  *
  * @brief Get index for ktable and jtable.
  *
- * Compute indices \(k, j\) for lookup tables:
+ * Compute indices \f$k, j\f$ for lookup tables:
  * @f[
  * k = \left\lfloor \frac{N}{16} \right\rfloor, \quad j = N \bmod 16
  * @f]
  *
- * @brief Scale exponent to adjust for \(2^M\).
+ * @brief Scale exponent to adjust for \f$2^M\f$.
  *
  * Adjust the exponent by:
  * @f[
@@ -72,45 +72,45 @@ extern "C" {
  * 2^M
  * @f]
  *
- * @brief Early exit for small \(a\).
+ * @brief Early exit for small \f$a\f$.
  *
- * For small input \(a\), return early when:
+ * For small input \f$a\f$, return early when:
  * @f[
  * |a| < \epsilon
  * @f]
  *
- * where \(\epsilon\) is a small threshold.
+ * where \f$\epsilon\f$ is a small threshold.
  *
  *      **Logic for vector function**
  *
  * @brief Create variables employed in the exp10 computation.
  *
- * Initialize all necessary variables for the computation of \(\exp_{10}\).
+ * Initialize all necessary variables for the computation of \f$\exp_{10}\f$.
  *
- * @brief Get \(N\) such that \(|N - \text{inVec} \cdot 16 / \ln(2)|\) is minimized.
+ * @brief Get \f$N\f$ such that \f$|N - \text{inVec} \cdot 16 / \ln(2)|\f$ is minimized.
  *
- * Find integer \(N\) to minimize:
+ * Find integer \f$N\f$ to minimize:
  * @f[
  * \left| N - \frac{16 \cdot \text{inVec}}{\ln(2)} \right|
  * @f]
  *
- * @brief Calculate Taylor series approximation for \(\exp_{10}\).
+ * @brief Calculate Taylor series approximation for \f$\exp_{10}\f$.
  *
  * Use the Taylor series centered around 0 to approximate:
  * @f[
  * \exp_{10}(r) \approx \sum_{n=0}^{k} \frac{r^n}{n!}
  * @f]
  *
- * where \(r\) is the reduced argument after subtracting \(N \cdot \frac{\ln(2)}{16}\).
+ * where \f$r\f$ is the reduced argument after subtracting \f$N \cdot \frac{\ln(2)}{16}\f$.
  *
- * @brief Get index of Lookup Table (LUT) and \(2^M\) values.
+ * @brief Get index of Lookup Table (LUT) and \f$2^M\f$ values.
  *
  * Compute indices for LUT access and the exponent adjustment:
  * @f[
  * k = \left\lfloor \frac{N}{16} \right\rfloor, \quad j = N \bmod 16
  * @f]
  *
- * where \(M = k\).
+ * where \f$M = k\f$.
  *
  * @brief Create vectors of LUT indices.
  *
@@ -124,26 +124,26 @@ extern "C" {
  *
  * Perform vectorized multiplication of LUT values as part of the approximation process.
  *
- * @brief Scale exponent to adjust for \(2^M\).
+ * @brief Scale exponent to adjust for \f$2^M\f$.
  *
  * Apply scaling to the exponent by multiplying by:
  * @f[
  * 2^M
  * @f]
  *
- * @brief Extract upper 32 bits and lower 32 bits of all double-precision \(dT\) values.
+ * @brief Extract upper 32 bits and lower 32 bits of all double-precision \f$dT\f$ values.
  *
- * Split each double \(dT\) into two 32-bit parts:
+ * Split each double \f$dT\f$ into two 32-bit parts:
  * - Upper 32 bits
  * - Lower 32 bits
  *
- * @brief Concatenate adjusted upper 32 bits to lower 32 bits, convert \(dT\) to float.
+ * @brief Concatenate adjusted upper 32 bits to lower 32 bits, convert \f$dT\f$ to float.
  *
  * Combine the adjusted upper and lower 32-bit parts and convert the result back to single-precision float.
  *
- * @brief Adjust calculation so that \(DT\) and \(POL\) are doubles, then output as float.
+ * @brief Adjust calculation so that \f$DT\f$ and \f$POL\f$ are doubles, then output as float.
  *
- * Ensure intermediate variables \(DT\) (difference term) and \(POL\) (polynomial result) are kept as double precision
+ * Ensure intermediate variables \f$DT\f$ (difference term) and \f$POL\f$ (polynomial result) are kept as double precision
  * to improve accuracy, and cast the final output to float precision.
  */
 
@@ -228,11 +228,9 @@ AUDIOLIB_STATUS AUDIOLIB_undB20_init(AUDIOLIB_kernelHandle           handle,
  *                estimate cycles of the loop used in the execution kernel.
  *
  *  @param [in]  handle         :  Active handle to the kernel
- *  @param [in]  dataType       :  Datatype of purticular test case
  *  @param [in]  archCycles     :  Arch cycles used in that purticluar kernel
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
  *
- *  @return      Void.
  *
  *  @remarks     None
  */
@@ -249,7 +247,7 @@ void AUDIOLIB_undB20_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles,
  *
  *  @param [in]  handle       :  Active handle to the kernel
  *  @param [in]  pIn  :  Pointer to the structure input buffer
- *  @param [out] pout :  Pointer to the output buffer
+ *  @param [out] pOut :  Pointer to the output buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
@@ -289,6 +287,8 @@ AUDIOLIB_undB20_exec_checkParams(AUDIOLIB_kernelHandle handle, const void *restr
 
 AUDIOLIB_STATUS
 AUDIOLIB_undB20_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+/**@}*/
 
 #ifdef __cplusplus
 }

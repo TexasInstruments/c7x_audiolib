@@ -79,14 +79,11 @@ extern "C" {
  *
  * **Usage Flow:**
  *  - Allocate memory to all required buffers.
- *  - Validate and Configure/Initialize parameters using @ref AUDIOLIB_asrc_init_checkParams and @ref
- * AUDIOLIB_asrc_init.
+ *  - Validate and Configure/Initialize parameters using @ref AUDIOLIB_asrc_init_checkParams and @ref AUDIOLIB_asrc_init.
  *  - Reset ASRC state using @ref AUDIOLIB_asrc_set's @ref AUDIOLIB_ASRC_MODE_RESET mode.
- *  - Set \a asrcRatio using @ref AUDIOLIB_asrc_set's @ref AUDIOLIB_ASRC_MODE_SET mode. (Please make sure this runs
- atleast once)
+ *  - Set \a asrcRatio using @ref AUDIOLIB_asrc_set's @ref AUDIOLIB_ASRC_MODE_SET mode (must run at least once).
  *  - For each input block:
- *      - Set \a asrcRatio. (optional, if needed. This will be called by the calc ratio driver in a system example)
- * using @ref AUDIOLIB_asrc_set's @ref AUDIOLIB_ASRC_MODE_SET mode.
+ *      - Set \a asrcRatio (optional, using @ref AUDIOLIB_asrc_set's @ref AUDIOLIB_ASRC_MODE_SET mode).
  *      - Execute conversion for each input block @ref AUDIOLIB_asrc_exec.
  *      - Retrieve output samples.
  *
@@ -94,38 +91,20 @@ extern "C" {
  * - **Interleaved Format:**
  *   - Input: Channels are stored in a single array with samples for each channel interleaved.
  * @if C7X
- *   - ASRC algorithm is optimized to use non interleaved data. So the input data is converted to non interleaved format
- * internally before processing. This input data is converted into non interleaved format using \a DSPLIB_matTrans
- * kernel which resides in DSPLIB. User has to provide the handle to this kernel in @ref
- * AUDIOLIB_asrc_InitArgs.matTransHandle and allocate all the necessary buffers including the intermediate circular
- * buffer for the non interleaved data. ASRC algorithm is using a novel circular ping-pong buffer technique to increase
- * performance. The intermediate circular buffer used in this mode is half the size of the circular buffer used in the
- * non interleaved mode described in the next section because the user is already managing ping pong bufferfing via pIn
- buffer.
+ *   - ASRC algorithm is optimized to use non interleaved data. The input data is converted to non interleaved format internally before processing using \a DSPLIB_matTrans kernel. User has to provide the handle to this kernel in @c AUDIOLIB_asrc_InitArgs::matTransHandle and allocate all necessary buffers including the intermediate circular buffer. ASRC uses a novel circular ping-pong buffer technique; the intermediate circular buffer is half the size of the non-interleaved mode circular buffer because the user is already managing ping pong buffering via pIn buffer.
  *   - The output data is converted back to interleaved format once the processing is done.
  *   - The user has to manage the ping pong buffering when the input data is set to the channel interleaved format.
- *     - Ex: Maintain two \a pIn buffers. Once the execution is started on the first \a pIn buffer, the user can start
- * filling the second \a pIn buffer with new data.
- *     - Once the execution is done on the first \a pIn buffer, submit the sedond \a pIn buffer to the execusion
- * function and the the user can start filling the first \a pIn buffer with new data while the second \a pIn buffer is
- * being processed.
+ *   - Ex: Maintain two \a pIn buffers. Once the execution is started on the first \a pIn buffer, the user can start filling the second \a pIn buffer with new data.
+ *   - Once the execution is done on the first \a pIn buffer, submit the second \a pIn buffer to the execution function and the user can start filling the first \a pIn buffer with new data while the second \a pIn buffer is being processed.
  *   - The format of channel interleaved data is shown in the diagram below:
  * \image html AUDIOLIB_asrc_channel_interleaved_fmt.svg "Channel Interleaved Format Data Organization"
  * @else
  * @if ARM_A53
- *   - ASRC algorithm is optimized to use non interleaved data. So the input data is converted to non interleaved
- * format internally before processing using a standard C implementation. Unlike the C7x target, this conversion does
- * not use \a DSPLIB_matTrans kernel. The interleaved to non interleaved conversion is
- * handled internally using a plain C routine, and the filter history is maintained in the \a pNonInterleavedData
- * linear buffer across frames.
+ *   - ASRC algorithm is optimized to use non interleaved data. The input data is converted to non interleaved format internally before processing using a standard C implementation. Unlike the C7x target, this conversion does not use \a DSPLIB_matTrans kernel. The interleaved to non interleaved conversion is handled internally using a plain C routine, and the filter history is maintained in the \a pNonInterleavedData linear buffer across frames.
  *   - The output data is converted back to interleaved format once the processing is done.
- *   - The user has to manage the ping pong buffering when the input data is set to the channel interleaved format,
- * since the kernel processes one \a pIn buffer at a time.
- *     - Ex: Maintain two \a pIn buffers. Once the execution is started on the first \a pIn buffer, the user can start
- * filling the second \a pIn buffer with new data.
- *     - Once the execution is done on the first \a pIn buffer, submit the second \a pIn buffer to the execution
- * function and the user can start filling the first \a pIn buffer with new data while the second \a pIn buffer is
- * being processed.
+ *   - The user has to manage the ping pong buffering when the input data is set to the channel interleaved format, since the kernel processes one \a pIn buffer at a time.
+ *   - Ex: Maintain two \a pIn buffers. Once the execution is started on the first \a pIn buffer, the user can start filling the second \a pIn buffer with new data.
+ *   - Once the execution is done on the first \a pIn buffer, submit the second \a pIn buffer to the execution function and the user can start filling the first \a pIn buffer with new data while the second \a pIn buffer is being processed.
  * @endif
  * @endif
  *
@@ -138,54 +117,38 @@ extern "C" {
  * @endif
  *
  * @if C7X
- *   - The difference in the non-interleaved mode is the user has to write to the correct block of the circular buffer
- * for each new block of data and circle back to the first block once the last block is filled.
- *   - The width of the circular buffer is determined by the maximum sample count per block.
- *    - The maximum sample count per block must be a power of 2 to support the circular buffering.
- *    - If the maximum sample count per block is greater than or equal to 64, then the circular buffer will have 4
- * blocks of size equal to the maximum sample count per block.
- *    - If the maximum sample count per block is less than 64, then the width of the circular buffer should be 128
- * samples.
- *    - The circular buffer will have as many rows as the number of channels.
- *    - The circular buffer is allocated in L2 memory and MUST be
- \f$(\text{totalWidthOfCircularBuffer}\ \times\ \text{sizeof(float)})-byte\f$ aligned
- *   - Ping pong buffering is supported through this circular buffer. No need to allocate 2 buffers for ping ponging.
- *   - An example allocation for a circular buffer is shown below: total circular buffer size is 128 samples and each
- * block size is 32 samples.
- *   - Note:
+ * In C7x non-interleaved mode, the following additional constraints apply:
+ * - The user must write to the correct block of the circular buffer for each new block of data, cycling back to the first block once the last block is filled.
+ * - The width of the circular buffer is determined by the maximum sample count per block.
+ * - The maximum sample count per block must be a power of 2 to support circular buffering.
+ * - If the maximum sample count per block is >= 64, the circular buffer will have 4 blocks of the maximum sample count.
+ * - If the maximum sample count per block is < 64, the circular buffer width should be 128 samples.
+ * - The circular buffer will have as many rows as the number of channels.
+ * - The circular buffer is in L2 memory and MUST be \f$(\text{totalWidthOfCircularBuffer} \times \text{sizeof(float)})\f$-byte aligned.
+ * - Ping pong buffering is supported through this circular buffer (no need to allocate 2 buffers).
+ * - Example: circular buffer of 128 samples total, each block 32 samples.
+ * - Note:
  *
  * \image html AUDIOLIB_asrc_circular_ping_pong_buffer.svg "Circular Ping Pong Buffering for Non-Interleaved Data"
- *   - Each block can have multiple rows depending on the number of channels.
+ *
+ * - Each block can have multiple rows depending on the number of channels.
  * @else
  * @if ARM_A53
- *    - In the non-interleaved mode on ARM Cortex-A53, a plain linear buffer is used instead of a circular buffer.
- * The filter history is maintained internally across frames via the \a pNonInterleavedData linear buffer.
- *   - The user simply writes new input samples to \a pIn for each frame. No circular write offset management
- * or block tracking is required by the user.
- *   - The \a pNonInterleavedData buffer has as many rows as the number of channels, and the width is determined
- * by the history length plus the maximum input sample count per block.
- *   - The \a pNonInterleavedData buffer is allocated in DDR memory.
+ * - In the non-interleaved mode on ARM Cortex-A53, a plain linear buffer is used. The filter history is maintained internally across frames via the \a pNonInterleavedData linear buffer.
+ * - The user simply writes new input samples to \a pIn for each frame; no circular write offset management or block tracking is required.
+ * - The \a pNonInterleavedData buffer has as many rows as the number of channels, and the width is determined by the history length plus the maximum input sample count per block.
+ * - The \a pNonInterleavedData buffer is allocated in DDR memory.
  * @endif
  * @endif
- *   - Output sample buffer is not a circular buffer. It is allocated as a single contiguous block of memory.
- *     But the output data format will be the same as the input data format.
+ * - Output sample buffer is not a circular buffer; it is a single contiguous block. The output data format matches the input data format.
  *
  * **Other Considerations:**
- *   - The user has to load the correct filter coeficients in to pFiltCoeffs buffer based on the input/output sample
- rates as shown in the AUDIOLIB_asrc_d.c file.
- *   - Filter coefficient header files are in the \a $AUDOLIB/src/AUDIOLIB_asrc/filt_coeffs directory.
- *   - In the standard operation of ASRC, the user initially sets the \a asrcRatio value based on the static input and
- *     output sample rates wanted using @ref AUDIOLIB_asrc_set.
- *   - As we know the real sample clock frequencies can vary overtime. So it's user's responsilibity to frequently
- calculate the
- *     correct \a asrcRatio = fsout / fsin value using a seperate calcRatio driver which uses hardware counters to
- precisely calculate
- *     this ratio. If this is not done, eventually system level buffers will overflow.
- *   - Also there are limitations to the asrcRatio that can be set because the asrc algorithm wants to make sure its own
- internal buffers won't overflow.
- *   - This is determined by this equation
- *     - \f$\text{maxAsrcRatio} = \text{InitialSetSampleRateRatio} + \\
- \frac{(\text{AUDIOLIB_ASRC_MAX_MODULO_FACTOR} - \text{userSetFrameModuloFactor})}{maxSampleCountPerBlock}\f$
+ * - Load the correct filter coefficients into pFiltCoeffs buffer based on the input/output sample rates (see AUDIOLIB_asrc_d.c).
+ * - Filter coefficient header files are in the \a $AUDIOLIB/src/AUDIOLIB_asrc/filt_coeffs directory.
+ * - In standard operation, initially set \a asrcRatio using @ref AUDIOLIB_asrc_set based on the static input and output sample rates.
+ * - Real sample clock frequencies can vary; it is the user's responsibility to frequently calculate the correct \a asrcRatio = fsout / fsin value using a separate calcRatio driver with hardware counters. If this is not done, system-level buffers will eventually overflow.
+ * - There are limitations on the asrcRatio that can be set to prevent internal buffer overflow.
+ * - This is determined by: \f$\text{maxAsrcRatio} = \text{InitialSetSampleRateRatio} + \frac{(\text{AUDIOLIB\_ASRC\_MAX\_MODULO\_FACTOR} - \text{userSetFrameModuloFactor})}{maxSampleCountPerBlock}\f$
  *
  * - **FFT Plot:**
  * @if C7X
@@ -219,8 +182,8 @@ extern "C" {
 /**
  * @brief ASRC set function modes
  */
-#define AUDIOLIB_ASRC_MODE_SET 0
-#define AUDIOLIB_ASRC_MODE_RESET 1
+#define AUDIOLIB_ASRC_MODE_SET   0 /**< Mode: Set the ASRC ratio. */
+#define AUDIOLIB_ASRC_MODE_RESET 1 /**< Mode: Reset the ASRC state. */
 
 /**
  * @brief Enum containing the allowed sample rates
@@ -251,8 +214,8 @@ typedef struct {
    sample_rate_t outputSampleRate;
    /** @brief number of asrc channels requested by the user. */
    uint8_t numChannels;
-   /** @brief data format of the input samples. This could either be @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
-    * @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0. */
+   /** @brief data format of the input samples. This could either be @c AUDIOLIB_DATA_FORMAT_INTERLEAVED = 1 or
+    * @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED = 0. */
    uint8_t dataFormat;
    /** @brief Frame modulo factor, used to calculate the output sample count.
     *         This is used to ensure that the output sample count is a multiple of this factor.
@@ -426,8 +389,8 @@ AUDIOLIB_asrc_init_checkParams(AUDIOLIB_kernelHandle         handle,
 
 /**
  *  @brief       This function does 2 operations based on mode parameter
- *                - mode = @ref AUDIOLIB_ASRC_MODE_RESET: resets the filter state
- *                - mode = @ref AUDIOLIB_ASRC_MODE_SET: sets the asrcRatio
+ *                - mode = @ref AUDIOLIB_ASRC_MODE_RESET resets the filter state
+ *                - mode = @ref AUDIOLIB_ASRC_MODE_SET sets the asrcRatio
  *
  *  @details     Please refer to details under
  *               @ref AUDIOLIB_asrc
@@ -446,9 +409,9 @@ AUDIOLIB_asrc_init_checkParams(AUDIOLIB_kernelHandle         handle,
  *    - The kernel handle must be active and valid
  *    - pNonInterleavedData, pIn and pFiltCoeffs must not be NULL when mode is @ref AUDIOLIB_ASRC_MODE_RESET.
  *    - The buffer pointers are assumed to be aligned to the size of circular buffer in bytes. To be precise,
- *      - When the input data format is @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED, pIn must be aligned to the size of
+ *      - When the input data format is @c AUDIOLIB_DATA_FORMAT_INTERLEAVED, pIn must be aligned to the size of
  * 64-bytes and the pNonInterleavedData must be aligned to the size of circular buffer in bytes.
- *      - When the input data format is @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, pIn must be aligned to the size of
+ *      - When the input data format is @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, pIn must be aligned to the size of
  * circular buffer in bytes.
  *      - If this alignment is not set properly streming engine circular buffer will not work and the algorithm will
  * break!!!
@@ -494,9 +457,9 @@ AUDIOLIB_STATUS AUDIOLIB_asrc_set(AUDIOLIB_kernelHandle handle,
  *    - Memory pointed by \a pIn, \a pNonInterleavedData, \a pFiltCoeffs, \a pFilterRembuf, \a pOut shall NOT be shared.
  *      Library code is using the restrict keyword to optimize the kernel. So any of these pointer should not point to
  *      the same memory region at any time.
- *    - When the input data format is @ref AUDIOLIB_DATA_FORMAT_INTERLEAVED, pIn must be aligned to the size of 64-bytes
+ *    - When the input data format is @c AUDIOLIB_DATA_FORMAT_INTERLEAVED, pIn must be aligned to the size of 64-bytes
  * and the pNonInterleavedData must be aligned to the size of circular buffer in bytes.
- *    - When the input data format is @ref AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, pIn must be aligned to the size of
+ *    - When the input data format is @c AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED, pIn must be aligned to the size of
  * circular buffer in bytes and pNonInterleavedData is unsed.
  *    - If this alignment is not set properly streming engine circular buffer will not work and the algorithm will
  * break!!!

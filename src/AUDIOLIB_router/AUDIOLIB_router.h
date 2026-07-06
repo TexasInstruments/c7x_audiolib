@@ -229,7 +229,6 @@ AUDIOLIB_router_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *res
  *
  *  @param [in]  handle               : Active handle to the kernel
  *  @param [in]  pInChannelIndex      : Pointer to the channel index buffer
- *  @param [in]  pInChannels          : Pointer to the input channel mask buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.

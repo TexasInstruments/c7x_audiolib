@@ -92,7 +92,7 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
    int8_t  funcStyle;
-   uint8_t isInterleave;
+   uint8_t isInterleave; /**< Data layout flag: 1 for interleaved, 0 for non-interleaved (planar). */
 
 } AUDIOLIB_gainNChTrim_InitArgs;
 
@@ -177,7 +177,7 @@ AUDIOLIB_gainNChTrim_init_checkParams(AUDIOLIB_kernelHandle                handl
  *  @param [in]  pIn             :  Pointer to the structure input buffer
  *  @param [in]  pGain           :  Pointer to the structure input gain buffer
  *  @param [in]  pMasterGain     :  Pointer to the structure input master gain buffer
- *  @param [out] pout            :  Pointer to the output buffer
+ *  @param [out] pOut            :  Pointer to the output buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
@@ -259,8 +259,6 @@ AUDIOLIB_gainNChTrim_exec(AUDIOLIB_kernelHandle handle,
  *  @param [in]  strideIn       :  stride of the input data
  *  @param [in]  strideOut      :  stride of the output data
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
  *
  *  @remarks     None
  */

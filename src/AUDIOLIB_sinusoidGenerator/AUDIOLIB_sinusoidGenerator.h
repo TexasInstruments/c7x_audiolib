@@ -18,16 +18,16 @@ extern "C" {
  * @details
  * This kernel generates an output signal \f$y[n]\f$ by calculating the sine
  * of a phase \f$\phi[n]\f$:
- * $$ y[n] = \sin(\phi[n]) $$
+ * \f[ y[n] = \sin(\phi[n]) \f]
  *
  * The phase \f$\phi[n]\f$ is accumulated at each sample by a phase increment value,
  * \f$\Delta\phi[n]\f$, which determines the instantaneous frequency \f$f[n]\f$.
  * The phase wraps around \f$2\pi\f$ to remain in range.
- * $$ \phi[n] = (\phi[n-1] + \Delta\phi[n]) \pmod{2\pi} $$
+ * \f[ \phi[n] = (\phi[n-1] + \Delta\phi[n]) \pmod{2\pi} \f]
  *
  * The phase increment \f$\Delta\phi[n]\f$ is calculated from the frequency \f$f[n]\f$
  * and the sampling rate \f$f_s\f$:
- * $$ \Delta\phi[n] = \frac{2 \pi f[n]}{f_s} $$
+ * \f[ \Delta\phi[n] = \frac{2 \pi f[n]}{f_s} \f]
  *
  * The kernel supports smooth transitions between a `startFrequency` and a
  * `targetFrequency` over a specified `smoothingTime`.
@@ -35,22 +35,22 @@ extern "C" {
  * ### 1. Instant Frequency Change (`smoothingTime = 0`)
  * The phase increment \f$\Delta\phi[n]\f$ is immediately set to the target value
  * derived from `targetFrequency` (\f$f_{\text{target}}\f$).
- * $$ \Delta\phi[n] = \Delta\phi_{\text{target}} = \frac{2 \pi f_{\text{target}}}{f_s} $$
+ * \f[ \Delta\phi[n] = \Delta\phi_{\text{target}} = \frac{2 \pi f_{\text{target}}}{f_s} \f]
  *
  * ### 2. Smooth Frequency Change (`smoothingTime > 0`)
  * The phase increment \f$\Delta\phi[n]\f$ is updated using a first-order low-pass
  * filter, allowing it to smoothly approach the target phase increment
  * \f$\Delta\phi_{\text{target}}\f$.
- * $$ \Delta\phi[n] = \alpha \cdot \Delta\phi[n-1] + (1 - \alpha) \cdot \Delta\phi_{\text{target}} $$
+ * \f[ \Delta\phi[n] = \alpha \cdot \Delta\phi[n-1] + (1 - \alpha) \cdot \Delta\phi_{\text{target}} \f]
  *
  * The smoothing coefficient, \f$\alpha\f$, is derived from the `smoothingTime`
  * (\f$T_{\text{smooth}}\f$ in milliseconds, acting as the time constant \f$\tau\f$)
  * and the sampling rate \f$f_s\f$:
- * $$ \alpha = e^{\frac{-1}{f_s \cdot (T_{\text{smooth}} / 1000)}} $$
+ * \f[ \alpha = e^{\frac{-1}{f_s \cdot (T_{\text{smooth}} / 1000)}} \f]
  *
  * The initial phase \f$\phi[0]\f$ is set via `startPhase` (in degrees), which is
  * converted to radians:
- * $$ \phi[0] = \frac{\text{startPhase} \cdot \pi}{180.0} $$
+ * \f[ \phi[0] = \frac{\text{startPhase} \cdot \pi}{180.0} \f]
  *
  * @ingroup  AUDIOLIB
  */
@@ -79,7 +79,7 @@ typedef struct {
    float smoothingTime;   /**< @brief The time to transition from start to target frequency (in milliseconds). 0 for
                              instant change. */
    int32_t  samplingRate; /**< @brief The audio sampling rate in Hz (e.g., 48000). */
-   uint32_t data_type;    /**< @brief The precision of the signal (e.g., @ref AUDIOLIB_FLOAT32). */
+   uint32_t data_type;    /**< @brief The precision of the signal (e.g., @c AUDIOLIB_FLOAT32). */
 } AUDIOLIB_sinusoidGenerator_SetArgs;
 
 /**
@@ -187,7 +187,7 @@ AUDIOLIB_sinusoidGenerator_get(AUDIOLIB_kernelHandle handle, AUDIOLIB_sinusoidGe
  *               @ref AUDIOLIB_sinusoidGenerator_init is called.
  *
  *  @param [in]  handle    :  Active handle to the kernel
- *  @param [out] pout      :  Pointer to the output buffer
+ *  @param [out] pOut      :  Pointer to the output buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
@@ -237,15 +237,14 @@ AUDIOLIB_sinusoidGenerator_exec(AUDIOLIB_kernelHandle handle, void *restrict pOu
  *                estimate cycles of the loop used in the execution kernel.
  *
  *  @param [in]  handle         :  Active handle to the kernel
- *  @param [in]  dataType       :  Datatype of purticular test case
  *  @param [in]  archCycles     :  Arch cycles used in that purticluar kernel
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
- *
- *  @return      Void.
  *
  *  @remarks     None
  */
 void AUDIOLIB_sinusoidGenerator_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, uint64_t *estCycles);
+
+/** @} */
 
 #ifdef __cplusplus
 }

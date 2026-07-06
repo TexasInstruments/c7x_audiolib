@@ -26,7 +26,7 @@ extern "C" {
  */
 /**@{*/
 
-#define MAX_NUM_CHANNELS 64 // Maximum number of channels supported
+#define MAX_NUM_CHANNELS 64 /**< Maximum number of channels supported by the delayNChannel kernel. */
 
 /**
  * @brief Structure containing the parameters to initialize the kernel
@@ -198,7 +198,6 @@ AUDIOLIB_delayNChannel_exec(AUDIOLIB_kernelHandle handle,
  *  @param [out] estCycles     :  Cycles estimated for that particular kernel
  *  @param [in]  dataType      :  Datatype of the particular test case
  *
- *  @return      None
  *
  *  @remarks     None
  */
