@@ -21,25 +21,16 @@
  *
  */
 #define AUDIOLIB_NUM_STREAMING_ENGINES    (2)
+#define AUDIOLIB_DOWNSAMPLE_IXX_IXX_OXX_PBLOCK_SIZE ( 2 * SE_PARAM_SIZE + 2 * SA_PARAM_SIZE)
 
-/*! @brief Mask sub-block stored after the two SE/SA template pairs: up to three
- *         32-byte permute controls plus up to six 8-byte select masks (Ratio12
- *         needs the most permutes, Ratio7 the most selects). */
-#define AUDIOLIB_DOWNSAMPLE_MASK_BYTES (3 * 32 + 6 * 8)
-
-#define AUDIOLIB_DOWNSAMPLE_IXX_IXX_OXX_PBLOCK_SIZE                                                                     \
-   (2 * SE_PARAM_SIZE + 2 * SA_PARAM_SIZE + AUDIOLIB_DOWNSAMPLE_MASK_BYTES)
-
-/*! @brief Byte offsets within bufPblock: the two SE/SA template pairs followed
- *         by the mask sub-block (three 32-byte permutes then six 8-byte selects). */
+/*!
+ * @brief Byte offsets of the two SE/SA template pairs within the bufPblock array.
+ */
 #define SE_PARAM_BASE (0x0000)
 #define SE_SE0_PARAM_OFFSET (SE_PARAM_BASE)
 #define SE_SA0_PARAM_OFFSET (SE_SE0_PARAM_OFFSET + SE_PARAM_SIZE)
 #define SE_SE1_PARAM_OFFSET (SE_SA0_PARAM_OFFSET + SE_PARAM_SIZE)
 #define SE_SA1_PARAM_OFFSET (SE_SE1_PARAM_OFFSET + SE_PARAM_SIZE)
-#define SE_MASK_PARAM_OFFSET (SE_SA1_PARAM_OFFSET + SE_PARAM_SIZE)
-#define DS_MASK_PERMUTE_OFFSET(i) (SE_MASK_PARAM_OFFSET + (i) * 32)
-#define DS_MASK_SEL_OFFSET(i) (SE_MASK_PARAM_OFFSET + 3 * 32 + (i) * 8)
 
 /*!
  *  @brief This is a function pointer type that conforms to the declaration of
@@ -241,11 +232,7 @@ typedef struct {
    uint8_t  usesRatio2Path;           /**< 1 when an interleaved input is routed to the dual-stream
                                         *   Ratio2/Ratio2TwoCh path instead of the normal interleaved
                                         *   Copy path (contiguous 1-channel, or 2-channel float, ratio-2). */
-   /*! @brief bufPblock array holding the two SE/SA template pairs followed by the
-    *         selected variant's permute/select masks
-    *         ([perm0..2 : 32 B each][sel0..5 : 8 B each]).  init_ci writes the
-    *         masks; each exec variant reads them back with an unaligned load, so
-    *         the handle is not required to be vector-aligned. */
+   /*! @brief bufPblock array to store SE/SA templates */
    uint8_t bufPblock[AUDIOLIB_DOWNSAMPLE_IXX_IXX_OXX_PBLOCK_SIZE];
 
 } AUDIOLIB_downSample_PrivArgs;

@@ -9,127 +9,7 @@
  ******************************************************************************/
 
 #include "AUDIOLIB_downSample_priv.h"
-#include <cstring>
-
-/* Permute/select masks for the ratio-3/4/5/7/8/12 variants.  init_ci stores the
- * chosen variant's masks in bufPblock; each exec variant reads them back.
- * Layout: [perm0..2 : 32 B][sel0..5 : 8 B]; selects are 8 B (float) / 4 B
- * (double), permutes always 32 B. */
-
-template <typename dataType>
-static inline void downSampleStoreRatio3_6Masks(uint8_t *pBlock)
-{
-   const uint32_t selBytes = (sizeof(dataType) == 4) ? 8u : 4u;
-   if (sizeof(dataType) == 4) {
-      const uint8_t permute[32] = {0,  1,  2,  3,  12, 13, 14, 15, 24, 25, 26, 27, 4,  5,  6,  7,
-                                   16, 17, 18, 19, 28, 29, 30, 31, 8,  9,  10, 11, 20, 21, 22, 23};
-      const uint8_t sel0[8]     = {0, 1, 0, 0, 1, 0, 0, 1};
-      const uint8_t sel1[8]     = {0, 0, 1, 0, 0, 1, 0, 0};
-      memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(0), permute, 32);
-      memcpy(pBlock + DS_MASK_SEL_OFFSET(0), sel0, selBytes);
-      memcpy(pBlock + DS_MASK_SEL_OFFSET(1), sel1, selBytes);
-   }
-   else {
-      const uint8_t permute[32] = {0,  1,  2,  3,  4,  5,  6,  7,  24, 25, 26, 27, 28, 29, 30, 31,
-                                   16, 17, 18, 19, 20, 21, 22, 23, 8,  9,  10, 11, 12, 13, 14, 15};
-      const uint8_t sel0[4]     = {0, 0, 1, 0};
-      const uint8_t sel1[4]     = {0, 1, 0, 0};
-      memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(0), permute, 32);
-      memcpy(pBlock + DS_MASK_SEL_OFFSET(0), sel0, selBytes);
-      memcpy(pBlock + DS_MASK_SEL_OFFSET(1), sel1, selBytes);
-   }
-}
-
-template <typename dataType>
-static inline void downSampleStoreRatio4Masks(uint8_t *pBlock)
-{
-   /* Ratio4: single identity permute, no select mask (same for float/double). */
-   const uint8_t permute[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
-                                16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
-   memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(0), permute, 32);
-}
-
-static inline void downSampleStoreRatio5Masks(uint8_t *pBlock)
-{
-   const uint8_t permute[32] = {0,  1,  2,  3,  20, 21, 22, 23, 8,  9,  10, 11, 28, 29, 30, 31,
-                                16, 17, 18, 19, 4,  5,  6,  7,  24, 25, 26, 27, 12, 13, 14, 15};
-   const uint8_t sel0[8]     = {0, 0, 1, 0, 0, 0, 0, 1};
-   const uint8_t sel1[8]     = {0, 1, 0, 0, 0, 0, 1, 0};
-   const uint8_t sel2[8]     = {0, 0, 0, 1, 0, 0, 0, 0};
-   const uint8_t selC[8]     = {0, 1, 0, 0, 1, 0, 1, 0};
-   memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(0), permute, 32);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(0), sel0, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(1), sel1, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(2), sel2, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(3), selC, 8);
-}
-
-static inline void downSampleStoreRatio7Masks(uint8_t *pBlock)
-{
-   const uint8_t permute[32] = {0,  1,  2,  3,  28, 29, 30, 31, 24, 25, 26, 27, 20, 21, 22, 23,
-                                16, 17, 18, 19, 12, 13, 14, 15, 8,  9,  10, 11, 4,  5,  6,  7};
-   const uint8_t sel0[8]     = {0, 0, 0, 0, 0, 0, 1, 0};
-   const uint8_t sel1[8]     = {0, 0, 0, 0, 1, 0, 0, 0};
-   const uint8_t sel2[8]     = {0, 0, 1, 0, 0, 0, 0, 0};
-   const uint8_t sel3[8]     = {0, 1, 0, 0, 0, 0, 0, 0};
-   const uint8_t selC1[8]    = {0, 0, 1, 1, 0, 0, 0, 0};
-   const uint8_t selC2[8]    = {0, 0, 1, 1, 1, 1, 0, 0};
-   memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(0), permute, 32);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(0), sel0, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(1), sel1, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(2), sel2, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(3), sel3, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(4), selC1, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(5), selC2, 8);
-}
-
-static inline void downSampleStoreRatio8Masks(uint8_t *pBlock)
-{
-   const uint8_t permute0[32] = {0, 1, 2, 3, 8,  9,  10, 11, 16, 17, 18, 19, 24, 25, 26, 27,
-                                 4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31};
-   const uint8_t permute1[32] = {4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31,
-                                 0, 1, 2, 3, 8,  9,  10, 11, 16, 17, 18, 19, 24, 25, 26, 27};
-   const uint8_t sel0[8]      = {0, 0, 0, 0, 1, 1, 1, 1};
-   memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(0), permute0, 32);
-   memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(1), permute1, 32);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(0), sel0, 8);
-}
-
-static inline void downSampleStoreRatio12Masks(uint8_t *pBlock)
-{
-   const uint8_t permute0[32] = {0, 1, 2, 3, 12, 13, 14, 15, 24, 25, 26, 27, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0};
-   const uint8_t permute1[32] = {0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 4, 5, 6, 7,
-                                 16, 17, 18, 19, 28, 29, 30, 31, 0, 0, 0, 0, 0, 0, 0, 0};
-   const uint8_t permute2[32] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 8, 9, 10, 11, 20, 21, 22, 23};
-   const uint8_t sel0[8]      = {0, 0, 0, 1, 1, 1, 0, 0};
-   const uint8_t sel1[8]      = {0, 0, 0, 0, 0, 0, 1, 1};
-   memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(0), permute0, 32);
-   memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(1), permute1, 32);
-   memcpy(pBlock + DS_MASK_PERMUTE_OFFSET(2), permute2, 32);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(0), sel0, 8);
-   memcpy(pBlock + DS_MASK_SEL_OFFSET(1), sel1, 8);
-}
-
-/* Read masks back from bufPblock */
-static inline uchar32 downSampleLoadPermute(const uint8_t *pBlock, uint32_t i)
-{
-   uchar32 v;
-   memcpy(&v, pBlock + DS_MASK_PERMUTE_OFFSET(i), sizeof(v));
-   return v;
-}
-
-template <typename dataType>
-static inline typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type
-downSampleLoadSelect(const uint8_t *pBlock, uint32_t i)
-{
-   typedef typename std::conditional<sizeof(dataType) == 4, __uchar8, __uchar4>::type v_stage_tp;
-   typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type   v_bool_tp;
-   v_stage_tp staging;
-   memcpy(&staging, pBlock + DS_MASK_SEL_OFFSET(i), sizeof(staging));
-   return *(v_bool_tp *) &staging;
-}
+#include "AUDIOLIB_downSample_masks.h"
 
 template <typename T> struct permute;
 template <> struct permute<float> {
@@ -421,14 +301,6 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
          sa0Params.DIMFMT        = __SA_DIMFMT_3D;
 
          pKerPrivArgs->nVecs = channel * AUDIOLIB_ceilingDiv(numSAIterations, 2);
-
-         if (downSampleRatio == 3) {
-            downSampleStoreRatio3_6Masks<dataType>(pBlock);
-         }
-         else { // downSampleRatio == 5 (float only)
-            downSampleStoreRatio5Masks(pBlock);
-         }
-
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET) = se0Params;
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET) = se1Params;
          *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
@@ -476,8 +348,6 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
          sa0Params.DIMFMT        = __SA_DIMFMT_3D;
 
          pKerPrivArgs->nVecs = channel * numSAIterations;
-
-         downSampleStoreRatio7Masks(pBlock);
 
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET) = se0Params;
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET) = se1Params;
@@ -551,23 +421,6 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
             sa0Params.DIMFMT = __SA_DIMFMT_2D;
          }
          pKerPrivArgs->nVecs = channel * AUDIOLIB_ceilingDiv(outBlockSize, eleCount);
-
-         switch (downSampleRatio) {
-         case 4:
-            downSampleStoreRatio4Masks<dataType>(pBlock);
-            break;
-         case 6:
-            downSampleStoreRatio3_6Masks<dataType>(pBlock);
-            break;
-         case 8:
-            downSampleStoreRatio8Masks(pBlock);
-            break;
-         case 12:
-            downSampleStoreRatio12Masks(pBlock);
-            break;
-         default:
-            break;
-         }
 
          *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET) = se0Params;
@@ -736,10 +589,11 @@ AUDIOLIB_downSampleRatio3_6_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
    typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type v_bool_tp;
+   typedef downSampleRatio3_6_Mask<dataType>                                        mask;
 
-   v_bool_tp vpMask0 = downSampleLoadSelect<dataType>(pBlock, 0);
-   v_bool_tp vpMask1 = downSampleLoadSelect<dataType>(pBlock, 1);
-   uchar32   vPMask  = downSampleLoadPermute(pBlock, 0);
+   v_bool_tp vpMask0 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel0());
+   v_bool_tp vpMask1 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel1());
+   uchar32   vPMask  = *stov_ptr(uchar32, (uint8_t *) mask::permute());
 
    __SE0_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
@@ -802,12 +656,13 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio5_exec_ci(AUDIOLIB_kernelHandle handle, 
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
    typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type v_bool_tp;
+   typedef downSampleRatio5Mask<dataType>                                           mask;
 
-   v_bool_tp vpMask0 = downSampleLoadSelect<dataType>(pBlock, 0);
-   v_bool_tp vpMask1 = downSampleLoadSelect<dataType>(pBlock, 1);
-   v_bool_tp vpMask2 = downSampleLoadSelect<dataType>(pBlock, 2);
-   v_bool_tp vpMaskC = downSampleLoadSelect<dataType>(pBlock, 3);
-   uchar32   vPMask  = downSampleLoadPermute(pBlock, 0);
+   v_bool_tp vpMask0 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel0());
+   v_bool_tp vpMask1 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel1());
+   v_bool_tp vpMask2 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel2());
+   v_bool_tp vpMaskC = *stov_ptr(v_bool_tp, (uint8_t *) mask::selC());
+   uchar32   vPMask  = *stov_ptr(uchar32, (uint8_t *) mask::permute());
 
    __SE0_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
@@ -875,15 +730,16 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio7_exec_ci(AUDIOLIB_kernelHandle handle, 
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
    typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type v_bool_tp;
+   typedef downSampleRatio7Mask<dataType>                                           mask;
 
-   v_bool_tp vpMask0  = downSampleLoadSelect<dataType>(pBlock, 0);
-   v_bool_tp vpMask1  = downSampleLoadSelect<dataType>(pBlock, 1);
-   v_bool_tp vpMask2  = downSampleLoadSelect<dataType>(pBlock, 2);
-   v_bool_tp vpMask3  = downSampleLoadSelect<dataType>(pBlock, 3);
-   v_bool_tp vpMaskC1 = downSampleLoadSelect<dataType>(pBlock, 4);
-   v_bool_tp vpMaskC2 = downSampleLoadSelect<dataType>(pBlock, 5);
+   v_bool_tp vpMask0  = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel0());
+   v_bool_tp vpMask1  = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel1());
+   v_bool_tp vpMask2  = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel2());
+   v_bool_tp vpMask3  = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel3());
+   v_bool_tp vpMaskC1 = *stov_ptr(v_bool_tp, (uint8_t *) mask::selC1());
+   v_bool_tp vpMaskC2 = *stov_ptr(v_bool_tp, (uint8_t *) mask::selC2());
 
-   uchar32 vPMask = downSampleLoadPermute(pBlock, 0);
+   uchar32 vPMask = *stov_ptr(uchar32, (uint8_t *) mask::permute());
 
    __SE0_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
@@ -941,7 +797,9 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio4_exec_ci(AUDIOLIB_kernelHandle handle, 
    dataType *restrict pOutLocal = (dataType *) pOut;
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
-   uchar32 permMask = downSampleLoadPermute(pBlock, 0);
+   typedef downSampleRatio4Mask<dataType> mask;
+
+   uchar32 permMask = *stov_ptr(uchar32, (uint8_t *) mask::permute());
 
    using permuteHelper = permute<dataType>;
 
@@ -993,9 +851,10 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio8_exec_ci(AUDIOLIB_kernelHandle handle, 
    dataType *restrict pOutLocal = (dataType *) pOut;
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
-   uchar32   permMask0 = downSampleLoadPermute(pBlock, 0);
-   uchar32   permMask1 = downSampleLoadPermute(pBlock, 1);
-   v_bool_tp sel0      = downSampleLoadSelect<dataType>(pBlock, 0);
+   typedef downSampleRatio8Mask<dataType> mask;
+   uchar32                                permMask0 = *stov_ptr(uchar32, (uint8_t *) mask::permute0());
+   uchar32                                permMask1 = *stov_ptr(uchar32, (uint8_t *) mask::permute1());
+   v_bool_tp                              sel0      = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel0());
 
    __SE0_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
@@ -1050,12 +909,13 @@ AUDIOLIB_downSampleRatio12_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict 
    dataType *restrict pOutLocal = (dataType *) pOut;
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
-   uchar32 permMask0 = downSampleLoadPermute(pBlock, 0);
-   uchar32 permMask1 = downSampleLoadPermute(pBlock, 1);
-   uchar32 permMask2 = downSampleLoadPermute(pBlock, 2);
+   typedef downSampleRatio12Mask<dataType> mask;
+   uchar32                                 permMask0 = *stov_ptr(uchar32, (uint8_t *) mask::permute0());
+   uchar32                                 permMask1 = *stov_ptr(uchar32, (uint8_t *) mask::permute1());
+   uchar32                                 permMask2 = *stov_ptr(uchar32, (uint8_t *) mask::permute2());
 
-   v_bool_tp sel0 = downSampleLoadSelect<dataType>(pBlock, 0);
-   v_bool_tp sel1 = downSampleLoadSelect<dataType>(pBlock, 1);
+   v_bool_tp sel0 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel0());
+   v_bool_tp sel1 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel1());
 
    __SE0_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
