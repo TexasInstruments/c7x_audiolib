@@ -20,6 +20,7 @@
 #include "AUDIOLIB_preEmphasis/AUDIOLIB_preEmphasis.h"
 #include "AUDIOLIB_deEmphasis/AUDIOLIB_deEmphasis.h"
 #include "AUDIOLIB_delayNChannel/AUDIOLIB_delayNChannel.h"
+#include "AUDIOLIB_downSample/AUDIOLIB_downSample.h"
 #include "AUDIOLIB_envelopeDetector/AUDIOLIB_envelopeDetector.h"
 #include "AUDIOLIB_floor/AUDIOLIB_floor.h"
 #include "AUDIOLIB_gain/AUDIOLIB_gain.h"
