@@ -218,6 +218,7 @@ _API_GROUP_ORDER = [
     ]),
     ("Sample Rate & Synthesis", [
         "AUDIOLIB_asrc",
+        "AUDIOLIB_downSample",
         "AUDIOLIB_ssrc",
         "AUDIOLIB_sinusoidGenerator",
         "AUDIOLIB_whiteNoiseGenerator",

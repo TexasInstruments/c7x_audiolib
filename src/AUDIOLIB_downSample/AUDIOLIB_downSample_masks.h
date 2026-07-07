@@ -70,7 +70,7 @@ static const uint8_t downSampleRatio8FloatPermute0[32] = {0, 1, 2, 3, 8,  9,  10
 static const uint8_t downSampleRatio8FloatPermute1[32] = {4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31,
                                                           0, 1, 2, 3, 8,  9,  10, 11, 16, 17, 18, 19, 24, 25, 26, 27};
 
-static const uint8_t downSampleRatio8SelFloat0[32] = {0, 0, 0, 0, 1, 1, 1, 1};
+static const uint8_t downSampleRatio8SelFloat0[8] = {0, 0, 0, 0, 1, 1, 1, 1};
 
 static const uint8_t downSampleRatio12FloatPermute0[32] = {0, 1, 2, 3, 12, 13, 14, 15, 24, 25, 26, 27, 0, 0, 0, 0,
                                                            0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0};
@@ -81,8 +81,8 @@ static const uint8_t downSampleRatio12FloatPermute1[32] = {0,  0,  0,  0,  0,  0
 static const uint8_t downSampleRatio12FloatPermute2[32] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,
                                                            0, 0, 0, 0, 0, 0, 0, 0, 8, 9, 10, 11, 20, 21, 22, 23};
 
-static const uint8_t downSampleRatio12SelFloat0[32] = {0, 0, 0, 1, 1, 1, 0, 0};
-static const uint8_t downSampleRatio12SelFloat1[32] = {0, 0, 0, 0, 0, 0, 1, 1};
+static const uint8_t downSampleRatio12SelFloat0[8] = {0, 0, 0, 1, 1, 1, 0, 0};
+static const uint8_t downSampleRatio12SelFloat1[8] = {0, 0, 0, 0, 0, 0, 1, 1};
 
 /*******************************************************************************
  *

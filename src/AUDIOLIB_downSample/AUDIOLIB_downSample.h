@@ -30,17 +30,8 @@ extern "C" {
  * phase, phase+downSampleRatio, phase+2*downSampleRatio, ...  The number of
  * output samples per channel is ceil((inSamples - phase) / downSampleRatio).
  *
- * @verbatim
- *   Decimation (downSampleRatio = 3, phase = 0), single channel:
- *
- *     index :   0    1    2    3    4    5    6    7    8
- *     input :  s0   s1   s2   s3   s4   s5   s6   s7   s8
- *               |              |              |
- *               v              v              v         (keep every 3rd)
- *     output:  s0             s3             s6
- *
- *   phase = 1 starts the pattern one sample later -> s1, s4, s7
- * @endverbatim
+ * @image html AUDIOLIB_downSample_decimation.svg "Decimation by an integer factor (ratio = 3, phase = 0)"
+ * @image latex AUDIOLIB_downSample_decimation.pdf "Decimation by an integer factor (ratio = 3, phase = 0)" width=14cm
  *
  * **Layouts** (selected by @c isInterleave), shown for C channels x N samples:
  *

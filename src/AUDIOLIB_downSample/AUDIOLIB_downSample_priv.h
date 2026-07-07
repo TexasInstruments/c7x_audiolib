@@ -201,7 +201,7 @@ AUDIOLIB_downSample_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict pIn, vo
  *
  */
 template <typename dataType>
-extern AUDIOLIB_STATUS AUDIOLIB_downSampleInterLeave_exec_cn(AUDIOLIB_kernelHandle handle,
+extern AUDIOLIB_STATUS AUDIOLIB_downSampleInterleave_exec_cn(AUDIOLIB_kernelHandle handle,
                                                           void *restrict pIn,
                                                           void *restrict pOut);
 
@@ -229,9 +229,9 @@ typedef struct {
                                         *   Ratio3_6, Ratio4, Ratio5, Ratio7, Ratio8, Ratio12). */
    uint32_t outSa1;                   /**< Element offset into output for the second store stream (SA1). */
    uint32_t dataType;                 /**< Buffer element type (@ref AUDIOLIB_data_type_e) cached for perfEst. */
-   uint8_t  usesRatio2Path;           /**< 1 when an interleaved input is routed to the dual-stream
-                                        *   Ratio2/Ratio2TwoCh path instead of the normal interleaved
-                                        *   Copy path (contiguous 1-channel, or 2-channel float, ratio-2). */
+   uint8_t  usesRatio2Path;           /**< 1 when the dual-stream Ratio2/Ratio2TwoCh path is used:
+                                        *   ratio 2 with >= 2 kept samples per channel, and either planar
+                                        *   input or contiguous interleaved 1-channel / 2-channel float. */
    /*! @brief bufPblock array to store SE/SA templates */
    uint8_t bufPblock[AUDIOLIB_DOWNSAMPLE_IXX_IXX_OXX_PBLOCK_SIZE];
 

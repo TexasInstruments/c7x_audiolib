@@ -34,47 +34,43 @@ void AUDIOLIB_downSample_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCyc
    uint64_t downSampleTeardownCycles  = 0;
    uint64_t downSampleOperationCycles = 0;
    uint64_t downSampleOverheadCycles  = 0;
-   uint32_t nVecs                     = 0;
-   nVecs                              = pKerPrivArgs->nVecs;
+   /* 64-bit so the cycle products below cannot wrap */
+   uint64_t nVecs                     = (uint64_t) pKerPrivArgs->nVecs;
 
-   if (pKerPrivArgs->dim_x == 2 && pKerPrivArgs->usesRatio2Path) {
+   if (pKerPrivArgs->usesRatio2Path == 1U) {
+      /* Ratio2 and Ratio2TwoCh: two loads + two stores per iteration */
       downSampleStartupCycles   = 28 + 3;
       downSampleOperationCycles = 1 + nVecs * 2 * 2;
       downSampleTeardownCycles  = 2 + 1 + 2;
    }
-   else if (pKerPrivArgs->usesRatio2Path || (pKerPrivArgs->isInterleave == 0 && pKerPrivArgs->downSampleRatio == 2)) {
-      downSampleStartupCycles   = 28 + 3;
-      downSampleOperationCycles = 1 + nVecs * 2 * 2;
-      downSampleTeardownCycles  = 2 + 1 + 2;
-   }
-   else if (pKerPrivArgs->isInterleave == 0) {
-      if (pKerPrivArgs->downSampleRatio == 3 ||
-          (pKerPrivArgs->downSampleRatio == 6 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
+   else if (pKerPrivArgs->isInterleave == 0U) {
+      if ((pKerPrivArgs->downSampleRatio == 3U) ||
+          ((pKerPrivArgs->downSampleRatio == 6U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32))) {
          downSampleStartupCycles   = 28 + 3;
          downSampleOperationCycles = 8 + nVecs * 3;
          downSampleTeardownCycles  = 2 + 1 + 2;
       }
-      else if (pKerPrivArgs->downSampleRatio == 4) {
+      else if (pKerPrivArgs->downSampleRatio == 4U) {
          downSampleStartupCycles   = 30 + 4;
          downSampleOperationCycles = 4 + nVecs * 1 * 2;
          downSampleTeardownCycles  = 1 + 1 + 2;
       }
-      else if (pKerPrivArgs->downSampleRatio == 5 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32) {
+      else if ((pKerPrivArgs->downSampleRatio == 5U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
          downSampleStartupCycles   = 28 + 8;
          downSampleOperationCycles = 8 + nVecs * 8;
          downSampleTeardownCycles  = 8 + 1 + 2;
       }
-      else if (pKerPrivArgs->downSampleRatio == 7 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32) {
+      else if ((pKerPrivArgs->downSampleRatio == 7U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
          downSampleStartupCycles   = 28 + 2;
          downSampleOperationCycles = 8 + nVecs * 6;
          downSampleTeardownCycles  = 6 + 6 + 1 + 2;
       }
-      else if (pKerPrivArgs->downSampleRatio == 8 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32) {
+      else if ((pKerPrivArgs->downSampleRatio == 8U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
          downSampleStartupCycles   = 30 + 3;
          downSampleOperationCycles = 5 + nVecs * 2 * 2;
          downSampleTeardownCycles  = 1 + 2 + 1 + 2;
       }
-      else if (pKerPrivArgs->downSampleRatio == 12 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32) {
+      else if ((pKerPrivArgs->downSampleRatio == 12U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
          downSampleStartupCycles   = 31 + 2;
          downSampleOperationCycles = 5 + nVecs * 3 * 2;
          downSampleTeardownCycles  = 2 + 3 + 1 + 2;
@@ -96,6 +92,8 @@ void AUDIOLIB_downSample_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCyc
    *archCycles = downSampleOperationCycles;
 }
 
+/*-----------------------------------DOWNSAMPLE CI INIT ------------------------*/
+
 template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               handle,
                                             const AUDIOLIB_bufParams2D_t       *bufParamsIn,
@@ -109,7 +107,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
    uint32_t                                               eleCount = c7x::element_count_of<vec>::value;
 
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSample_init_ci \n");
-   AUDIOLIB_DEBUGPRINTFN(0, "dim_x %d dim_y %d strideElements %d eleCount %d dim_x %d dim_y %d\n", pKerPrivArgs->dim_x,
+   AUDIOLIB_DEBUGPRINTFN(0, "dim_x %u dim_y %u strideElements %u eleCount %u dim_x %u dim_y %u\n", pKerPrivArgs->dim_x,
                          pKerPrivArgs->dim_y, pKerPrivArgs->strideIn, eleCount, pKerPrivArgs->dim_x,
                          pKerPrivArgs->dim_y);
 
@@ -119,10 +117,8 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
    uint32_t outBlockSize;
    uint32_t eleFetch;
    uint32_t itrCount;
-   uint32_t blockSample;
 
-   if (pKerPrivArgs->isInterleave == 1) {
-      blockSample        = pKerPrivArgs->dim_y;
+   if (pKerPrivArgs->isInterleave == 1U) {
       blockSizeWithPhase = pKerPrivArgs->dim_y - pKerPrivArgs->phase;
       channel            = pKerPrivArgs->dim_x;
       downSampleRatio    = pKerPrivArgs->downSampleRatio;
@@ -137,7 +133,6 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
       outBlockSize       = AUDIOLIB_ceilingDiv(blockSizeWithPhase, downSampleRatio);
       eleFetch           = eleCount < outBlockSize ? eleCount : outBlockSize;
       itrCount           = AUDIOLIB_ceilingDiv(outBlockSize, eleCount);
-      blockSample        = pKerPrivArgs->dim_x;
 
       pKerPrivArgs->nVecs = channel * AUDIOLIB_ceilingDiv(outBlockSize, eleCount);
    }
@@ -160,16 +155,16 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
    /**********************************************************************/
    /* Prepare SE/SA template                     */
    /**********************************************************************/
-   __SE_TRANSPOSE transposeMode = (sizeof(dataType) == 4) ? __SE_TRANSPOSE_32BIT : __SE_TRANSPOSE_64BIT;
+   __SE_TRANSPOSE transposeMode = (sizeof(dataType) == 4U) ? __SE_TRANSPOSE_32BIT : __SE_TRANSPOSE_64BIT;
 
-   if ((int32_t) pKerPrivArgs->isInterleave == 1 && pKerPrivArgs->usesRatio2Path == 0) { // Interleave cases
+   if ((pKerPrivArgs->isInterleave == 1U) && (pKerPrivArgs->usesRatio2Path == 0U)) { /* Interleave cases */
 
       pKerPrivArgs->nVecs         = outBlockSize * AUDIOLIB_ceilingDiv(channel, eleCount);
       pKerPrivArgs->startingIndex = pKerPrivArgs->phase * pKerPrivArgs->strideIn;
 
       se0Params.ICNT0         = eleFetch;
       se0Params.DIM1          = pKerPrivArgs->strideIn * downSampleRatio;
-      se0Params.ICNT1         = outBlockSize; // outBlockSize;
+      se0Params.ICNT1         = outBlockSize;
       se0Params.DIM2          = eleCount;
       se0Params.ICNT2         = itrCount;
       se0Params.DECDIM1       = __SE_DECDIM_DIM2;
@@ -188,54 +183,44 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
       *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET) = se0Params;
       *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
    }
-   else if ((downSampleRatio == 2 && pKerPrivArgs->isInterleave == 0) || pKerPrivArgs->usesRatio2Path == 1) {
+   else if (pKerPrivArgs->usesRatio2Path == 1U) {
+    
+      __SE_TEMPLATE_v1 se1Params       = __gen_SE_TEMPLATE_v1();
+      __SA_TEMPLATE_v1 sa1Params       = __gen_SA_TEMPLATE_v1();
+      uint32_t         outBlockSizeSa0 = AUDIOLIB_ceilingDiv(outBlockSize, 2U);
+      uint32_t         outBlockSizeSa1 = outBlockSize - outBlockSizeSa0;
+      uint32_t         sampleWidth     = 1U; /* output elements per kept sample */
 
-      __SE_TEMPLATE_v1 se1Params = __gen_SE_TEMPLATE_v1();
-      __SA_TEMPLATE_v1 sa1Params = __gen_SA_TEMPLATE_v1();
-      uint32_t         roundOne  = blockSample / AUDIOLIB_NUM_STREAMING_ENGINES;
-      uint32_t         se0Count  = AUDIOLIB_ceilingDiv(roundOne, 2) * 2;
-      uint32_t         se1Count;
-      uint32_t         outBlockSizeSa0;
-      uint32_t         outBlockSizeSa1;
-
-      if (pKerPrivArgs->usesRatio2Path == 1 && pKerPrivArgs->dim_x == 2) {
+      if ((pKerPrivArgs->isInterleave == 1U) && (pKerPrivArgs->dim_x == 2U)) {
+         /* Two float channels are fetched as one double element and stored as floats. */
          typedef typename c7x::make_full_vector<double>::type doubleVec;
 
-         eleCount                       = c7x::element_count_of<doubleVec>::value;
-         SE_ELETYPE                     = c7x::se_eletype<doubleVec>::value;
-         SE_VECLEN                      = c7x::se_veclen<doubleVec>::value;
-         channel                        = 1;
-         se0Params.ELETYPE              = SE_ELETYPE;
-         se0Params.VECLEN               = SE_VECLEN;
-         sa0Params.VECLEN               = SA_VECLEN;
-         pKerPrivArgs->startingIndexSE1 = se0Count * 2;
-         pKerPrivArgs->startingIndex    = pKerPrivArgs->phase * pKerPrivArgs->dim_x;
-         se1Count                       = blockSample - se0Count - pKerInitArgs->phase;
-         outBlockSizeSa0                = AUDIOLIB_ceilingDiv(se0Count, 2) * 2; // double to float values
-         outBlockSizeSa1                = AUDIOLIB_ceilingDiv(se1Count, 2) * 2;
-         pKerPrivArgs->outSa1           = outBlockSizeSa0;
-         pKerPrivArgs->nVecs            = AUDIOLIB_ceilingDiv(outBlockSizeSa0, eleCount) * channel;
+         SE_ELETYPE        = c7x::se_eletype<doubleVec>::value;
+         SE_VECLEN         = c7x::se_veclen<doubleVec>::value;
+         se0Params.ELETYPE = SE_ELETYPE;
+         se0Params.VECLEN  = SE_VECLEN;
+         channel           = 1U;
+         sampleWidth       = 2U;
       }
-      else {
-         pKerPrivArgs->startingIndex    = pKerPrivArgs->phase;
-         se1Count                       = blockSample - se0Count - pKerInitArgs->phase;
-         pKerPrivArgs->startingIndexSE1 = se0Count;
-         outBlockSizeSa0                = AUDIOLIB_ceilingDiv(se0Count, 2);
-         outBlockSizeSa1                = AUDIOLIB_ceilingDiv(se1Count, 2);
-         pKerPrivArgs->outSa1           = outBlockSizeSa0;
-         pKerPrivArgs->nVecs            = AUDIOLIB_ceilingDiv(outBlockSizeSa0, eleCount) * channel;
-      }
+      pKerPrivArgs->startingIndex    = pKerPrivArgs->phase * sampleWidth;
+      pKerPrivArgs->startingIndexSE1 = outBlockSizeSa0 * 2U * sampleWidth;
+      pKerPrivArgs->outSa1           = outBlockSizeSa0 * sampleWidth;
+      pKerPrivArgs->nVecs            = AUDIOLIB_ceilingDiv(outBlockSizeSa0 * sampleWidth, eleCount) * channel;
+      outBlockSizeSa0                = outBlockSizeSa0 * sampleWidth;
+      outBlockSizeSa1                = outBlockSizeSa1 * sampleWidth;
+
       se1Params.ELETYPE = SE_ELETYPE;
       se1Params.VECLEN  = SE_VECLEN;
       sa1Params.VECLEN  = SA_VECLEN;
 
-      se0Params.ICNT0  = AUDIOLIB_ceilingDiv(se0Count, 2) * 2;
+      /* ICNT0 counts input elements before 2:1 decimation and is kept even. */
+      se0Params.ICNT0  = (outBlockSizeSa0 / sampleWidth) * 2U;
       se0Params.DECIM  = __SE_DECIM_2;
       se0Params.DIM1   = pKerPrivArgs->strideIn;
       se0Params.ICNT1  = channel;
       se0Params.DIMFMT = __SE_DIMFMT_2D;
 
-      se1Params.ICNT0  = AUDIOLIB_ceilingDiv(se1Count, 2) * 2;
+      se1Params.ICNT0  = (outBlockSizeSa1 / sampleWidth) * 2U;
       se1Params.DECIM  = __SE_DECIM_2;
       se1Params.DIM1   = pKerPrivArgs->strideIn;
       se1Params.ICNT1  = channel;
@@ -260,7 +245,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
    else {
       pKerPrivArgs->startingIndex = pKerPrivArgs->phase;
 
-      if (downSampleRatio == 3 || (downSampleRatio == 5 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
+      if ((downSampleRatio == 3U) || ((downSampleRatio == 5U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32))) {
          __SE_TEMPLATE_v1 se1Params     = __gen_SE_TEMPLATE_v1();
          se1Params.ELETYPE              = SE_ELETYPE;
          se1Params.VECLEN               = SE_VECLEN;
@@ -305,7 +290,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET) = se1Params;
          *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
       }
-      else if (downSampleRatio == 7 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32) {
+      else if ((downSampleRatio == 7U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
 
          __SE_TEMPLATE_v1 se1Params     = __gen_SE_TEMPLATE_v1();
          se1Params.ELETYPE              = SE_ELETYPE;
@@ -353,22 +338,21 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET) = se1Params;
          *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
       }
-      else if (downSampleRatio == 4 || ((downSampleRatio == 6 || downSampleRatio == 8 || downSampleRatio == 12) &&
+      else if ((downSampleRatio == 4U) || (((downSampleRatio == 6U) || (downSampleRatio == 8U) || (downSampleRatio == 12U)) &&
                                         pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
          __SE_TEMPLATE_v1 se1Params     = __gen_SE_TEMPLATE_v1();
          se1Params.ELETYPE              = SE_ELETYPE;
          se1Params.VECLEN               = SE_VECLEN;
-         uint32_t numSEIterations       = AUDIOLIB_ceilingDiv(blockSizeWithPhase, eleCount * 2); // eleCount * DECIM2
-         pKerPrivArgs->startingIndexSE1 = eleCount * 2; // eleCount * DECIM2
+         uint32_t numSEIterations = AUDIOLIB_ceilingDiv(blockSizeWithPhase, eleCount * 2); /* eleCount * DECIM2 */
 
          uint32_t repeatCount;
 
          switch (downSampleRatio) {
-         case 8:
+         case 8U:
             repeatCount = 2;
             break;
-         case 6:
-         case 12:
+         case 6U:
+         case 12U:
             repeatCount = 3;
             break;
          default:
@@ -378,7 +362,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
          se0Params.ICNT0         = eleCount * AUDIOLIB_NUM_STREAMING_ENGINES;
          se0Params.DECIM         = __SE_DECIM_2;
          se0Params.ICNT1         = repeatCount;
-         se0Params.DIM1          = (eleCount * 2 * AUDIOLIB_NUM_STREAMING_ENGINES); // eleCount * Decim2 * 2SE
+         se0Params.DIM1          = (eleCount * 2 * AUDIOLIB_NUM_STREAMING_ENGINES); /* eleCount * Decim2 * 2SE */
          se0Params.DIM2          = eleCount * 2 * AUDIOLIB_NUM_STREAMING_ENGINES * repeatCount;
          se0Params.ICNT2         = AUDIOLIB_ceilingDiv(AUDIOLIB_ceilingDiv(numSEIterations, AUDIOLIB_NUM_STREAMING_ENGINES), repeatCount);
          se0Params.DIM3          = pKerPrivArgs->strideIn;
@@ -390,8 +374,8 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
          se1Params.ICNT0                = eleCount * AUDIOLIB_NUM_STREAMING_ENGINES;
          se1Params.DECIM                = __SE_DECIM_2;
          se1Params.ICNT1                = repeatCount;
-         se1Params.DIM1                 = (eleCount * 2 * AUDIOLIB_NUM_STREAMING_ENGINES); // eleCount * Decim2 * 2SE
-         se1Params.DIM2                 = eleCount * 2 * AUDIOLIB_NUM_STREAMING_ENGINES * repeatCount;;
+         se1Params.DIM1                 = (eleCount * 2 * AUDIOLIB_NUM_STREAMING_ENGINES); /* eleCount * Decim2 * 2SE */
+         se1Params.DIM2                 = eleCount * 2 * AUDIOLIB_NUM_STREAMING_ENGINES * repeatCount;
          se1Params.ICNT2                = AUDIOLIB_ceilingDiv(AUDIOLIB_ceilingDiv(numSEIterations, AUDIOLIB_NUM_STREAMING_ENGINES), repeatCount);
          se1Params.DIM3                 = pKerPrivArgs->strideIn;
          se1Params.ICNT3                = channel;
@@ -400,8 +384,8 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
          se1Params.DIMFMT               = __SE_DIMFMT_4D;
          pKerPrivArgs->startingIndexSE1 = eleCount * AUDIOLIB_NUM_STREAMING_ENGINES;
 
-         if (downSampleRatio == 6) {
-            // Two SA write in a loop
+         if (downSampleRatio == 6U) {
+            /* Two SA write in a loop */
             uint32_t numSAIterations = AUDIOLIB_ceilingDiv(outBlockSize, eleCount);
 
             sa0Params.ICNT0         = eleCount;
@@ -414,7 +398,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
             sa0Params.DIMFMT        = __SA_DIMFMT_3D;
          }
          else {
-            // One SA write in a loop
+            /* One SA write in a loop */
             sa0Params.ICNT0  = outBlockSize;
             sa0Params.DIM1   = pKerPrivArgs->strideOut;
             sa0Params.ICNT1  = channel;
@@ -426,7 +410,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci(AUDIOLIB_kernelHandle               
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET) = se0Params;
          *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET) = se1Params;
       }
-      else { // DeInterleave Format
+      else { /* DeInterleave Format */
          pKerPrivArgs->nVecs = channel * AUDIOLIB_ceilingDiv(outBlockSize, eleCount);
 
          se0Params.TRANSPOSE = transposeMode;
@@ -462,6 +446,10 @@ template AUDIOLIB_STATUS AUDIOLIB_downSample_init_ci<double>(AUDIOLIB_kernelHand
                                                              const AUDIOLIB_bufParams2D_t       *bufParamsOut,
                                                              const AUDIOLIB_downSample_InitArgs *pKerInitArgs);
 
+
+/*-----------------------------------DOWNSAMPLE EXEC ------------------------*/
+
+
 template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_downSampleRatio2_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut)
 {
@@ -470,7 +458,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio2_exec_ci(AUDIOLIB_kernelHandle handle, 
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio2_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio2_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
@@ -489,7 +477,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio2_exec_ci(AUDIOLIB_kernelHandle handle, 
    __SE1_OPEN(pInLocal0, se1Params);
    __SA1_OPEN(sa1Params);
 
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
       vec downSampleVec0 = c7x::strm_eng<0, vec>::get_adv();
       vec downSampleVec1 = c7x::strm_eng<1, vec>::get_adv();
 
@@ -522,7 +510,7 @@ AUDIOLIB_downSampleRatio2TwoCh_exec_ci(AUDIOLIB_kernelHandle handle, void *restr
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio2TwoCh_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio2TwoCh_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
@@ -534,8 +522,8 @@ AUDIOLIB_downSampleRatio2TwoCh_exec_ci(AUDIOLIB_kernelHandle handle, void *restr
    dataType *restrict pInLocal0  = pInLocal + pKerPrivArgs->startingIndexSE1;
    dataType *restrict pOutLocal0 = pOutLocal + pKerPrivArgs->outSa1;
 
-   // Two interleaved channels of float are fetched two-at-a-time as a double-wide
-   // element and stored back as float8.
+   /* Two interleaved channels of float are fetched two-at-a-time as a double-wide
+    * element and stored back as float8. */
    typedef typename c7x::make_full_vector<double>::type twoFetch_vec;
 
    __SE0_OPEN(pInLocal, se0Params);
@@ -543,7 +531,7 @@ AUDIOLIB_downSampleRatio2TwoCh_exec_ci(AUDIOLIB_kernelHandle handle, void *restr
    __SE1_OPEN(pInLocal0, se1Params);
    __SA1_OPEN(sa1Params);
 
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
       twoFetch_vec downSampleWideVec0 = c7x::strm_eng<0, twoFetch_vec>::get_adv();
       twoFetch_vec downSampleWideVec1 = c7x::strm_eng<1, twoFetch_vec>::get_adv();
       float8       downSampleVec0     = __as_float8(downSampleWideVec0);
@@ -576,7 +564,7 @@ AUDIOLIB_downSampleRatio3_6_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio3_6_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio3_6_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
@@ -588,7 +576,7 @@ AUDIOLIB_downSampleRatio3_6_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict
    dataType *restrict pOutLocal = (dataType *) pOut;
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
-   typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type v_bool_tp;
+   typedef typename std::conditional<sizeof(dataType) == 4U, __bool8, __bool4>::type v_bool_tp;
    typedef downSampleRatio3_6_Mask<dataType>                                        mask;
 
    v_bool_tp vpMask0 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel0());
@@ -599,7 +587,7 @@ AUDIOLIB_downSampleRatio3_6_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict
    __SA0_OPEN(sa0Params);
    __SE1_OPEN(pInLocal0, se1Params);
 
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
       vec downSampleVec0 = c7x::strm_eng<0, vec>::get_adv();
       vec downSampleVec1 = c7x::strm_eng<1, vec>::get_adv();
       vec downSampleVec2 = c7x::strm_eng<0, vec>::get_adv();
@@ -643,7 +631,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio5_exec_ci(AUDIOLIB_kernelHandle handle, 
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio5_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio5_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
@@ -655,7 +643,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio5_exec_ci(AUDIOLIB_kernelHandle handle, 
    dataType *restrict pOutLocal = (dataType *) pOut;
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
-   typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type v_bool_tp;
+   typedef typename std::conditional<sizeof(dataType) == 4U, __bool8, __bool4>::type v_bool_tp;
    typedef downSampleRatio5Mask<dataType>                                           mask;
 
    v_bool_tp vpMask0 = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel0());
@@ -667,7 +655,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio5_exec_ci(AUDIOLIB_kernelHandle handle, 
    __SE0_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
    __SE1_OPEN(pInLocal0, se1Params);
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
 
       vec downSampleVec0 = c7x::strm_eng<0, vec>::get_adv();
       vec downSampleVec1 = c7x::strm_eng<1, vec>::get_adv();
@@ -717,7 +705,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio7_exec_ci(AUDIOLIB_kernelHandle handle, 
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio7_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio7_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
@@ -729,7 +717,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio7_exec_ci(AUDIOLIB_kernelHandle handle, 
    dataType *restrict pOutLocal = (dataType *) pOut;
    dataType *restrict pInLocal0 = pInLocal + pKerPrivArgs->startingIndexSE1;
 
-   typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type v_bool_tp;
+   typedef typename std::conditional<sizeof(dataType) == 4U, __bool8, __bool4>::type v_bool_tp;
    typedef downSampleRatio7Mask<dataType>                                           mask;
 
    v_bool_tp vpMask0  = *stov_ptr(v_bool_tp, (uint8_t *) mask::sel0());
@@ -744,7 +732,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio7_exec_ci(AUDIOLIB_kernelHandle handle, 
    __SE0_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
    __SE1_OPEN(pInLocal0, se1Params);
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
       vec downSampleVec0 = c7x::strm_eng<0, vec>::get_adv();
       vec downSampleVec1 = c7x::strm_eng<1, vec>::get_adv();
       vec downSampleVec2 = c7x::strm_eng<0, vec>::get_adv();
@@ -785,7 +773,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio4_exec_ci(AUDIOLIB_kernelHandle handle, 
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio4_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio4_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
@@ -807,7 +795,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio4_exec_ci(AUDIOLIB_kernelHandle handle, 
    __SA0_OPEN(sa0Params);
    __SE1_OPEN(pInLocal0, se1Params);
 
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
       vec downSampleVec0 = c7x::strm_eng<0, vec>::get_adv();
       vec downSampleVec1 = c7x::strm_eng<1, vec>::get_adv();
 
@@ -838,13 +826,13 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio8_exec_ci(AUDIOLIB_kernelHandle handle, 
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio8_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio8_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET);
 
-   typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type v_bool_tp;
+   typedef typename std::conditional<sizeof(dataType) == 4U, __bool8, __bool4>::type v_bool_tp;
    typedef typename c7x::make_full_vector<dataType>::type                           vec;
 
    dataType *restrict pInLocal  = (dataType *) pIn + pKerPrivArgs->startingIndex;
@@ -860,7 +848,7 @@ AUDIOLIB_STATUS AUDIOLIB_downSampleRatio8_exec_ci(AUDIOLIB_kernelHandle handle, 
    __SA0_OPEN(sa0Params);
    __SE1_OPEN(pInLocal0, se1Params);
 
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
       vec downSampleVec0 = c7x::strm_eng<0, vec>::get_adv();
       vec downSampleVec1 = c7x::strm_eng<1, vec>::get_adv();
       vec downSampleVec2 = c7x::strm_eng<0, vec>::get_adv();
@@ -896,13 +884,13 @@ AUDIOLIB_downSampleRatio12_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict 
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio12_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleRatio12_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET);
 
-   typedef typename std::conditional<sizeof(dataType) == 4, __bool8, __bool4>::type v_bool_tp;
+   typedef typename std::conditional<sizeof(dataType) == 4U, __bool8, __bool4>::type v_bool_tp;
    typedef typename c7x::make_full_vector<dataType>::type                           vec;
 
    dataType *restrict pInLocal  = (dataType *) pIn + pKerPrivArgs->startingIndex;
@@ -921,7 +909,7 @@ AUDIOLIB_downSampleRatio12_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict 
    __SA0_OPEN(sa0Params);
    __SE1_OPEN(pInLocal0, se1Params);
 
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
       vec downSampleVec0 = c7x::strm_eng<0, vec>::get_adv();
       vec downSampleVec1 = c7x::strm_eng<1, vec>::get_adv();
       vec downSampleVec2 = c7x::strm_eng<0, vec>::get_adv();
@@ -961,7 +949,7 @@ AUDIOLIB_downSampleGeneric_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict 
    uint8_t                      *pBlock       = pKerPrivArgs->bufPblock;
    uint32_t                      nVecs        = pKerPrivArgs->nVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleGeneric_exec_ci nVecs %d\n", nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_downSampleGeneric_exec_ci nVecs %u\n", nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
@@ -974,7 +962,7 @@ AUDIOLIB_downSampleGeneric_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict 
    __SE0_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
 
-   for (uint32_t counter = 0; counter < nVecs; counter++) {
+   for (int32_t counter = 0; counter < (int32_t) nVecs; counter++) {
       vec     downSampleVec0 = c7x::strm_eng<0, vec>::get_adv();
       __vpred vpred          = c7x::strm_agen<0, vec>::get_vpred();
       vec    *addr           = c7x::strm_agen<0, vec>::get_adv(pOutLocal);

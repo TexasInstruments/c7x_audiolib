@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 
-// include AUDIOLIB
+/* include AUDIOLIB */
 #include <audiolib.h>
 #include <stddef.h>
 
-// include test infrastructure provided by AUDIOLIB
+/* include test infrastructure provided by AUDIOLIB */
 #include "../common/AUDIOLIB_test.h"
 
-// include test data for this kernel
+/* include test data for this kernel */
 #include "AUDIOLIB_downSample_idat.h"
 #include "AUDIOLIB_types.h"
 
@@ -30,11 +30,11 @@ __attribute__((section(".msmcData"), aligned(128))) int8_t msmcBuffer[AUDIOLIB_L
 __attribute__((section(".ddrData"), aligned(64))) int8_t   ddrBuffer[2048 * 1024];
 
 #endif
-#endif // WIN32
+#endif /* WIN32 */
 
-#define vecSizeBytes 64
+#define vecSizeBytes AUDIOLIB_L2DATA_ALIGNMENT
 
-int16_t volatile volatileSum = 0; // use volatile to keep compiler from removing this operation
+int16_t volatile volatileSum = 0; /* use volatile to keep compiler from removing this operation */
 
 int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 {
@@ -68,10 +68,15 @@ int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
    AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_downSample_d CP 1\n");
 
    TI_profile_init("AUDIOLIB_downSample");
-   // file IO for Loki benchmarking
+   /* file IO for Loki benchmarking */
    FILE *fpOutputCSV = fopen("AUDIOLIB_downSample.csv", "w+");
-   fprintf(fpOutputCSV, "Test ID, Bit Width, isInterLeave, downSampleRatio, inSamples, inChannels, "
-                        "EVM cycles, estCycles, Pass/Fail\n");
+   if (fpOutputCSV == NULL) {
+      printf("Warning: could not open AUDIOLIB_downSample.csv for writing; CSV output disabled.\n");
+   }
+   else {
+      fprintf(fpOutputCSV, "Test ID, Bit Width, isInterLeave, downSampleRatio, inSamples, inChannels, "
+                           "EVM cycles, estCycles, Pass/Fail\n");
+   }
 
    for (tpi = 0; tpi < test_cases; tpi++) {
       numReps                     = prm[tpi].numReps;
@@ -104,12 +109,18 @@ int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
          else if (currPrm.dataType == AUDIOLIB_FLOAT64) {
             sizeofele = sizeof(double);
          }
+         else {
+            /* Only FLOAT32/FLOAT64 are supported; skip unsupported types to
+             * avoid the divide-by-zero in vecSizeBytes / sizeofele below. */
+            printf("Warning: unsupported dataType %d, skipping test case.\n", currPrm.dataType);
+            continue;
+         }
 
-         uint16_t elePerVec = vecSizeBytes / sizeofele;;
+         uint16_t elePerVec = vecSizeBytes / sizeofele;
 
          if (isInteleave == 1) {
             bufParamsIn.data_type = currPrm.dataType;
-            bufParamsIn.dim_x     = currPrm.inChannels; // currPrm.inChannels;
+            bufParamsIn.dim_x     = currPrm.inChannels;
             bufParamsIn.dim_y     = currPrm.inSamples;
 
             bufParamsIn.stride_y = currPrm.strideIn;
@@ -172,7 +183,7 @@ int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                                    testPatternString);
             }
             else {
-               // TBD for other precisions
+               /* TBD for other precisions */
             }
 
             AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_downSample_d CP 0\n");
@@ -205,36 +216,36 @@ int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
              * train the branch predictor                                   */
             uint32_t k;
             for (k = 0; k < 4; k++) {
-               // run warm instruction cache test
+               /* run warm instruction cache test */
                TI_profile_clear_cycle_count_single(TI_PROFILE_KERNEL_OPT_WARM);
                TI_profile_start(TI_PROFILE_KERNEL_OPT_WARM);
                status_opt = AUDIOLIB_downSample_exec(handle, pIn, pOut);
                TI_profile_stop();
             }
 
-            // get output to L1D
+            /* get output to L1D */
             int16_t outSum   = 0;
-            int8_t *pOutTemp = (int8_t *) pOut; // treat output as bytes to be data type agnostic
+            int8_t *pOutTemp = (int8_t *) pOut; /* treat output as bytes to be data type agnostic */
             for (k = 0; k < bufParamsOut.dim_x; k++) {
                outSum += *pOutTemp;
                pOutTemp++;
             }
 
-            // dummy store of outSum to insure that the compiler does not remove it.
+            /* dummy store of outSum to insure that the compiler does not remove it. */
             volatileSum = outSum;
 
-            // run warm instruction cache test
+            /* run warm instruction cache test */
             TI_profile_start(TI_PROFILE_KERNEL_OPT_WARMWRB);
             status_opt = AUDIOLIB_downSample_exec(handle, pIn, pOut);
             TI_profile_stop();
 
-#endif // #if !defined(__C7X_HOSTEM__)
+#endif /* #if !defined(__C7X_HOSTEM__) */
             /* Test _cn kernel */
             kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
 
             AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_downSample_d CP 4 status_opt %d\n", status_opt);
 
-            // initialize the kernel to use the natural C variant
+            /* initialize the kernel to use the natural C variant */
             AUDIOLIB_downSample_init(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
 
 #if AUDIOLIB_DEBUGPRINT
@@ -253,7 +264,7 @@ int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                                                            bufParamsOut.stride_y, AUDIOLIB_sizeof(currPrm.dataType));
             }
             else {
-               // TBD
+               /* TBD */
             }
 
             comparisonDone = 1;
@@ -312,12 +323,14 @@ int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 
             sprintf(desc, "%s generated input | inSamples = %d, inChannels = %d", testPatternString, currPrm.inSamples,
                     currPrm.inChannels);
-            // write to CSV, must happen prior to write to screen because
-            // TI_profile_formula_add clears values in counters
+            /* write to CSV, must happen prior to write to screen because
+             * TI_profile_formula_add clears values in counters */
             AUDIOLIB_downSample_perfEst(handle, &archCycles, &estCycles);
-            fprintf(fpOutputCSV, "%d, %d, %d, %d, %d, %d, %d ,%ld, %d\n", currPrm.testID,
-                    AUDIOLIB_sizeof(currPrm.dataType) * 8, isInteleave, downSampleRatio, currPrm.inSamples,
-                    currPrm.inChannels, pProfile[3 * tpi + 1], estCycles, !currentTestFail);
+            if (fpOutputCSV != NULL) {
+               fprintf(fpOutputCSV, "%d, %d, %d, %d, %d, %d, %d ,%ld, %d\n", currPrm.testID,
+                       AUDIOLIB_sizeof(currPrm.dataType) * 8, isInteleave, downSampleRatio, currPrm.inSamples,
+                       currPrm.inChannels, pProfile[3 * tpi + 1], estCycles, !currentTestFail);
+            }
 
             TI_profile_add_test(testNum++, (currPrm.inSamples * currPrm.inChannels), archCycles, estCycles,
                                 currentTestFail, desc);
@@ -327,10 +340,10 @@ int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                     currPrm.inSamples, currPrm.inChannels);
             TI_profile_skip_test(desc);
 
-            // clear the counters between runs; normally handled by TI_profile_downSample_test
+            /* clear the counters between runs; normally handled by TI_profile_downSample_test */
             TI_profile_clear_run_stats();
 
-         } // end of memory allocation successful?
+         } /* end of memory allocation successful? */
          /* Free buffers for each test vector */
          if (currPrm.outputDataLocation == AUDIOLIB_TEST_OUTPUT_HEAP) {
             free(pOutCn);
@@ -349,12 +362,14 @@ int AUDIOLIB_downSample_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
          }
          TI_align_free(pIn);
 
-      } // end repetitions
-   } // end idat test cases
+      } /* end repetitions */
+   } /* end idat test cases */
 
    free(handle);
    /* Close results CSV */
-   fclose(fpOutputCSV);
+   if (fpOutputCSV != NULL) {
+      fclose(fpOutputCSV);
+   }
 
    return fail;
 }
@@ -384,7 +399,8 @@ int coverage_test_main()
    int32_t               handleSize = AUDIOLIB_downSample_getHandleSize(&kerInitArgs);
    AUDIOLIB_kernelHandle handle     = malloc(handleSize);
 
-   kerInitArgs.phase = 0; /* valid default; the cases below vary downSampleRatio/type */
+   kerInitArgs.phase        = 0; /* valid default; the cases below vary downSampleRatio/type */
+   kerInitArgs.isInterleave = 1; /* coverage buffers are interleaved: dim_x = channels */
 
    AUDIOLIB_STATUS status_nat;
    AUDIOLIB_STATUS status_opt;
@@ -410,12 +426,13 @@ int coverage_test_main()
    uint64_t InSize  = bufParamsIn.stride_y * bufParamsIn.dim_y;
    uint64_t OutSize = bufParamsOut.stride_y * bufParamsOut.dim_y;
 
-   AUDIOLIB_bufParams2D_t bufParamsInTemp, bufParamsOutTemp;
+   AUDIOLIB_bufParams2D_t bufParamsInTemp  = bufParamsIn;
+   AUDIOLIB_bufParams2D_t bufParamsOutTemp = bufParamsOut;
 
    pIn  = (void *) malloc(InSize);
    pOut = (void *) malloc(OutSize);
 
-   while (testNum <= 1006) {
+   while (testNum <= 1010) {
 
       switch (testNum) {
       case 1000:
@@ -506,6 +523,62 @@ int coverage_test_main()
          kerInitArgs.phase           = 0;
          status_nat = AUDIOLIB_downSample_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = (status_nat != AUDIOLIB_ERR_INVALID_VALUE);
+         break;
+      case 1007:
+         /* No kept sample: phase is at or past the end of the input. */
+         bufParamsInTemp.data_type    = bufParamsIn.data_type;
+         bufParamsOutTemp.data_type   = bufParamsOut.data_type;
+         kerInitArgs.downSampleRatio = 4;
+         kerInitArgs.phase            = 3;
+         bufParamsInTemp.dim_x        = 3;
+         bufParamsInTemp.dim_y        = 1;
+         kerInitArgs.isInterleave     = 0;
+         status_nat = AUDIOLIB_downSample_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         bufParamsInTemp.dim_x    = 1;
+         bufParamsInTemp.dim_y    = 3;
+         kerInitArgs.isInterleave = 1;
+         status_opt = AUDIOLIB_downSample_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_VALUE) || (status_opt != AUDIOLIB_ERR_INVALID_VALUE));
+         break;
+
+      case 1008:
+         /* isInterleave must be 0 or 1 */
+         bufParamsInTemp             = bufParamsIn;
+         bufParamsOutTemp            = bufParamsOut;
+         kerInitArgs.downSampleRatio = 2;
+         kerInitArgs.phase           = 0;
+         kerInitArgs.isInterleave    = 2;
+         status_nat = AUDIOLIB_downSample_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         kerInitArgs.isInterleave = 1;
+         currentTestFail          = (status_nat != AUDIOLIB_ERR_INVALID_VALUE);
+         break;
+      case 1009:
+         /* zero channels / samples */
+         bufParamsInTemp             = bufParamsIn;
+         bufParamsOutTemp            = bufParamsOut;
+         kerInitArgs.downSampleRatio = 2;
+         kerInitArgs.phase           = 0;
+         bufParamsInTemp.dim_x       = 0;
+         status_nat = AUDIOLIB_downSample_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         bufParamsInTemp.dim_x = bufParamsIn.dim_x;
+         bufParamsInTemp.dim_y = 0;
+         status_opt = AUDIOLIB_downSample_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail =
+             ((status_nat != AUDIOLIB_ERR_INVALID_DIMENSION) || (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION));
+         break;
+      case 1010:
+         /* input stride shorter than a row, output stride not a multiple of the element size */
+         bufParamsInTemp             = bufParamsIn;
+         bufParamsOutTemp            = bufParamsOut;
+         kerInitArgs.downSampleRatio = 2;
+         kerInitArgs.phase           = 0;
+         bufParamsInTemp.stride_y    = bufParamsIn.stride_y - AUDIOLIB_sizeof(bufParamsIn.data_type);
+         status_nat = AUDIOLIB_downSample_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         bufParamsInTemp.stride_y  = bufParamsIn.stride_y;
+         bufParamsOutTemp.stride_y = bufParamsOut.stride_y + 1;
+         status_opt = AUDIOLIB_downSample_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail =
+             ((status_nat != AUDIOLIB_ERR_INVALID_DIMENSION) || (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION));
          break;
 
       default:
