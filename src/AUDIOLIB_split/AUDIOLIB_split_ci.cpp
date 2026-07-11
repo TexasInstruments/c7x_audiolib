@@ -9,7 +9,9 @@ void AUDIOLIB_split_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, 
 {
    AUDIOLIB_split_PrivArgs *pKerPrivArgs = (AUDIOLIB_split_PrivArgs *) handle;
    uint8_t                 *pBlock       = pKerPrivArgs->bufPblock;
-   uint32_t *restrict pIterCountLocal    = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   uint32_t                 N            = pKerPrivArgs->numOutputs;
+   uint32_t *restrict pIterCountLocal    = (uint32_t *) ((uint8_t *) pBlock +
+       SE_PARAM_SIZE + N * SE_PARAM_SIZE + N * SA_PARAM_SIZE + N * sizeof(uint32_t));
 
    uint64_t splitStartupCycles   = 0;
    uint64_t splitTeardownCycles  = 0;
@@ -62,12 +64,15 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
    __SA_VECLEN  SA_VECLEN  = c7x::sa_veclen<vec>::value;
 
    uint32_t eleCount = c7x::element_count_of<vec>::value;
+   uint32_t N        = pKerPrivArgs->numOutputs;
 
-   __SA_TEMPLATE_v1 sa0Params[MAX_OUTPUTS];
-   __SA_TEMPLATE_v1 *restrict pSa0Params = sa0Params;
+   __SA_TEMPLATE_v1 *restrict pSa0Params =
+       (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_PARAM_SIZE + N * SE_PARAM_SIZE);
 
-   uint32_t *restrict pInOffsetLocal  = (uint32_t *) ((uint8_t *) pBlock + SE_INOFFSET_PARAM_OFFSET);
-   uint32_t *restrict pIterCountLocal = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   uint32_t *restrict pInOffsetLocal  =
+       (uint32_t *) ((uint8_t *) pBlock + SE_PARAM_SIZE + N * SE_PARAM_SIZE + N * SA_PARAM_SIZE);
+   uint32_t *restrict pIterCountLocal =
+       (uint32_t *) ((uint8_t *) pBlock + SE_PARAM_SIZE + N * SE_PARAM_SIZE + N * SA_PARAM_SIZE + N * sizeof(uint32_t));
 
    if (!pKerPrivArgs->isInputInterleave) {
       /* Deinterleaved (planar) input: one SE streams the whole contiguous input; the SA is
@@ -94,7 +99,6 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
       }
 
       *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_SINGLE_PARAM_OFFSET) = seSingle;
-      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, pKerPrivArgs->numOutputs * sizeof(sa0Params[0]));
    }
    else if (pKerPrivArgs->outChannelsUniform) {
       /* Interleaved input, all outputs share one channel count C: a single 3D SE folds the
@@ -123,14 +127,13 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
       }
 
       *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_SINGLE_PARAM_OFFSET) = seSingle;
-      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, pKerPrivArgs->numOutputs * sizeof(sa0Params[0]));
    }
    else {
       /* Interleaved input with differing channel counts: each output reads a non-contiguous
        * channel window, so one SE and one SA template are built per output, with a per-output
        * input offset. */
-      __SE_TEMPLATE_v1 se0Params[MAX_OUTPUTS];
-      __SE_TEMPLATE_v1 *restrict pSe0Params = se0Params;
+      __SE_TEMPLATE_v1 *restrict pSe0Params =
+          (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
 
       uint32_t cumulativeOffset = 0; /* cumulative input channel offset (in channels) */
 
@@ -158,8 +161,6 @@ AUDIOLIB_STATUS AUDIOLIB_split_init_ci(AUDIOLIB_kernelHandle          handle,
          cumulativeOffset += outCh;
       }
 
-      memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, pKerPrivArgs->numOutputs * sizeof(se0Params[0]));
-      memcpy((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET, sa0Params, pKerPrivArgs->numOutputs * sizeof(sa0Params[0]));
    }
 
    return status;
@@ -186,9 +187,11 @@ AUDIOLIB_split_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void **
    dataType *restrict pInLocal                                         = (dataType *) pIn;
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_split_exec_ci\n");
 
-   __SE_TEMPLATE_v1 se0Params           = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_SINGLE_PARAM_OFFSET);
-   __SA_TEMPLATE_v1 *restrict sa0Params = (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
-   uint32_t *restrict pIterCountLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   uint32_t                     N             = pKerPrivArgs->numOutputs;
+   __SE_TEMPLATE_v1 se0Params               = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_SINGLE_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 *restrict sa0Params     = (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_PARAM_SIZE + N * SE_PARAM_SIZE);
+   uint32_t *restrict pIterCountLocal       =
+       (uint32_t *) ((uint8_t *) pBlock + SE_PARAM_SIZE + N * SE_PARAM_SIZE + N * SA_PARAM_SIZE + N * sizeof(uint32_t));
 
    /* Open the SE once on the whole contiguous input; it advances across all outputs. */
    __SE0_OPEN(pInLocal, se0Params);
@@ -229,10 +232,13 @@ AUDIOLIB_STATUS AUDIOLIB_splitPerOutput_exec_ci(AUDIOLIB_kernelHandle handle, vo
    dataType *restrict pInLocal                                         = (dataType *) pIn;
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_splitPerOutput_exec_ci\n");
 
-   __SE_TEMPLATE_v1 *restrict se0Params = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
-   __SA_TEMPLATE_v1 *restrict sa0Params = (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
-   uint32_t *restrict pInOffsetLocal    = (uint32_t *) ((uint8_t *) pBlock + SE_INOFFSET_PARAM_OFFSET);
-   uint32_t *restrict pIterCountLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   uint32_t                     N            = pKerPrivArgs->numOutputs;
+   __SE_TEMPLATE_v1 *restrict se0Params    = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 *restrict sa0Params    = (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_PARAM_SIZE + N * SE_PARAM_SIZE);
+   uint32_t *restrict pInOffsetLocal       =
+       (uint32_t *) ((uint8_t *) pBlock + SE_PARAM_SIZE + N * SE_PARAM_SIZE + N * SA_PARAM_SIZE);
+   uint32_t *restrict pIterCountLocal      =
+       (uint32_t *) ((uint8_t *) pBlock + SE_PARAM_SIZE + N * SE_PARAM_SIZE + N * SA_PARAM_SIZE + N * sizeof(uint32_t));
 
    for (uint32_t i = 0; i < pKerPrivArgs->numOutputs; i++) {
       dataType *restrict pInLocalI  = pInLocal + pInOffsetLocal[i];
