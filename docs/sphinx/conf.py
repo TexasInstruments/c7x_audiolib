@@ -220,6 +220,7 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_asrc",
         "AUDIOLIB_ssrc",
         "AUDIOLIB_sinusoidGenerator",
+        "AUDIOLIB_upSample"
         "AUDIOLIB_whiteNoiseGenerator",
     ]),
     ("Lookup & Interpolation", [

@@ -1,82 +1,6 @@
-/*******************************************************************************
-**+--------------------------------------------------------------------------+**
-**|                            ****                                          |**
-**|                            ****                                          |**
-**|                            ******o***                                    |**
-**|                      ********_///_****                                   |**
-**|                      ***** /_//_/ ****                                   |**
-**|                       ** ** (__/ ****                                    |**
-**|                           *********                                      |**
-**|                            ****                                          |**
-**|                            ***                                           |**
-**|                                                                          |**
-**|        Copyright (c) 2025 Texas Instruments Incorporated                 |**
-**|                                                                          |**
-**|              All rights reserved not granted herein.                     |**
-**|                                                                          |**
-**|                         Limited License.                                 |**
-**|                                                                          |**
-**|  Texas Instruments Incorporated grants a world-wide, royalty-free,       |**
-**|  non-exclusive license under copyrights and patents it now or            |**
-**|  hereafter owns or controls to make, have made, use, import, offer to    |**
-**|  sell and sell ("Utilize") this software subject to the terms herein.    |**
-**|  With respect to the foregoing patent license, such license is granted   |**
-**|  solely to the extent that any such patent is necessary to Utilize the   |**
-**|  software alone.  The patent license shall not apply to any              |**
-**|  combinations which include this software, other than combinations       |**
-**|  with devices manufactured by or for TI ("TI Devices").  No hardware     |**
-**|  patent is licensed hereunder.                                           |**
-**|                                                                          |**
-**|  Redistributions must preserve existing copyright notices and            |**
-**|  reproduce this license (including the above copyright notice and the    |**
-**|  disclaimer and (if applicable) source code license limitations below)   |**
-**|  in the documentation and/or other materials provided with the           |**
-**|  distribution                                                            |**
-**|                                                                          |**
-**|  Redistribution and use in binary form, without modification, are        |**
-**|  permitted provided that the following conditions are met:               |**
-**|                                                                          |**
-**|    *  No reverse engineering, decompilation, or disassembly of this      |**
-**|  software is permitted with respect to any software provided in binary   |**
-**|  form.                                                                   |**
-**|                                                                          |**
-**|    *  any redistribution and use are licensed by TI for use only with    |**
-**|  TI Devices.                                                             |**
-**|                                                                          |**
-**|    *  Nothing shall obligate TI to provide you with source code for      |**
-**|  the software licensed and provided to you in object code.               |**
-**|                                                                          |**
-**|  If software source code is provided to you, modification and            |**
-**|  redistribution of the source code are permitted provided that the       |**
-**|  following conditions are met:                                           |**
-**|                                                                          |**
-**|    *  any redistribution and use of the source code, including any       |**
-**|  resulting derivative works, are licensed by TI for use only with TI     |**
-**|  Devices.                                                                |**
-**|                                                                          |**
-**|    *  any redistribution and use of any object code compiled from the    |**
-**|  source code and any resulting derivative works, are licensed by TI      |**
-**|  for use only with TI Devices.                                           |**
-**|                                                                          |**
-**|  Neither the name of Texas Instruments Incorporated nor the names of     |**
-**|  its suppliers may be used to endorse or promote products derived from   |**
-**|  this software without specific prior written permission.                |**
-**|                                                                          |**
-**|  DISCLAIMER.                                                             |**
-**|                                                                          |**
-**|  THIS SOFTWARE IS PROVIDED BY TI AND TI'S LICENSORS "AS IS" AND ANY      |**
-**|  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE       |**
-**|  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR      |**
-**|  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL TI AND TI'S LICENSORS BE      |**
-**|  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR     |**
-**|  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF    |**
-**|  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR         |**
-**|  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,   |**
-**|  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE    |**
-**|  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,       |**
-**|  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                      |**
-**+--------------------------------------------------------------------------+**
-*******************************************************************************/
+// Copyright (C) 2026 Texas Instruments Incorporated
+//
+// SPDX-License-Identifier: Apache-2.0
 
 /********************************************************************************
  *  @file     AUDIOLIB_upSample_ci.cpp
@@ -112,44 +36,44 @@ void AUDIOLIB_upSample_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycle
    phaseZeroFillVecs                  = pKerPrivArgs->phaseZeroFillVecs;
    upSampleZeroFillVecs               = pKerPrivArgs->numZeroFillVecs;
 
-   if (pKerPrivArgs->phase != 0 && pKerPrivArgs->genericNonInterleaveCase == 0) {
+   if ((pKerPrivArgs->phase != 0U) && (pKerPrivArgs->genericNonInterleaveCase == 0U)) {
       phaseFillingCycles = 11 + 2 + (1 + phaseZeroFillVecs * 1) + 2;
    }
-   if (pKerPrivArgs->isInterleave == 1 && pKerPrivArgs->useNonInterleave == 0) {
+   if ((pKerPrivArgs->isInterleave == 1U) && (pKerPrivArgs->useNonInterleave == 0U)) {
       upSampleStartupCycles   = 26 + 2;
       upSampleOperationCycles = 1 + nVecs * 1;
       upSampleTeardownCycles  = 1 + 1 + 1;
    }
    else {
-      if (pKerPrivArgs->upFactor == 2 || (pKerPrivArgs->upFactor == 4 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
+      if (pKerPrivArgs->upFactor == 2U || ((pKerPrivArgs->upFactor == 4U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32))) {
          upSampleStartupCycles   = 25 + 3;
          upSampleOperationCycles = 4 + nVecs * 2;
          upSampleTeardownCycles  = 2 + 1 + 2;
       }
-      else if (pKerPrivArgs->upFactor == 3 ||
-               (pKerPrivArgs->upFactor == 6 && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32)) {
+      else if (pKerPrivArgs->upFactor == 3U ||
+               ((pKerPrivArgs->upFactor == 6U) && (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32))) {
          upSampleStartupCycles   = 25 + 1;
          upSampleOperationCycles = 8 + nVecs * 3;
          upSampleTeardownCycles  = 4 + 3 + 3;
       }
       else if (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32) {
 
-         if (pKerPrivArgs->upFactor == 5 || pKerPrivArgs->upFactor == 10) {
+         if (pKerPrivArgs->upFactor == 5U || pKerPrivArgs->upFactor == 10U) {
             upSampleStartupCycles   = 26 + 3;
             upSampleOperationCycles = 4 + nVecs * 5;
             upSampleTeardownCycles  = 2 + 5 + 2;
          }
-         else if (pKerPrivArgs->upFactor == 7 || pKerPrivArgs->upFactor == 14) {
+         else if (pKerPrivArgs->upFactor == 7U || pKerPrivArgs->upFactor == 14U) {
             upSampleStartupCycles   = 26 + 1;
             upSampleOperationCycles = 5 + nVecs * 7;
             upSampleTeardownCycles  = 4 + 7 + 2;
          }
-         else if (pKerPrivArgs->upFactor == 8 || pKerPrivArgs->upFactor == 16 || pKerPrivArgs->upFactor == 24) {
+         else if (pKerPrivArgs->upFactor == 8U || pKerPrivArgs->upFactor == 16U || pKerPrivArgs->upFactor == 24U) {
             upSampleStartupCycles   = 26 + 2;
             upSampleOperationCycles = 1 + nVecs * 1;
             upSampleTeardownCycles  = 3;
          }
-         else if (pKerPrivArgs->upFactor == 12) {
+         else if (pKerPrivArgs->upFactor == 12U) {
             upSampleStartupCycles   = 25 + 2;
             upSampleOperationCycles = 4 + nVecs * 6;
             upSampleTeardownCycles  = 8 + 1 + 2;
@@ -162,27 +86,27 @@ void AUDIOLIB_upSample_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycle
          }
       }
       else {
-         if (pKerPrivArgs->upFactor == 4) {
+         if (pKerPrivArgs->upFactor == 4U) {
             upSampleStartupCycles   = 25 + 4;
             upSampleOperationCycles = 4 + nVecs * 4;
             upSampleTeardownCycles  = 4 + 3;
          }
-         else if (pKerPrivArgs->upFactor == 5) {
+         else if (pKerPrivArgs->upFactor == 5U) {
             upSampleStartupCycles   = 26 + 1;
             upSampleOperationCycles = 4 + nVecs * 5;
             upSampleTeardownCycles  = 3 + 5 + 2;
          }
-         else if (pKerPrivArgs->upFactor == 6) {
+         else if (pKerPrivArgs->upFactor == 6U) {
             upSampleStartupCycles   = 26 + 3;
             upSampleOperationCycles = 5 + nVecs * 6;
             upSampleTeardownCycles  = 3 + 6 + 2;
          }
-         else if (pKerPrivArgs->upFactor == 7) {
+         else if (pKerPrivArgs->upFactor == 7U) {
             upSampleStartupCycles   = 26 + 3;
             upSampleOperationCycles = 8 + nVecs * 8;
             upSampleTeardownCycles  = 8 + 1 + 2;
          }
-         else if (pKerPrivArgs->upFactor == 8) {
+         else if (pKerPrivArgs->upFactor == 8U) {
             upSampleStartupCycles   = 26 + 3;
             upSampleOperationCycles = 5 + nVecs * 8;
             upSampleTeardownCycles  = 3 + 8 + 2;
@@ -244,6 +168,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_ci(AUDIOLIB_kernelHandle             hand
    (void) bufParamsIn;
    (void) bufParamsOut;
    (void) pKerInitArgs;
+   pKerPrivArgs->phaseZeroFillVecs = 0U;
 
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample_init_ci \n");
 
@@ -253,21 +178,21 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_ci(AUDIOLIB_kernelHandle             hand
 
    uint32_t upFactor  = pKerPrivArgs->upFactor;
    int32_t  strideIn  = pKerPrivArgs->strideIn;
-   int32_t  strideOut = pKerPrivArgs->strideOut;
+   int32_t  strideOut = 0;
 
    pKerPrivArgs->numZeroFillVecs          = 0;
    __SE_TEMPLATE_v1 seIn                  = __gen_SE_TEMPLATE_v1();
    __SA_TEMPLATE_v1 saOut                 = __gen_SA_TEMPLATE_v1();
    __SA_TEMPLATE_v1 saPhase               = __gen_SA_TEMPLATE_v1();
    pKerPrivArgs->genericNonInterleaveCase = 0;
-   if (pKerPrivArgs->isInterleave && pKerPrivArgs->useNonInterleave == 0) {
+   if ((pKerPrivArgs->isInterleave == 1U) && (pKerPrivArgs->useNonInterleave == 0U)) {
 
       uint32_t numChannels = pKerPrivArgs->dimXIn;
       uint32_t numSamples  = pKerPrivArgs->dimYIn;
       uint32_t chnPerVec   = (numChannels < eleCount) ? numChannels : eleCount;
       uint32_t vecsPerRow  = AUDIOLIB_ceilingDiv(numChannels, eleCount);
-
-      uint32_t outNumRows = upFactor * numSamples;
+      strideOut            = pKerPrivArgs->strideOut;
+      uint32_t outNumRows  = upFactor * numSamples;
 
       seIn.ELETYPE = SE_ELETYPE;
       seIn.VECLEN  = SE_VECLEN;
@@ -295,7 +220,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_ci(AUDIOLIB_kernelHandle             hand
       saOut.DECDIM2_WIDTH = numChannels;
       saOut.DECDIM2       = __SA_DECDIM_DIM2;
 
-      if (pKerPrivArgs->phase) {
+      if (pKerPrivArgs->phase > 0U) {
          saPhase.VECLEN = SA_VECLEN;
          saPhase.ICNT0  = numChannels;
          saPhase.ICNT1  = pKerPrivArgs->phase;
@@ -309,7 +234,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_ci(AUDIOLIB_kernelHandle             hand
 
       *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET) = seIn;
       *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = saOut;
-      pKerPrivArgs->nVecs       = (outNumRows * AUDIOLIB_ceilingDiv(numChannels, eleCount)) - (pKerInitArgs->phase);
+      pKerPrivArgs->nVecs       = (outNumRows * AUDIOLIB_ceilingDiv(numChannels, eleCount)) - pKerPrivArgs->phase;
       pKerPrivArgs->phaseOffset = (int32_t) (pKerPrivArgs->phase * strideOut);
    }
    else {
@@ -317,21 +242,23 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_ci(AUDIOLIB_kernelHandle             hand
       uint32_t numChannels = pKerPrivArgs->dimYIn;
       uint32_t numSamples  = pKerPrivArgs->dimXIn;
 
-      if (pKerPrivArgs->useNonInterleave) {
+      if (pKerPrivArgs->useNonInterleave == 1U) {
          numChannels = 1;
          numSamples  = pKerPrivArgs->dimYIn;
          strideOut   = numSamples * upFactor; /*To handle the phase case of interleave && 1 CH && NotAlign*/
          strideIn    = pKerPrivArgs->dimYIn;
       }
+      else {
+         strideOut = pKerPrivArgs->strideOut;
+      }
       uint32_t       outSamples    = upFactor * numSamples;
-      const uint32_t upFactor      = pKerPrivArgs->upFactor;
-      const uint8_t  isFloat32     = (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32);
-      const uint8_t  isFloat64     = (pKerPrivArgs->dataType == AUDIOLIB_FLOAT64);
-      const uint8_t  isLowUpFactor = (upFactor == 2 || upFactor == 3 || upFactor == 5 || upFactor == 7);
+      const bool     isFloat32     = (pKerPrivArgs->dataType == AUDIOLIB_FLOAT32);
+      const bool     isFloat64     = (pKerPrivArgs->dataType == AUDIOLIB_FLOAT64);
+      const bool     isLowUpFactor = (upFactor == 2U) || (upFactor == 3U) || (upFactor == 5U) || (upFactor == 7U);
       /* The promoted path specifically handles 6, 10, 14 for Float32*/
-      const uint8_t isPromotedPath =
-          (upFactor == 4 || upFactor == 6 || upFactor == 10 || upFactor == 12 || upFactor == 14) && isFloat32;
-      const uint8_t isSpecialF64 = (upFactor == 4 || upFactor == 6 || upFactor == 8) && isFloat64;
+      const bool isPromotedPath = ((upFactor == 4U) || (upFactor == 6U) || (upFactor == 10U) ||
+                                   (upFactor == 12U) || (upFactor == 14U)) && isFloat32;
+      const bool isSpecialF64 = ((upFactor == 4U) || (upFactor == 6U) || (upFactor == 8U)) && isFloat64;
 
       /* Check if current setup meets execution criteria */
       if (isLowUpFactor || isSpecialF64 || isPromotedPath) {
@@ -374,7 +301,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_ci(AUDIOLIB_kernelHandle             hand
          *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = saOut;
          pKerPrivArgs->nVecs = numChannels * (AUDIOLIB_ceilingDiv(numSamples, eleCount)) * mul2;
       }
-      else if ((upFactor == 8 || upFactor == 16 || upFactor == 24) && pKerPrivArgs->dataType == AUDIOLIB_FLOAT32) {
+      else if (((upFactor == 8U) || (upFactor == 16U) || (upFactor == 24U)) && isFloat32) {
 
          seIn.ICNT0         = 1;
          seIn.ICNT1         = numSamples;
@@ -386,13 +313,13 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_ci(AUDIOLIB_kernelHandle             hand
          seIn.VECLEN        = SE_VECLEN;
          seIn.DECDIM1_WIDTH = numSamples;
          seIn.DECDIM1       = __SE_DECDIM_DIM1;
-         seIn.LEZR          = (upFactor == 8) ? __SE_LEZR_OFF : __SE_LEZR_ICNT0;
-         seIn.LEZR_CNT      = (upFactor >> 3) - 1;
+         seIn.LEZR          = (upFactor == 8U) ? __SE_LEZR_OFF : __SE_LEZR_ICNT0;
+         seIn.LEZR_CNT      = (upFactor >> 3U) - 1U;
 
          saOut.VECLEN        = SA_VECLEN;
          saOut.ICNT0         = eleCount;
          saOut.DIM1          = eleCount;
-         saOut.ICNT1         = (upFactor >> 3) * (numSamples);
+         saOut.ICNT1         = (upFactor >> 3U) * (numSamples);
          saOut.DIM2          = strideOut;
          saOut.ICNT2         = numChannels;
          saOut.DIMFMT        = __SA_DIMFMT_3D;
@@ -436,9 +363,11 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_ci(AUDIOLIB_kernelHandle             hand
          pKerPrivArgs->numZeroFillVecs = AUDIOLIB_ceilingDiv(outSamples, eleCount) * numChannels;
       }
       /* Phase Included case for Non Interleave Data Format*/
-      pKerPrivArgs->phaseZeroFillVecs = AUDIOLIB_ceilingDiv(pKerPrivArgs->phase, eleCount) * numChannels;
+      if (pKerPrivArgs->genericNonInterleaveCase == 0U) {
+         pKerPrivArgs->phaseZeroFillVecs = AUDIOLIB_ceilingDiv(pKerPrivArgs->phase, eleCount) * numChannels;
+      }
       pKerPrivArgs->phaseOffset       = (int32_t) pKerPrivArgs->phase;
-      if (pKerPrivArgs->phase > 0) {
+      if ((pKerPrivArgs->phase > 0U) && (pKerPrivArgs->genericNonInterleaveCase == 0U)) {
          saPhase.VECLEN = SA_VECLEN;
          saPhase.ICNT0  = pKerPrivArgs->phase;
          saPhase.ICNT1  = numChannels;
@@ -474,7 +403,7 @@ AUDIOLIB_upSample_execInterleave_ci(AUDIOLIB_kernelHandle handle, void *restrict
    uint32_t                                               nVecs         = pKerPrivArgs->nVecs;
    uint32_t                                               phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample_exec_ci numZeroFillVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample_exec_ci numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -528,7 +457,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample2_exec_ci(AUDIOLIB_kernelHandle handle, void *r
    uint32_t nVecs         = pKerPrivArgs->nVecs;
    uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample2_exec_ci numZeroFillVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample2_exec_ci numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -572,9 +501,9 @@ AUDIOLIB_upSample2_exec_ci<false, float>(AUDIOLIB_kernelHandle handle, void *res
 template AUDIOLIB_STATUS
 AUDIOLIB_upSample2_exec_ci<false, double>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
-// ============================================================================
-// UPFACTOR 3 FLOAT AND DOUBLE SPECIALIZATION
-// ============================================================================
+/*============================================================================
+/ UPFACTOR 3 FLOAT AND DOUBLE SPECIALIZATION
+/ ============================================================================*/
 template <bool hasPhase, typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_upSample3_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut)
 {
@@ -586,7 +515,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample3_exec_ci(AUDIOLIB_kernelHandle handle, void *r
    uint32_t nVecs         = pKerPrivArgs->nVecs;
    uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample3_exec_ci numZeroFillVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample3_exec_ci numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -660,7 +589,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample4_exec_ci(AUDIOLIB_kernelHandle handle, void *r
    uint32_t nVecs         = pKerPrivArgs->nVecs;
    uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample4_exec_ci numZeroFillVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample4_exec_ci numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -727,7 +656,7 @@ template <bool hasPhase> struct AUDIOLIB_nonInterleaveUpSample5<hasPhase, float>
       uint32_t nVecs         = pKerPrivArgs->nVecs;
       uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-      AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample5_exec_ci (Float) nVecs %d nVecs %d\n",
+      AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample5_exec_ci (Float) numZeroFillVecs %u nVecs %u\n",
                             pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
       dataType *restrict pInLocal  = (dataType *) pIn;
@@ -803,7 +732,7 @@ template <bool hasPhase> struct AUDIOLIB_nonInterleaveUpSample5<hasPhase, double
       uint32_t nVecs         = pKerPrivArgs->nVecs;
       uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-      AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample5_exec_ci (Double) nVecs %d nVecs %d\n",
+      AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample5_exec_ci (Double) numZeroFillVecs %u nVecs %u\n",
                             pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
       dataType *restrict pInLocal  = (dataType *) pIn;
@@ -881,7 +810,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample6_exec_ci(AUDIOLIB_kernelHandle handle, void *r
    uint32_t nVecs         = pKerPrivArgs->nVecs;
    uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample6_exec_ci (double) nVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample6_exec_ci (double) numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -952,7 +881,7 @@ template <bool hasPhase> struct AUDIOLIB_nonInterleaveUpSample7<hasPhase, float>
       uint32_t nVecs         = pKerPrivArgs->nVecs;
       uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-      AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample7_exec_ci (Float) nVecs %d nVecs %d\n",
+      AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample7_exec_ci (Float) numZeroFillVecs %u nVecs %u\n",
                             pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
       dataType *restrict pInLocal  = (dataType *) pIn;
@@ -1041,7 +970,7 @@ template <bool hasPhase> struct AUDIOLIB_nonInterleaveUpSample7<hasPhase, double
       uint32_t nVecs         = pKerPrivArgs->nVecs;
       uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-      AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample7_exec_ci (double) nVecs %d nVecs %d\n",
+      AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample7_exec_ci (double) numZeroFillVecs %u nVecs %u\n",
                             pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
       dataType *restrict pInLocal  = (dataType *) pIn;
@@ -1132,7 +1061,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample8_exec_ci(AUDIOLIB_kernelHandle handle, void *r
    uint32_t nVecs         = pKerPrivArgs->nVecs;
    uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample8_exec_ci (Float) nVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample8_exec_ci (Float) numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -1207,7 +1136,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample6x2_exec_ci(AUDIOLIB_kernelHandle handle, void 
    uint32_t nVecs         = pKerPrivArgs->nVecs;
    uint32_t phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample6x2_exec_ci (Float) nVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample6x2_exec_ci (Float) numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -1280,7 +1209,7 @@ AUDIOLIB_STATUS AUDIOLIB_upSample8X_exec_ci(AUDIOLIB_kernelHandle handle, void *
    uint32_t                                               nVecs         = pKerPrivArgs->nVecs;
    uint32_t                                               phaseFillVecs = pKerPrivArgs->phaseZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample8X_exec_ci (float) numZeroFillVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSample8X_exec_ci (float) numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -1320,9 +1249,11 @@ AUDIOLIB_upSampleNonInterleave_exec_ci(AUDIOLIB_kernelHandle handle, void *restr
    AUDIOLIB_STATUS                                        status       = AUDIOLIB_SUCCESS;
    AUDIOLIB_upSample_PrivArgs                            *pKerPrivArgs = (AUDIOLIB_upSample_PrivArgs *) handle;
    typedef typename c7x::make_full_vector<dataType>::type vec;
-   uint8_t                                               *pBlock = pKerPrivArgs->bufPblock;
+   uint8_t                                               *pBlock          = pKerPrivArgs->bufPblock;
+   uint32_t                                               nVecs           = pKerPrivArgs->nVecs;
+   uint32_t                                               numZeroFillVecs = pKerPrivArgs->numZeroFillVecs;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSampleNonInterleave_exec_ci numZeroFillVecs %d nVecs %d\n",
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_upSampleNonInterleave_exec_ci numZeroFillVecs %u nVecs %u\n",
                          pKerPrivArgs->numZeroFillVecs, pKerPrivArgs->nVecs);
 
    dataType *restrict pInLocal  = (dataType *) pIn;
@@ -1340,7 +1271,7 @@ AUDIOLIB_upSampleNonInterleave_exec_ci(AUDIOLIB_kernelHandle handle, void *restr
    dataType *restrict zeroBase = pOutLocal;
 
    __SA0_OPEN(saZero);
-   for (uint32_t i = 0; i < pKerPrivArgs->numZeroFillVecs; i++) {
+   for (uint32_t i = 0U; i < numZeroFillVecs; i++) {
       __vpred vpred0 = c7x::strm_agen<0, vec>::get_vpred();
       vec    *addr   = c7x::strm_agen<0, vec>::get_adv(zeroBase);
       __vstore_pred(vpred0, addr, zeroVec);
@@ -1353,7 +1284,7 @@ AUDIOLIB_upSampleNonInterleave_exec_ci(AUDIOLIB_kernelHandle handle, void *restr
    __SE0_OPEN(pInLocal, seParms);
    __SA0_OPEN(saOut);
 
-   for (uint32_t i = 0; i < pKerPrivArgs->nVecs; i++) {
+   for (uint32_t i = 0U; i < nVecs; i++) {
       vec     v      = c7x::strm_eng<0, vec>::get_adv();
       __vpred vpred0 = c7x::strm_agen<0, vec>::get_vpred();
       vec    *addr   = c7x::strm_agen<0, vec>::get_adv(pOutData);

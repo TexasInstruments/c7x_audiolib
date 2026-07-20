@@ -1,23 +1,7 @@
-/*******************************************************************************
-**+--------------------------------------------------------------------------+**
-**|                            ****                                          |**
-**|                            ****                                          |**
-**|                            ******o***                                    |**
-**|                      ********_///_****                                   |**
-**|                      ***** /_//_/ ****                                   |**
-**|                       ** ** (__/ ****                                    |**
-**|                           *********                                      |**
-**|                            ****                                          |**
-**|                            ***                                           |**
-**|                                                                          |**
-**|        Copyright (c) 2025 Texas Instruments Incorporated                 |**
-**|                                                                          |**
-**|              All rights reserved not granted herein.                     |**
-**|                         Limited License.                                 |**
-**+--------------------------------------------------------------------------+**
-*******************************************************************************/
+// Copyright (C) 2026 Texas Instruments Incorporated
+//
+// SPDX-License-Identifier: Apache-2.0
 
-// include AUDIOLIB
 #include <audiolib.h>
 
 // include test infrastructure provided by AUDIOLIB
@@ -378,6 +362,7 @@ int coverage_test_main()
 
          status_nat      = AUDIOLIB_upSample_init_checkParams(handle, &in, &out, &kerInitArgs);
          currentTestFail = (status_nat != AUDIOLIB_ERR_INVALID_DIMENSION);
+         break;
          case 1006: // valid interleaved params -> SUCCESS
          // interleaved: in (inSamples x inChannels), out (upFactor*inSamples x inChannels)
          in.dim_x                 = inChannels;

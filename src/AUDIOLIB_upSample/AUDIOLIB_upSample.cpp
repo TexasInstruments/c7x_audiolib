@@ -1,82 +1,6 @@
-/*******************************************************************************
-**+--------------------------------------------------------------------------+**
-**|                            ****                                          |**
-**|                            ****                                          |**
-**|                            ******o***                                    |**
-**|                      ********_///_****                                   |**
-**|                      ***** /_//_/ ****                                   |**
-**|                       ** ** (__/ ****                                    |**
-**|                           *********                                      |**
-**|                            ****                                          |**
-**|                            ***                                           |**
-**|                                                                          |**
-**|        Copyright (c) 2025 Texas Instruments Incorporated                 |**
-**|                                                                          |**
-**|              All rights reserved not granted herein.                     |**
-**|                                                                          |**
-**|                         Limited License.                                 |**
-**|                                                                          |**
-**|  Texas Instruments Incorporated grants a world-wide, royalty-free,       |**
-**|  non-exclusive license under copyrights and patents it now or            |**
-**|  hereafter owns or controls to make, have made, use, import, offer to    |**
-**|  sell and sell ("Utilize") this software subject to the terms herein.    |**
-**|  With respect to the foregoing patent license, such license is granted   |**
-**|  solely to the extent that any such patent is necessary to Utilize the   |**
-**|  software alone.  The patent license shall not apply to any              |**
-**|  combinations which include this software, other than combinations       |**
-**|  with devices manufactured by or for TI ("TI Devices").  No hardware     |**
-**|  patent is licensed hereunder.                                           |**
-**|                                                                          |**
-**|  Redistributions must preserve existing copyright notices and            |**
-**|  reproduce this license (including the above copyright notice and the    |**
-**|  disclaimer and (if applicable) source code license limitations below)   |**
-**|  in the documentation and/or other materials provided with the           |**
-**|  distribution                                                            |**
-**|                                                                          |**
-**|  Redistribution and use in binary form, without modification, are        |**
-**|  permitted provided that the following conditions are met:               |**
-**|                                                                          |**
-**|    *  No reverse engineering, decompilation, or disassembly of this      |**
-**|  software is permitted with respect to any software provided in binary   |**
-**|  form.                                                                   |**
-**|                                                                          |**
-**|    *  any redistribution and use are licensed by TI for use only with    |**
-**|  TI Devices.                                                             |**
-**|                                                                          |**
-**|    *  Nothing shall obligate TI to provide you with source code for      |**
-**|  the software licensed and provided to you in object code.               |**
-**|                                                                          |**
-**|  If software source code is provided to you, modification and            |**
-**|  redistribution of the source code are permitted provided that the       |**
-**|  following conditions are met:                                           |**
-**|                                                                          |**
-**|    *  any redistribution and use of the source code, including any       |**
-**|  resulting derivative works, are licensed by TI for use only with TI     |**
-**|  Devices.                                                                |**
-**|                                                                          |**
-**|    *  any redistribution and use of any object code compiled from the    |**
-**|  source code and any resulting derivative works, are licensed by TI      |**
-**|  for use only with TI Devices.                                           |**
-**|                                                                          |**
-**|  Neither the name of Texas Instruments Incorporated nor the names of     |**
-**|  its suppliers may be used to endorse or promote products derived from   |**
-**|  this software without specific prior written permission.                |**
-**|                                                                          |**
-**|  DISCLAIMER.                                                             |**
-**|                                                                          |**
-**|  THIS SOFTWARE IS PROVIDED BY TI AND TI'S LICENSORS "AS IS" AND ANY      |**
-**|  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE       |**
-**|  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR      |**
-**|  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL TI AND TI'S LICENSORS BE      |**
-**|  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR     |**
-**|  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF    |**
-**|  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR         |**
-**|  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,   |**
-**|  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE    |**
-**|  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,       |**
-**|  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                      |**
-**+--------------------------------------------------------------------------+**
-*******************************************************************************/
+// Copyright (C) 2026 Texas Instruments Incorporated
+//
+// SPDX-License-Identifier: Apache-2.0
 
 /**
  ******************************************************************************
@@ -113,27 +37,39 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init_checkParams(AUDIOLIB_kernelHandle        
    else if (bufParamsIn->data_type != bufParamsOut->data_type) {
       status = AUDIOLIB_ERR_INVALID_TYPE;
    }
-   else if (pKerInitArgs->upFactor < 1u) {
+   else if (pKerInitArgs->isInterleave > 1U) {
       status = AUDIOLIB_ERR_INVALID_VALUE;
    }
-   else if (pKerInitArgs->phase >= pKerInitArgs->upFactor) {
+   else if ((pKerInitArgs->upFactor < 1U) || (pKerInitArgs->phase >= pKerInitArgs->upFactor)) {
       status = AUDIOLIB_ERR_INVALID_VALUE;
+   }
+   else if ((bufParamsIn->dim_x == 0U) || (bufParamsIn->dim_y == 0U)) {
+      /* Zero channels or samples: the streaming engine cannot run a zero-length stream. */
+      status = AUDIOLIB_ERR_INVALID_DIMENSION;
    }
    else {
-      /* Output must be upFactor times longer along the sample axis. */
-      if (pKerInitArgs->isInterleave) {
-         /* interleaved: dim_x = channels, dim_y = samples */
-         if ((bufParamsOut->dim_x != bufParamsIn->dim_x) ||
-             (bufParamsOut->dim_y != pKerInitArgs->upFactor * bufParamsIn->dim_y)) {
-            status = AUDIOLIB_ERR_INVALID_DIMENSION;
-         }
+      /* Output must be upFactor times longer along the sample axis. The product is formed in
+       * 64 bits so a wrapped 32-bit result cannot pass the check. */
+      uint32_t eleSize    = (uint32_t) AUDIOLIB_sizeof(bufParamsIn->data_type);
+      uint32_t numSamples = (pKerInitArgs->isInterleave == 1U) ? bufParamsIn->dim_y : bufParamsIn->dim_x;
+      uint32_t outSamples = (pKerInitArgs->isInterleave == 1U) ? bufParamsOut->dim_y : bufParamsOut->dim_x;
+      uint32_t inChannels = (pKerInitArgs->isInterleave == 1U) ? bufParamsIn->dim_x : bufParamsIn->dim_y;
+      uint32_t outChannels = (pKerInitArgs->isInterleave == 1U) ? bufParamsOut->dim_x : bufParamsOut->dim_y;
+
+      if ((outChannels != inChannels) ||
+          ((uint64_t) outSamples != ((uint64_t) pKerInitArgs->upFactor * (uint64_t) numSamples))) {
+         status = AUDIOLIB_ERR_INVALID_DIMENSION;
+      }
+      /* Row strides must be positive, element-aligned and hold one full row. */
+      else if ((bufParamsIn->stride_y <= 0) || (bufParamsOut->stride_y <= 0) ||
+               (((uint32_t) bufParamsIn->stride_y % eleSize) != 0U) ||
+               (((uint32_t) bufParamsOut->stride_y % eleSize) != 0U) ||
+               (((uint32_t) bufParamsIn->stride_y / eleSize) < bufParamsIn->dim_x) ||
+               (((uint32_t) bufParamsOut->stride_y / eleSize) < bufParamsOut->dim_x)) {
+         status = AUDIOLIB_ERR_INVALID_DIMENSION;
       }
       else {
-         /* planar: dim_x = samples, dim_y = channels */
-         if ((bufParamsOut->dim_y != bufParamsIn->dim_y) ||
-             (bufParamsOut->dim_x != pKerInitArgs->upFactor * bufParamsIn->dim_x)) {
-            status = AUDIOLIB_ERR_INVALID_DIMENSION;
-         }
+         /* parameters valid */
       }
    }
 
@@ -191,15 +127,16 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init(AUDIOLIB_kernelHandle             handle,
    }
    else {
 
-      /* Single-channel, unit-stride interleaved float32 can be treated as planar. */
+      /* Single-channel interleaved data with unit input/output strides is one contiguous
+       * row, so it is processed by the (faster) planar path. */
       const bool singleChannelPlanar =
-          (pKerPrivArgs->isInterleave == 1u) && (pKerPrivArgs->dimXIn == 1u) && (pKerPrivArgs->strideIn == 1) &&
-          (bufParamsIn->data_type == AUDIOLIB_FLOAT32);
-      pKerPrivArgs->useNonInterleave = singleChannelPlanar ? 1u : 0u;
+          (pKerPrivArgs->isInterleave == 1U) && (pKerPrivArgs->dimXIn == 1U) && (pKerPrivArgs->strideIn == 1) &&
+          (pKerPrivArgs->strideOut == 1);
+      pKerPrivArgs->useNonInterleave = singleChannelPlanar ? 1U : 0U;
       if (bufParamsIn->data_type == AUDIOLIB_FLOAT32) {
 
-         if (pKerPrivArgs->isInterleave == 1 && pKerPrivArgs->useNonInterleave == 0) {
-            if (pKerPrivArgs->phase > 0) {
+         if ((pKerPrivArgs->isInterleave == 1U) && (pKerPrivArgs->useNonInterleave == 0U)) {
+            if (pKerPrivArgs->phase > 0U) {
                pKerPrivArgs->execute = AUDIOLIB_upSample_execInterleave_ci<true, float>;
             }
             else {
@@ -207,30 +144,30 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init(AUDIOLIB_kernelHandle             handle,
             }
          }
          else {
-            if (pKerPrivArgs->phase > 0) {
+            if (pKerPrivArgs->phase > 0U) {
                switch (pKerPrivArgs->upFactor) {
-               case 2:
-               case 4:
+               case 2U:
+               case 4U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample2_exec_ci<true, float>;
                   break;
-               case 3:
-               case 6:
+               case 3U:
+               case 6U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample3_exec_ci<true, float>;
                   break;
-               case 5:
-               case 10:
+               case 5U:
+               case 10U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample5_exec_ci<true, float>;
                   break;
-               case 7:
-               case 14:
+               case 7U:
+               case 14U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample7_exec_ci<true, float>;
                   break;
-               case 8:
-               case 16:
-               case 24:
+               case 8U:
+               case 16U:
+               case 24U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample8X_exec_ci<true, float>;
                   break;
-               case 12:
+               case 12U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample6x2_exec_ci<true, float>;
                   break;
                default:
@@ -240,28 +177,28 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init(AUDIOLIB_kernelHandle             handle,
             }
             else {
                switch (pKerPrivArgs->upFactor) {
-               case 2:
-               case 4:
+               case 2U:
+               case 4U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample2_exec_ci<false, float>;
                   break;
-               case 3:
-               case 6:
+               case 3U:
+               case 6U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample3_exec_ci<false, float>;
                   break;
-               case 5:
-               case 10:
+               case 5U:
+               case 10U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample5_exec_ci<false, float>;
                   break;
-               case 7:
-               case 14:
+               case 7U:
+               case 14U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample7_exec_ci<false, float>;
                   break;
-               case 8:
-               case 16:
-               case 24:
+               case 8U:
+               case 16U:
+               case 24U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample8X_exec_ci<false, float>;
                   break;
-               case 12:
+               case 12U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample6x2_exec_ci<false, float>;
                   break;
                default:
@@ -273,8 +210,8 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init(AUDIOLIB_kernelHandle             handle,
          status = AUDIOLIB_upSample_init_ci<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
       }
       else if (bufParamsIn->data_type == AUDIOLIB_FLOAT64) {
-         if (pKerPrivArgs->isInterleave && pKerPrivArgs->useNonInterleave == 0) {
-            if (pKerPrivArgs->phase > 0) {
+         if ((pKerPrivArgs->isInterleave == 1U) && (pKerPrivArgs->useNonInterleave == 0U)) {
+            if (pKerPrivArgs->phase > 0U) {
                pKerPrivArgs->execute = AUDIOLIB_upSample_execInterleave_ci<true, double>;
             }
             else {
@@ -282,27 +219,27 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init(AUDIOLIB_kernelHandle             handle,
             }
          }
          else {
-            if (pKerPrivArgs->phase>0 ) {
+            if (pKerPrivArgs->phase > 0U) {
                switch (pKerPrivArgs->upFactor) {
-               case 2:
+               case 2U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample2_exec_ci<true, double>;
                   break;
-               case 3:
+               case 3U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample3_exec_ci<true, double>;
                   break;
-               case 4:
+               case 4U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample4_exec_ci<true, double>;
                   break;
-               case 5:
+               case 5U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample5_exec_ci<true, double>;
                   break;
-               case 6:
+               case 6U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample6_exec_ci<true, double>;
                   break;
-               case 7:
+               case 7U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample7_exec_ci<true, double>;
                   break;
-               case 8:
+               case 8U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample8_exec_ci<true, double>;
                   break;
                default:
@@ -312,25 +249,25 @@ AUDIOLIB_STATUS AUDIOLIB_upSample_init(AUDIOLIB_kernelHandle             handle,
             }
             else {
                switch (pKerPrivArgs->upFactor) {
-               case 2:
+               case 2U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample2_exec_ci<false, double>;
                   break;
-               case 3:
+               case 3U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample3_exec_ci<false, double>;
                   break;
-               case 4:
+               case 4U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample4_exec_ci<false, double>;
                   break;
-               case 5:
+               case 5U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample5_exec_ci<false, double>;
                   break;
-               case 6:
+               case 6U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample6_exec_ci<false, double>;
                   break;
-               case 7:
+               case 7U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample7_exec_ci<false, double>;
                   break;
-               case 8:
+               case 8U:
                   pKerPrivArgs->execute = AUDIOLIB_upSample8_exec_ci<false, double>;
                   break;
                default:
