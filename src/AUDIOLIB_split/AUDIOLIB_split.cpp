@@ -7,11 +7,15 @@
 
 int32_t AUDIOLIB_split_getHandleSize(AUDIOLIB_split_InitArgs *pKerInitArgs)
 {
-   int32_t privBufSize = -1;
-   if (pKerInitArgs != NULL) {
-      privBufSize = sizeof(AUDIOLIB_split_PrivArgs);
+   if (pKerInitArgs == NULL || pKerInitArgs->numOutputs == 0) {
+      return -1;
    }
-   return privBufSize;
+   uint32_t N          = pKerInitArgs->numOutputs;
+   int32_t  baseSize   = ((int32_t) sizeof(AUDIOLIB_split_PrivArgs) + 63) & ~63;
+   int32_t  arraySize  = ((int32_t)(2U * N * sizeof(uint32_t)) + 63) & ~63;
+   int32_t  pblockSize =
+       (int32_t)(SE_PARAM_SIZE + N * SE_PARAM_SIZE + N * SA_PARAM_SIZE + 2U * N * sizeof(uint32_t));
+   return baseSize + arraySize + pblockSize;
 }
 
 AUDIOLIB_STATUS
@@ -30,11 +34,6 @@ AUDIOLIB_split_init_checkParams(AUDIOLIB_kernelHandle          handle,
 
    if (status == AUDIOLIB_SUCCESS) {
       if (pKerInitArgs->numOutputs <= 0 || pKerInitArgs->outChannels == NULL) {
-         status = AUDIOLIB_ERR_INVALID_VALUE;
-      }
-      else if (pKerInitArgs->numOutputs > MAX_OUTPUTS) {
-         /* Each output consumes one SE/SA-template slot in the handle's bufPblock, which
-          * is sized for MAX_OUTPUTS outputs; reject more to avoid overrunning it. */
          status = AUDIOLIB_ERR_INVALID_VALUE;
       }
       else {
@@ -112,7 +111,7 @@ AUDIOLIB_STATUS AUDIOLIB_split_init(AUDIOLIB_kernelHandle          handle,
    }
 
    if (status == AUDIOLIB_SUCCESS) {
-      if (pKerInitArgs->numOutputs == 0 || pKerInitArgs->numOutputs > MAX_OUTPUTS) {
+      if (pKerInitArgs->numOutputs == 0) {
          status = AUDIOLIB_ERR_INVALID_VALUE;
       }
    }
@@ -120,6 +119,13 @@ AUDIOLIB_STATUS AUDIOLIB_split_init(AUDIOLIB_kernelHandle          handle,
    if (status == AUDIOLIB_SUCCESS) {
       pKerPrivArgs->numOutputs        = pKerInitArgs->numOutputs;
       pKerPrivArgs->isInputInterleave = pKerInitArgs->isInputInterleave;
+
+      /* Set up tail pointers within the caller-allocated handle buffer. */
+      uint32_t N      = pKerInitArgs->numOutputs;
+      uint8_t *tail   = (uint8_t *) handle + (((int32_t) sizeof(AUDIOLIB_split_PrivArgs) + 63) & ~63);
+      pKerPrivArgs->outChannels = (uint32_t *) tail;
+      pKerPrivArgs->strideOut   = (uint32_t *)(tail + N * sizeof(uint32_t));
+      pKerPrivArgs->bufPblock   = tail + (((int32_t)(2U * N * sizeof(uint32_t)) + 63) & ~63);
 
       if (!pKerInitArgs->isInputInterleave) {
          pKerPrivArgs->numInputSamples  = bufParamsIn->dim_x;  // deinterleaved: dim_x = samples

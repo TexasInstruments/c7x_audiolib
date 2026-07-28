@@ -8,28 +8,20 @@
 #include "../common/AUDIOLIB_utility.h"
 #include "AUDIOLIB_concat.h"
 
-/*!
- * @brief Maximum number of input buffers a concat handle can support. Sizes
- *        the per-input SE/SA template slots in the bufPblock array of
- *        @ref AUDIOLIB_concat_PrivArgs as well as its inChannels[] and
- *        strideIn[] arrays.
- *
- */
-#define MAX_INPUTS (64)
+/* SE/SA hardware template sizes (bytes).  Defined in c7x_strm.h on C7x targets;
+ * provide fallbacks for PC (_HOST_BUILD) where c7x_strm.h is not included. */
+#ifndef SE_PARAM_SIZE
+#define SE_PARAM_SIZE (64) /* sizeof(__SE_TEMPLATE_v1) */
+#endif
+#ifndef SA_PARAM_SIZE
+#define SA_PARAM_SIZE (64) /* sizeof(__SA_TEMPLATE_v1) */
+#endif
+
 #define SE_PARAM_BASE (0x0000)
 // One SE template per input (interleaved and non-interleaved both read per-input)
+// Offset = 0; N-independent.
 #define SE_SE0_PARAM_OFFSET (SE_PARAM_BASE)
-// Single SA template used by the non-interleaved (contiguous output) path
-#define SE_SA0_PARAM_OFFSET (SE_SE0_PARAM_OFFSET + MAX_INPUTS * SE_PARAM_SIZE)
-// One SA template per input used by the interleaved path
-#define SE_SA1_PARAM_OFFSET (SE_SA0_PARAM_OFFSET + SA_PARAM_SIZE)
-// Per-input output channel offsets (one uint32_t per input)
-#define SE_OUTOFFSET_PARAM_OFFSET (SE_SA1_PARAM_OFFSET + MAX_INPUTS * SA_PARAM_SIZE)
-// Per-input vector iteration counts (one uint32_t per input)
-#define SE_ITERCOUNT_PARAM_OFFSET (SE_OUTOFFSET_PARAM_OFFSET + MAX_INPUTS * sizeof(uint32_t))
-
-#define AUDIOLIB_CONCAT_IXX_IXX_OXX_PBLOCK_SIZE                                                                        \
-   (MAX_INPUTS * SE_PARAM_SIZE + SA_PARAM_SIZE + MAX_INPUTS * SA_PARAM_SIZE + 2 * MAX_INPUTS * sizeof(uint32_t))
+// All other pblock offsets are N-dependent and computed at runtime.
 
 /*!
  *  @brief This is a function pointer type that conforms to the
@@ -155,18 +147,21 @@ typedef struct {
    /*! @brief Flag: 1 if all inputs have the same channel count (enables the single-store
     *         fast path for the interleaved layout), 0 otherwise */
    uint8_t inChannelsUniform;
-   /*! @brief Per-input channel counts (one entry per input buffer) */
-   uint32_t inChannels[MAX_INPUTS];
+   /*! @brief Per-input channel counts (one entry per input buffer).
+    *         Points into the tail of the caller-allocated handle buffer. */
+   uint32_t *inChannels;
    /*! @brief Total number of channels across all inputs (sum of inChannels) */
    uint32_t totalInChannels;
    /*! @brief Number of samples per channel per input buffer (uniform across inputs) */
    uint32_t inSamples;
-   /*! @brief Per-input buffer strides in elements (stride_y / sizeof(element)) */
-   uint32_t strideIn[MAX_INPUTS];
+   /*! @brief Per-input buffer strides in elements (stride_y / sizeof(element)).
+    *         Points into the tail of the caller-allocated handle buffer. */
+   uint32_t *strideIn;
    /*! @brief Output buffer stride in elements (stride_y / sizeof(element)) */
    uint32_t strideOut;
-   /*! @brief Parameter block storing SE/SA templates and iteration count for C7x */
-   uint8_t bufPblock[AUDIOLIB_CONCAT_IXX_IXX_OXX_PBLOCK_SIZE];
+   /*! @brief Parameter block storing SE/SA templates and iteration count for C7x.
+    *         Points into the tail of the caller-allocated handle buffer. */
+   uint8_t *bufPblock;
 
 } AUDIOLIB_concat_PrivArgs;
 

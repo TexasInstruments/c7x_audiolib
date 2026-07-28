@@ -505,14 +505,6 @@ int coverage_test_main()
          currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_VALUE);
          break;
 
-      case 1004:
-         // Test Case: numInputs exceeds MAX_INPUTS (handle bufPblock bound) -> INVALID_VALUE
-         kerInitArgs.numInputs  = 65;
-         kerInitArgs.funcStyle  = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt = AUDIOLIB_concat_init_checkParams(handle, bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_VALUE);
-         break;
-
       case 1005:
          // Test Case: per-input dimension mismatch -> INVALID_DIMENSION
          // (non-interleave: channel axis = dim_y; in[1] channel count != inChannels)

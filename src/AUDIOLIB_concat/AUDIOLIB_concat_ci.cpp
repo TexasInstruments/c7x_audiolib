@@ -8,7 +8,9 @@ void AUDIOLIB_concat_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles,
 {
    AUDIOLIB_concat_PrivArgs *pKerPrivArgs    = (AUDIOLIB_concat_PrivArgs *) handle;
    uint8_t                  *pBlock          = pKerPrivArgs->bufPblock;
-   uint32_t *restrict pIterCountLocal        = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   uint32_t                  N               = pKerPrivArgs->numInputs;
+   uint32_t *restrict pIterCountLocal        = (uint32_t *) ((uint8_t *) pBlock +
+       N * SE_PARAM_SIZE + SA_PARAM_SIZE + N * SA_PARAM_SIZE + N * sizeof(uint32_t));
 
    uint64_t concatStartupCycles   = 0;
    uint64_t concatTeardownCycles  = 0;
@@ -61,14 +63,16 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
    __SA_VECLEN  SA_VECLEN  = c7x::sa_veclen<vec>::value;
 
    __SA_TEMPLATE_v1 sa0Params = __gen_SA_TEMPLATE_v1();
-   __SE_TEMPLATE_v1 se0Params[MAX_INPUTS];
-   __SA_TEMPLATE_v1 sa1Params[MAX_INPUTS];
+   uint32_t         N         = pKerPrivArgs->numInputs;
 
-   __SE_TEMPLATE_v1 *restrict pSe0Params = se0Params;
-   __SA_TEMPLATE_v1 *restrict pSa1Params = sa1Params;
+   __SE_TEMPLATE_v1 *restrict pSe0Params = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 *restrict pSa1Params =
+       (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE + SA_PARAM_SIZE);
 
-   uint32_t *restrict pOutOffsetLocal = (uint32_t *) ((uint8_t *) pBlock + SE_OUTOFFSET_PARAM_OFFSET);
-   uint32_t *restrict pIterCountLocal = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   uint32_t *restrict pOutOffsetLocal =
+       (uint32_t *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE + SA_PARAM_SIZE + N * SA_PARAM_SIZE);
+   uint32_t *restrict pIterCountLocal =
+       (uint32_t *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE + SA_PARAM_SIZE + N * SA_PARAM_SIZE + N * sizeof(uint32_t));
 
    if (!pKerInitArgs->isInterleave) {
       /* Non-interleaved (planar) input and output: one 2D SE per input, single 2D SA. */
@@ -141,12 +145,9 @@ AUDIOLIB_STATUS AUDIOLIB_concat_init_ci(AUDIOLIB_kernelHandle           handle,
          cumulativeOffset += pKerPrivArgs->inChannels[i];
          pIterCountLocal[i] = (AUDIOLIB_ceilingDiv(pKerPrivArgs->inChannels[i], eleCount)) * pKerPrivArgs->inSamples;
       }
-      memcpy((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET, sa1Params, pKerPrivArgs->numInputs * sizeof(sa1Params[0]));
    }
 
-   memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, pKerPrivArgs->numInputs * sizeof(se0Params[0]));
-
-   *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
+   *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE) = sa0Params;
 
    return status;
 }
@@ -173,9 +174,11 @@ AUDIOLIB_concat_exec_ci(AUDIOLIB_kernelHandle handle, void **restrict pIn, void 
    dataType *restrict pOutLocal = (dataType *) pOut;
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_concat_exec_ci");
 
-   __SE_TEMPLATE_v1 *restrict se0Params = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
-   __SA_TEMPLATE_v1 sa0Params           = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
-   uint32_t *restrict pIterCountLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   uint32_t                    N             = pKerPrivArgs->numInputs;
+   __SE_TEMPLATE_v1 *restrict se0Params     = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa0Params               = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE);
+   uint32_t *restrict pIterCountLocal       =
+       (uint32_t *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE + SA_PARAM_SIZE + N * SA_PARAM_SIZE + N * sizeof(uint32_t));
 
    __SA0_OPEN(sa0Params);
    for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
@@ -219,10 +222,14 @@ AUDIOLIB_STATUS AUDIOLIB_concatPerInputStore_exec_ci(AUDIOLIB_kernelHandle handl
 
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_concatPerInputStore_exec_ci");
 
-   __SE_TEMPLATE_v1 *restrict se0Params = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
-   __SA_TEMPLATE_v1 *restrict sa1Params = (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET);
-   uint32_t *restrict pOutOffsetLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_OUTOFFSET_PARAM_OFFSET);
-   uint32_t *restrict pIterCountLocal   = (uint32_t *) ((uint8_t *) pBlock + SE_ITERCOUNT_PARAM_OFFSET);
+   uint32_t                    N            = pKerPrivArgs->numInputs;
+   __SE_TEMPLATE_v1 *restrict se0Params    = (__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 *restrict sa1Params    =
+       (__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE + SA_PARAM_SIZE);
+   uint32_t *restrict pOutOffsetLocal      =
+       (uint32_t *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE + SA_PARAM_SIZE + N * SA_PARAM_SIZE);
+   uint32_t *restrict pIterCountLocal      =
+       (uint32_t *) ((uint8_t *) pBlock + N * SE_PARAM_SIZE + SA_PARAM_SIZE + N * SA_PARAM_SIZE + N * sizeof(uint32_t));
 
    for (uint32_t i = 0; i < pKerPrivArgs->numInputs; i++) {
       dataType *restrict pInLocal = (dataType *) pIn[i];

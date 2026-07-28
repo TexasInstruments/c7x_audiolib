@@ -8,29 +8,23 @@
 #include "../common/AUDIOLIB_utility.h"
 #include "AUDIOLIB_split.h"
 
-/*!
- * @brief Maximum number of output buffers a split handle can support. Sizes
- *        the per-output SE/SA template slots in the bufPblock array of
- *        @ref AUDIOLIB_split_PrivArgs as well as its outChannels[] and
- *        strideOut[] arrays.
- *
- */
+/* SE/SA hardware template sizes (bytes).  Defined in c7x_strm.h on C7x targets;
+ * provide fallbacks for PC (_HOST_BUILD) where c7x_strm.h is not included. */
+#ifndef SE_PARAM_SIZE
+#define SE_PARAM_SIZE (64) /* sizeof(__SE_TEMPLATE_v1) */
+#endif
+#ifndef SA_PARAM_SIZE
+#define SA_PARAM_SIZE (64) /* sizeof(__SA_TEMPLATE_v1) */
+#endif
 
-#define MAX_OUTPUTS (64)
 #define SE_PARAM_BASE (0x0000)
 // Single SE template streaming the whole contiguous input (deinterleaved / planar path)
+// Offset = 0; N-independent.
 #define SE_SE0_SINGLE_PARAM_OFFSET (SE_PARAM_BASE)
-// One SE template per output (interleaved path: each output reads a channel window)
+// One SE template per output starts immediately after the single SE template.
+// Offset = SE_PARAM_SIZE; N-independent.
 #define SE_SE0_PARAM_OFFSET (SE_SE0_SINGLE_PARAM_OFFSET + SE_PARAM_SIZE)
-// One SA template per output (both paths)
-#define SE_SA0_PARAM_OFFSET (SE_SE0_PARAM_OFFSET + MAX_OUTPUTS * SE_PARAM_SIZE)
-// Per-output input element offsets (interleaved path; one uint32_t per output)
-#define SE_INOFFSET_PARAM_OFFSET (SE_SA0_PARAM_OFFSET + MAX_OUTPUTS * SA_PARAM_SIZE)
-// Per-output vector iteration counts (one uint32_t per output)
-#define SE_ITERCOUNT_PARAM_OFFSET (SE_INOFFSET_PARAM_OFFSET + MAX_OUTPUTS * sizeof(uint32_t))
-
-#define AUDIOLIB_SPLIT_IXX_IXX_OXX_PBLOCK_SIZE                                                                         \
-   (SE_PARAM_SIZE + MAX_OUTPUTS * SE_PARAM_SIZE + MAX_OUTPUTS * SA_PARAM_SIZE + 2 * MAX_OUTPUTS * sizeof(uint32_t))
+// All other pblock offsets are N-dependent and computed at runtime.
 
 /*!
  *  @brief This is a function pointer type that conforms to the
@@ -154,20 +148,23 @@ typedef struct {
    uint32_t numInputSamples;
    /*! @brief Total number of channels in the input buffer (sum of outChannels) */
    uint32_t numInputChannels;
-   /*! @brief Per-output channel counts (one entry per output buffer) */
-   uint32_t outChannels[MAX_OUTPUTS];
+   /*! @brief Per-output channel counts (one entry per output buffer).
+    *         Points into the tail of the caller-allocated handle buffer. */
+   uint32_t *outChannels;
 
    /*! @brief Stride in elements between consecutive rows of the input buffer */
    uint32_t strideIn;
-   /*! @brief Per-output buffer strides in elements (one entry per output buffer) */
-   uint32_t strideOut[MAX_OUTPUTS];
+   /*! @brief Per-output buffer strides in elements (one entry per output buffer).
+    *         Points into the tail of the caller-allocated handle buffer. */
+   uint32_t *strideOut;
    /*! @brief Input data format: 1 for interleaved, 0 for deinterleaved */
    uint32_t isInputInterleave;
    /*! @brief Flag: 1 if all outputs have the same channel count (enables the single-load
     *         fast path for the interleaved layout), 0 otherwise */
    uint8_t outChannelsUniform;
-   /*! @brief Parameter block array storing SE/SA templates for C7x execution */
-   uint8_t bufPblock[AUDIOLIB_SPLIT_IXX_IXX_OXX_PBLOCK_SIZE];
+   /*! @brief Parameter block storing SE/SA templates for C7x execution.
+    *         Points into the tail of the caller-allocated handle buffer. */
+   uint8_t *bufPblock;
 
 } AUDIOLIB_split_PrivArgs;
 
