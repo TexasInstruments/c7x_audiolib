@@ -44,7 +44,7 @@ class AUDIOLIB_dB10:
         # Handle special cases
         if self._dType == "float":
             out[in0 > np.finfo(np.float32).max] = 308.2547
-            out[in0 <= 0.0] = np.uint32(0xFF800000)  # NaN/-Inf bit pattern for float32
+            out[in0 <= 0.0] = np.log10(np.finfo(np.float32).tiny)  # log10(FLT_MIN) ~= -37.93 (XLIB-1033)
         else:
             out[in0 > np.finfo(np.float64).max] = 308.2547
             out[in0 <= 0.0] = np.uint64(

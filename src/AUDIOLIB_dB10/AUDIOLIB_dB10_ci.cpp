@@ -468,7 +468,7 @@ AUDIOLIB_STATUS AUDIOLIB_dB10_vector_sp_exec_ci(AUDIOLIB_kernelHandle handle, vo
    C4 = (vec) 0.3333164f;
    C5 = (vec) -0.5000002f;
    eMax = (vec) 3.402823466e+38f;
-   outVecMin = (vec) 0xFF800000u;
+   outVecMin = (vec) CONST_FLOAT_MIN_DB10;
    db = (vec) 10.0f;
    outVecMax = (vec) CONST_MAX_DB10;
 

@@ -345,7 +345,7 @@ template <> inline float AUDIOLIB_dB20_scalar_ci(float a)
    res = (float) ((dr * base) + T) + pol;
 
    if (a <= 0.0f) {
-      res = CONST_FLOAT_MIN_DB20; // out[in0 <= 0.0] = np.uint32(0xFF800000)
+      res = CONST_FLOAT_MIN_DB20; // log10(FLT_MIN); 20*res ~= -758.6 dB floor (XLIB-1033)
    }
    if (a > MAXe) {
       res = CONST_MAX_DB20;
@@ -464,7 +464,7 @@ AUDIOLIB_STATUS AUDIOLIB_dB20_vector_sp_exec_ci(AUDIOLIB_kernelHandle handle, vo
    C4 = (vec) 0.3333164f;
    C5 = (vec) -0.5000002f;
    eMax = (vec) 3.402823466e+38f;
-   outVecMin = (vec) 0xFF800000u;
+   outVecMin = (vec) CONST_FLOAT_MIN_DB20; // pre-x20 floor; x20 below => ~-758.6 dB (XLIB-1033)
    db = (vec) 20.0f;
    outVecMax = (vec) CONST_MAX_DB20;
 

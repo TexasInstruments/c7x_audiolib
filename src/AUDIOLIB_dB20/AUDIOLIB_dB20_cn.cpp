@@ -35,7 +35,7 @@ AUDIOLIB_STATUS AUDIOLIB_dB20_exec_cn(AUDIOLIB_kernelHandle handle, void *restri
                pOutLocal[m * outStride + n] = 6165.09375; // 20 times of 308.2546875;
             }
             else if (pInLocal[m * inStride + n] <= 0) {
-               pOutLocal[m * outStride + n] = 85731573760.0; // 20 times of 42865786880.0
+               pOutLocal[m * outStride + n] = 20 * CONST_FLOAT_MIN_DB20; // log10(FLT_MIN)*20 ~= -758.6 dB (XLIB-1033)
             }
          }
          if (dataTypeVal == AUDIOLIB_FLOAT64) {

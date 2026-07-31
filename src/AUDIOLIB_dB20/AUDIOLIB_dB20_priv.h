@@ -45,11 +45,14 @@
 #define CONST_MAX_DB20 308.254715974092
 
 /**
- * @brief Macro defining the minimum constant value representable by a float.
- *
+ * @brief Pre-x20 dB floor returned for dB20(x <= 0): log10(FLT_MIN).
+ *        After the x20 scaling this is ~ -758.6 dB, a large-negative
+ *        "silence" level continuous with the x -> 0+ limit. Was 4286578688
+ *        (the integer reading of the -Inf bit pattern 0xFF800000), which
+ *        wrongly produced +8.57e10 dB. See XLIB-1033.
  */
 
-#define CONST_FLOAT_MIN_DB20 4286578688
+#define CONST_FLOAT_MIN_DB20 (-37.9297794537f)
 
 /**
  *  @brief This is a function pointer type that conforms to the
