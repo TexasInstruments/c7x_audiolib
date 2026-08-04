@@ -178,6 +178,7 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_gainNChTrim",
         "AUDIOLIB_gainNChTrimSmoothing",
         "AUDIOLIB_gainSmoothing",
+        "AUDIOLIB_gainOffset",
         "AUDIOLIB_balance",
         "AUDIOLIB_balanceFader",
         "AUDIOLIB_mute",

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 Z" fill="#000"/></marker></defs>
+<text x="40" y="115" font-size="18" font-family="Arial">Input x[n]</text>
+<line x1="120" y1="110" x2="220" y2="110" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="220" y="75" width="150" height="70" fill="#E8F2FF" stroke="black" stroke-width="2"/>
+<text x="265" y="105" font-size="18" font-family="Arial">Gain</text>
+<text x="248" y="128" font-size="16" font-family="Arial">× gain</text>
+<line x1="370" y1="110" x2="470" y2="110" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<circle cx="520" cy="110" r="28" fill="white" stroke="black" stroke-width="2"/>
+<text x="512" y="118" font-size="24" font-family="Arial">+</text>
+<text x="470" y="35" font-size="18" font-family="Arial">Offset</text>
+<text x="485" y="58" font-size="16" font-family="Arial">offset</text>
+<line x1="520" y1="65" x2="520" y2="82" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="548" y1="110" x2="690" y2="110" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="705" y="115" font-size="18" font-family="Arial">Output y[n]</text>
+<text x="220" y="190" font-size="22" font-family="Arial" font-weight="bold">y[n] = gain × x[n] + offset</text>
+</svg>
