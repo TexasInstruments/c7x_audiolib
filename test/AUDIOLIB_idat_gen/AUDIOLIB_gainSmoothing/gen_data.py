@@ -11,23 +11,22 @@ sys.path.append("../common")
 import AUDIOLIB_utils
 import file_io
 import os
-# import matplotlib.pyplot as plt
 from gainSmoothing import AUDIOLIB_gainSmoothing
 
 
 
-def gen_testCaseParams(testParamsFile, currPrm):
+def gen_testCaseParams(idatFile, currPrm):
     """Generate and write test case parameters to idat file.
 
     Args:
-        testParamsFile (file object): Input file object to idat.c file.
+        idatFile (file object): Input file object to idat.c file.
         currPrm (dict): Dictionary object with test case parameters.
     """
     testId             = currPrm["ID"]
     dType              = currPrm["dType"]
-    inSamples         = currPrm["inSamples"]
-    inChannels        = currPrm["inChannels"]
-    targetGain               = currPrm["targetGain"]
+    inSamples          = currPrm["inSamples"]
+    inChannels         = currPrm["inChannels"]
+    targetGain         = currPrm["targetGain"]
     currentGain        = currPrm["currentGain"]
     samplingRate       = currPrm["samplingRate"]
     fadeTime           = currPrm["fadeTime"]
@@ -48,8 +47,11 @@ def gen_testCaseParams(testParamsFile, currPrm):
         "SYMMETRIC": 0,
         "SMOOTH": 1,
     }
-    fadeType_int = fadeType_map[fadeType]
+    fadeType_int = fadeType_map.get(fadeType)
 
+    if fadeType_int is None:
+        raise ValueError(f"Invalid fadeType {fadeType}")
+    
     if testType in ["STATIC", "SINE"]:
         in_data   = "staticRefInCase" + testId
         out_data  = "staticRefOutCase" + testId
@@ -59,15 +61,15 @@ def gen_testCaseParams(testParamsFile, currPrm):
         out_data  = "NULL"
 
     if C7100 == "FALSE":
-        testParamsFile.write("#if !defined(__C7100__)\n")
+        idatFile.write("#if !defined(__C7100__)\n")
 
     if demoCase == "true":
-        testParamsFile.write(
+        idatFile.write(
             "#if (defined(ALL_TEST_CASES) || (TEST_CASE == %d) || defined(DEMO_CASE))\n"
             % (int(testId))
         )
     else:
-        testParamsFile.write(
+        idatFile.write(
             "#if (defined(ALL_TEST_CASES) || (TEST_CASE == %d))\n" % (int(testId))
         )
 
@@ -94,7 +96,7 @@ def gen_testCaseParams(testParamsFile, currPrm):
     idatFile.write("#endif\n")
 
     if C7100 == "FALSE":
-        testParamsFile.write("#endif // if !defined(__C7100__)\n")
+        idatFile.write("#endif // if !defined(__C7100__)\n")
 
     idatFile.write("\n\n")
 

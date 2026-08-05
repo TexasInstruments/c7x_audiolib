@@ -25,8 +25,10 @@ AUDIOLIB_gainSmoothingSymmetricFade_exec_cn(AUDIOLIB_kernelHandle handle, void *
    uint32_t strideInElements  = pKerPrivArgs->strideInElements;
    uint32_t strideOutElements = pKerPrivArgs->strideOutElements;
 
-   float         localCurrentGain = currentGain;
-   const uint8_t isFadingUp       = (gainStep > 1.0f);
+   float          localCurrentGain = currentGain;
+   const uint32_t isFadingUp       = (pKerPrivArgs->targetGain > pKerPrivArgs->currentGain);
+   const uint32_t enablebyPassSmoothing =
+       (uint32_t) (fabsf(pKerPrivArgs->currentGain - pKerPrivArgs->targetGain) < AUDIOLIB_GAINSMOOTHING_GAIN_EPSILON);
 
    // The gain advances once per sample. Interleaved buffers hold one sample frame per
    // row, planar buffers hold one sample per column, so the two layouts differ only in
@@ -34,7 +36,7 @@ AUDIOLIB_gainSmoothingSymmetricFade_exec_cn(AUDIOLIB_kernelHandle handle, void *
    const uint32_t numGainUpdates     = isInterleaved ? numRows : numCols;
    const uint32_t elemsPerGainUpdate = isInterleaved ? numCols : numRows;
 
-   if (pKerPrivArgs->bypassSmoothing) {
+   if (pKerPrivArgs->bypassSmoothing || enablebyPassSmoothing) {
       // The gain is constant, so the channel/sample layout does not matter here:
       // walk numRows rows of numCols elements for either layout.
       for (uint32_t row = 0; row < numRows; row++) {

@@ -227,6 +227,8 @@ typedef struct {
   float gainStepMultiplier;
   /** @brief Number of gain updates per exec: the outer loop counter. */
   uint32_t numBlocks;
+  /** @brief Indicates whether the kernel has been initialized. */
+  uint8_t initialized;
   /** @brief Vectors covered by each gain update: the inner loop counter. */
   uint32_t wBlocks;
   /** @brief A flag (0 or 1) to indicate if gain ramp should be bypassed. */
