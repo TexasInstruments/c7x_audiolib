@@ -22,6 +22,7 @@
 #include "AUDIOLIB_envelopeDetector/AUDIOLIB_envelopeDetector.h"
 #include "AUDIOLIB_floor/AUDIOLIB_floor.h"
 #include "AUDIOLIB_gain/AUDIOLIB_gain.h"
+#include "AUDIOLIB_gainSmoothing/AUDIOLIB_gainSmoothing.h"
 #include "AUDIOLIB_gainNCh/AUDIOLIB_gainNCh.h"
 #include "AUDIOLIB_gainNChTrim/AUDIOLIB_gainNChTrim.h"
 #include "AUDIOLIB_gainNChTrimSmoothing/AUDIOLIB_gainNChTrimSmoothing.h"
