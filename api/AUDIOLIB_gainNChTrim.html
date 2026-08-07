@@ -1,0 +1,2399 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="AUDIOLIB_gainNCh.html">
+      
+      
+        <link rel="next" href="AUDIOLIB_balance.html">
+      
+      
+      <link rel="icon" href="">
+    
+    
+      
+        <title>AUDIOLIB_gainNChTrim - AUDIOLIB Documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.a027cd878cd91b31c.min.css?v=2be211a8" />
+        <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+        <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+        <link rel="stylesheet" type="text/css" href="../_static/css/theme_overrides.css?v=b4da5c7c" />
+        <link rel="stylesheet" type="text/css" href="../_static/css/immaterial_overrides.css?v=82266e3c" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#breathe-section-title-functions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="AUDIOLIB Documentation" class="md-header__button md-logo" aria-label="AUDIOLIB Documentation" data-md-component="logo">
+      <img src="../_static/ti_logo_mono.svg" alt="logo">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            <a href="../index.html" style="color:inherit;text-decoration:none">AUDIOLIB Documentation</a>
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AUDIOLIB_gainNChTrim
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="teal"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/TexasInstruments/c7x_audiolib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    c7x_audiolib
+    <span class="ti-branch">main</span>
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="AUDIOLIB Documentation" class="md-nav__button md-logo" aria-label="AUDIOLIB Documentation" data-md-component="logo">
+      <img src="../_static/ti_logo_mono.svg" alt="logo">
+    </a>
+    AUDIOLIB Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/TexasInstruments/c7x_audiolib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    c7x_audiolib
+    <span class="ti-branch">main</span>
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m13.13 22.19-1.63-3.83c1.57-.58 3.04-1.36 4.4-2.27zM5.64 12.5l-3.83-1.63 6.1-2.77C7 9.46 6.22 10.93 5.64 12.5M21.61 2.39S16.66.269 11 5.93c-2.19 2.19-3.5 4.6-4.35 6.71-.28.75-.09 1.57.46 2.13l2.13 2.12c.55.56 1.37.74 2.12.46A19.1 19.1 0 0 0 18.07 13c5.66-5.66 3.54-10.61 3.54-10.61m-7.07 7.07c-.78-.78-.78-2.05 0-2.83s2.05-.78 2.83 0c.77.78.78 2.05 0 2.83s-2.05.78-2.83 0m-5.66 7.07-1.41-1.41zM6.24 22l3.64-3.64c-.34-.09-.67-.24-.97-.45L4.83 22zM2 22h1.41l4.77-4.76-1.42-1.41L2 20.59zm0-2.83 4.09-4.08c-.21-.3-.36-.62-.45-.97L2 17.76z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Getting Started</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.5c-1.35-.85-3.8-1.5-5.5-1.5-1.65 0-3.35.3-4.75 1.05-.1.05-.15.05-.25.05-.25 0-.5-.25-.5-.5V6c.6-.45 1.25-.75 2-1 1.11-.35 2.33-.5 3.5-.5 1.95 0 4.05.4 5.5 1.5 1.45-1.1 3.55-1.5 5.5-1.5 1.17 0 2.39.15 3.5.5.75.25 1.4.55 2 1v14.6c0 .25-.25.5-.5.5-.1 0-.15 0-.25-.05-1.4-.75-3.1-1.05-4.75-1.05-1.7 0-4.15.65-5.5 1.5M12 8v11.5c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5V7c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5m1 3.5c1.11-.68 2.6-1 4.5-1 .91 0 1.76.09 2.5.28V9.23c-.87-.15-1.71-.23-2.5-.23q-2.655 0-4.5.84zm4.5.17c-1.71 0-3.21.26-4.5.79v1.69c1.11-.65 2.6-.99 4.5-.99 1.04 0 1.88.08 2.5.24v-1.5c-.87-.16-1.71-.23-2.5-.23m2.5 2.9c-.87-.16-1.71-.24-2.5-.24-1.83 0-3.33.27-4.5.8v1.69c1.11-.66 2.6-.99 4.5-.99 1.04 0 1.88.08 2.5.24z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>API Reference</span>
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>API Reference</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="common.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Common</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="gain_level.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    <span>Gain &amp; Level</span>
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Gain &amp; Level</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_gain.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>gain</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_gainNCh.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>gain<wbr>NCh</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim</span>
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim</span>
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-functions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Functions</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_getHandleSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>get<wbr>Handle<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_getHandleSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_getHandleSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_getHandleSize-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_getHandleSize.pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_getHandleSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>init</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_init">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.bufParamsGain (C function parameter) — [in] : Pointer to the structure containing dimensional information of gain"><span>buf<wbr>Params<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>init_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_init_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.bufParamsGain (C function parameter) — [in] : Pointer to the structure containing dimensional information of gain buffer"><span>buf<wbr>Params<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>exec_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_exec_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.pIn (C function parameter) — [in] : Pointer to the structure input buffer"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.pGain (C function parameter) — [in] : Pointer to the structure input gain buffer"><span>p<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pMasterGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.pMasterGain (C function parameter) — [in] : Pointer to the structure input master gain buffer"><span>p<wbr>Master<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.pOut (C function parameter) — [out] : Pointer to the output buffer"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>exec</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_exec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.pIn (C function parameter) — [in] : Pointer to buffer holding the input buffer"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-pGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.pGain (C function parameter) — [in] : Pointer to buffer holding the per-channel gain vector"><span>p<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-pMasterGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.pMasterGain (C function parameter) — [in] : Pointer to buffer holding the master gain (scalar)"><span>p<wbr>Master<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.pOut (C function parameter) — [out] : Pointer to buffer holding the output buffer"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>perf<wbr>Est</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_perfEst">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-archCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.archCycles (C function parameter) — [in] : Arch compute cycles obtained from asm"><span>arch<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-estCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.estCycles (C function parameter) — [in] : Cycles estimated for that purticular kenel"><span>est<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-dataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.dataType (C function parameter) — [in] : Datatype of purticular test case"><span>data<wbr>Type</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-samples" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.samples (C function parameter) — [in] : samples of the input data"><span>samples</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-strideIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.strideIn (C function parameter) — [in] : stride of the input data"><span>stride<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-strideOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.strideOut (C function parameter) — [in] : stride of the output data"><span>stride<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_InitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>Init<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_InitArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_InitArgs.funcStyle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>func<wbr>Style</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_InitArgs.isInterleave" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>is<wbr>Interleave</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_balance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>balance</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_balanceFader.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>balance<wbr>Fader</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_mute.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>mute</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_muteNCh.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>mute<wbr>NCh</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="conversion_measurement.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Conversion &amp; Measurement</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="effects_processing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Effects &amp; Processing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="routing_mixing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Routing &amp; Mixing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sample_rate_synthesis.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sample Rate &amp; Synthesis</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lookup_interpolation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Lookup &amp; Interpolation</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../perf/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m16 11.78 4.24-7.33 1.73 1-5.23 9.05-6.51-3.75L5.46 19H22v2H2V3h2v14.54L9.5 8z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Performance</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repository_layout.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h6v4H3zm12 7h6v4h-6zm0 7h6v4h-6zm-2-4H7v5h6v2H5V9h2v2h6z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Repository Layout</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3c-1.27 0-2.4.8-2.82 2H3v2h1.95L2 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3L6.05 7h3.12c.33.85.98 1.5 1.83 1.83V20H2v2h20v-2h-9V8.82c.85-.32 1.5-.97 1.82-1.82h3.13L15 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3l-2.95-7H21V5h-6.17C14.4 3.8 13.27 3 12 3m0 2a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1m-6.5 5.25L7 14H4zm13 0L20 14h-3z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>License</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-functions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Functions</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_getHandleSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>get<wbr>Handle<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_getHandleSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_getHandleSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_getHandleSize-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_getHandleSize.pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_getHandleSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>init</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_init">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.bufParamsGain (C function parameter) — [in] : Pointer to the structure containing dimensional information of gain"><span>buf<wbr>Params<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>init_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_init_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.bufParamsGain (C function parameter) — [in] : Pointer to the structure containing dimensional information of gain buffer"><span>buf<wbr>Params<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_init_checkParams.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_init_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>exec_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_exec_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.pIn (C function parameter) — [in] : Pointer to the structure input buffer"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.pGain (C function parameter) — [in] : Pointer to the structure input gain buffer"><span>p<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pMasterGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.pMasterGain (C function parameter) — [in] : Pointer to the structure input master gain buffer"><span>p<wbr>Master<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec_checkParams.pOut (C function parameter) — [out] : Pointer to the output buffer"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>exec</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_exec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.pIn (C function parameter) — [in] : Pointer to buffer holding the input buffer"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-pGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.pGain (C function parameter) — [in] : Pointer to buffer holding the per-channel gain vector"><span>p<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-pMasterGain" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.pMasterGain (C function parameter) — [in] : Pointer to buffer holding the master gain (scalar)"><span>p<wbr>Master<wbr>Gain</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_exec.pOut (C function parameter) — [out] : Pointer to buffer holding the output buffer"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_exec-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>perf<wbr>Est</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_perfEst">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-archCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.archCycles (C function parameter) — [in] : Arch compute cycles obtained from asm"><span>arch<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-estCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.estCycles (C function parameter) — [in] : Cycles estimated for that purticular kenel"><span>est<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-dataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.dataType (C function parameter) — [in] : Datatype of purticular test case"><span>data<wbr>Type</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-samples" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.samples (C function parameter) — [in] : samples of the input data"><span>samples</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-strideIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.strideIn (C function parameter) — [in] : stride of the input data"><span>stride<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_perfEst-p-strideOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_gainNChTrim_perfEst.strideOut (C function parameter) — [in] : stride of the output data"><span>stride<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_InitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>gain<wbr>NCh<wbr>Trim_<wbr>Init<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_gainNChTrim_InitArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_InitArgs.funcStyle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>func<wbr>Style</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_gainNChTrim_InitArgs.isInterleave" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>is<wbr>Interleave</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1 id="audiolib-gainnchtrim">AUDIOLIB_gainNChTrim<a class="headerlink" href="#audiolib-gainnchtrim" title="Link to this heading">¶</a></h1>
+<dl class="objdesc">
+<dt class="sig sig-object highlight cpp">
+<span class="target" id="group__AUDIOLIB__gainNChTrim"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">AUDIOLIB_gainNChTrim</span></span></dt>
+<dd><p>Kernel for multichannel gain applying along with a master gain. </p>
+<p>Apply master gain and per-channel gain to interleaved and non-interleaved audio data.</p>
+<p><strong>Non-Interleaved Layout:</strong></p>
+<p>Each row corresponds to a channel, and each column corresponds to a sample:</p>
+<p><div class="math notranslate nohighlight">
+\[\begin{split} X = \begin{bmatrix} x_{0,0} &amp; x_{0,1} &amp; x_{0,2} &amp; \cdots &amp; x_{0,N-1} \\ x_{1,0} &amp; x_{1,1} &amp; x_{1,2} &amp; \cdots &amp; x_{1,N-1} \\ \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\ x_{C-1,0} &amp; x_{C-1,1} &amp; x_{C-1,2} &amp; \cdots &amp; x_{C-1,N-1} \end{bmatrix} \end{split}\]</div>
+</p>
+<p>Output after applying per-channel gain <span class="math notranslate nohighlight">\(g_c\)</span> and master gain <span class="math notranslate nohighlight">\(G_M\)</span>:</p>
+<p><div class="math notranslate nohighlight">
+\[ Y[c][n] = G_M \cdot g_c \cdot X[c][n], \quad 0 \leq c &lt; C, \; 0 \leq n &lt; N \]</div>
+</p>
+<p><strong>Interleaved Layout:</strong></p>
+<p>Samples are stored sequentially per frame, channel by channel:</p>
+<p><div class="math notranslate nohighlight">
+\[ X = \begin{bmatrix} x_{0,0}, &amp; x_{1,0}, &amp; \dots, &amp; x_{C-1,0}, &amp; x_{0,1}, &amp; x_{1,1}, &amp; \dots, &amp; x_{C-1,1}, &amp; \dots, &amp; x_{0,N-1}, &amp; x_{1,N-1}, &amp; \dots, &amp; x_{C-1,N-1} \end{bmatrix} \]</div>
+</p>
+<p>After applying gains:</p>
+<p><div class="math notranslate nohighlight">
+\[ Y = \begin{bmatrix} G_M g_0 x_{0,0}, &amp; G_M g_1 x_{1,0}, &amp; \dots, &amp; G_M g_{C-1} x_{C-1,0}, &amp; G_M g_0 x_{0,1}, &amp; G_M g_1 x_{1,1}, &amp; \dots, &amp; G_M g_{C-1} x_{C-1,1}, &amp; \dots, &amp; G_M g_0 x_{0,N-1}, &amp; G_M g_1 x_{1,N-1}, &amp; \dots, &amp; G_M g_{C-1} x_{C-1,N-1} \end{bmatrix} \]</div>
+</p>
+<p><strong>Final Formula:</strong></p>
+<p><div class="math notranslate nohighlight">
+\[ Y[c][n] = G_M \cdot g_c \cdot X[c][n] \]</div>
+</p>
+<p>where:<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(C\)</span> = number of channels</p></li>
+<li><p><span class="math notranslate nohighlight">\(N\)</span> = number of samples per channel</p></li>
+<li><p><span class="math notranslate nohighlight">\(g_c\)</span> = gain for channel <span class="math notranslate nohighlight">\(c\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(G_M\)</span> = master gain (applied globally)</p></li>
+<li><p><span class="math notranslate nohighlight">\(X[c][n]\)</span> = input sample</p></li>
+<li><p><span class="math notranslate nohighlight">\(Y[c][n]\)</span> = output sample </p></li>
+</ul>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions<a class="headerlink" href="#breathe-section-title-functions" title="Permalink to this headline">¶</a></p>
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_gainNChTrim_getHandleSize">
+<span class="target" id="group__AUDIOLIB__gainNChTrim_1ga324eb7fc9e42241dfc64ddd84418d629"></span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_getHandleSize</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="reference internal" href="#c.AUDIOLIB_gainNChTrim_InitArgs" title="AUDIOLIB_gainNChTrim_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_getHandleSize-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_getHandleSize" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This is a query function to calculate the size of internal handle. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to allocate buffer of the requested size and provide it as input to other functions requiring it. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_gainNChTrim_getHandleSize-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_getHandleSize-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_gainNChTrim_getHandleSize-p-pKerInitArgs"><a class="reference internal" href="#c.AUDIOLIB_gainNChTrim_InitArgs" title="AUDIOLIB_gainNChTrim_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_gainNChTrim_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_getHandleSize-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to structure holding init parameters </p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_gainNChTrim_getHandleSize-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_getHandleSize-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Size of the buffer in bytes </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_gainNChTrim_init">
+<span class="target" id="group__AUDIOLIB__gainNChTrim_1gaa2ccf7e84a513ce0bd40462d1e9fd8f7"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_init</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsIn" title="bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span class="n"><span class="pre">bufParamsIn</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">AUDIOLIB_bufParams1D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsGain" title="bufParamsGain (C function parameter) — [in] : Pointer to the structure containing dimensional information of gain"><span class="n"><span class="pre">bufParamsGain</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsOut" title="bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span class="n"><span class="pre">bufParamsOut</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_gainNChTrim_InitArgs" title="AUDIOLIB_gainNChTrim_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function should be called before the <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1ga56555bfab85969f8cdafc905129d4435"><span class="std std-ref">AUDIOLIB_gainNChTrim_exec</span></a> function is called. This function takes care of any one-time operations such as setting up the configuration of required hardware resources such as the streaming engine. The results of these operations are stored in the handle. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to provide a valid handle. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_gainNChTrim_init-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_gainNChTrim_init-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_init-p-bufParamsIn"><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsIn</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_init-p-bufParamsGain"><span class="n">AUDIOLIB_bufParams1D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsGain</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsGain" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of gain </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_init-p-bufParamsOut"><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsOut</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init-p-bufParamsOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the structure containing dimensional information of output buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_init-p-pKerInitArgs"><span class="k">const</span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_gainNChTrim_InitArgs" title="AUDIOLIB_gainNChTrim_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_gainNChTrim_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure holding init parameters</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_gainNChTrim_init-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_gainNChTrim_init_checkParams">
+<span class="target" id="group__AUDIOLIB__gainNChTrim_1gaef83e603afdb3d02e9a0d48602533e9a"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_init_checkParams</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsIn" title="bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span class="n"><span class="pre">bufParamsIn</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams1D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsGain" title="bufParamsGain (C function parameter) — [in] : Pointer to the structure containing dimensional information of gain buffer"><span class="n"><span class="pre">bufParamsGain</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsOut" title="bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span class="n"><span class="pre">bufParamsOut</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_gainNChTrim_InitArgs" title="AUDIOLIB_gainNChTrim_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init_checkParams" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function checks the validity of the parameters passed to <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1gaa2ccf7e84a513ce0bd40462d1e9fd8f7"><span class="std std-ref">AUDIOLIB_gainNChTrim_init</span></a> function. This function is called with the same parameters as the <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1gaa2ccf7e84a513ce0bd40462d1e9fd8f7"><span class="std std-ref">AUDIOLIB_gainNChTrim_init</span></a>, and this function must be called before the <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1gaa2ccf7e84a513ce0bd40462d1e9fd8f7"><span class="std std-ref">AUDIOLIB_gainNChTrim_init</span></a> is called. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_gainNChTrim_init_checkParams-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_gainNChTrim_init_checkParams-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsIn"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsIn</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsGain"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams1D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsGain</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsGain" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of gain buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsOut"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsOut</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-bufParamsOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the structure containing dimensional information of output buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_init_checkParams-p-pKerInitArgs"><span class="k">const</span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_gainNChTrim_InitArgs" title="AUDIOLIB_gainNChTrim_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_gainNChTrim_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure holding init parameters</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_gainNChTrim_init_checkParams-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_init_checkParams-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_gainNChTrim_exec_checkParams">
+<span class="target" id="group__AUDIOLIB__gainNChTrim_1ga2884376ec79a40a3a811a2cb627201c6"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_exec_checkParams</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pIn" title="pIn (C function parameter) — [in] : Pointer to the structure input buffer"><span class="n"><span class="pre">pIn</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pGain" title="pGain (C function parameter) — [in] : Pointer to the structure input gain buffer"><span class="n"><span class="pre">pGain</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pMasterGain" title="pMasterGain (C function parameter) — [in] : Pointer to the structure input master gain buffer"><span class="n"><span class="pre">pMasterGain</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pOut" title="pOut (C function parameter) — [out] : Pointer to the output buffer"><span class="n"><span class="pre">pOut</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function checks the validity of the parameters passed to <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1ga56555bfab85969f8cdafc905129d4435"><span class="std std-ref">AUDIOLIB_gainNChTrim_exec</span></a> function. This function is called with the same parameters as the <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1gaa2ccf7e84a513ce0bd40462d1e9fd8f7"><span class="std std-ref">AUDIOLIB_gainNChTrim_init</span></a>, and this function must be called before the <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1gaa2ccf7e84a513ce0bd40462d1e9fd8f7"><span class="std std-ref">AUDIOLIB_gainNChTrim_init</span></a> is called. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_gainNChTrim_exec_checkParams-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_gainNChTrim_exec_checkParams-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pIn"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pIn</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pGain"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pGain</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pGain" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure input gain buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pMasterGain"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pMasterGain</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pMasterGain" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure input master gain buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pOut"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pOut</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-p-pOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the output buffer</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_gainNChTrim_exec_checkParams-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec_checkParams-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_gainNChTrim_exec">
+<span class="target" id="group__AUDIOLIB__gainNChTrim_1ga56555bfab85969f8cdafc905129d4435"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_exec</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec-p-pIn" title="pIn (C function parameter) — [in] : Pointer to buffer holding the input buffer"><span class="n"><span class="pre">pIn</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec-p-pGain" title="pGain (C function parameter) — [in] : Pointer to buffer holding the per-channel gain vector"><span class="n"><span class="pre">pGain</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec-p-pMasterGain" title="pMasterGain (C function parameter) — [in] : Pointer to buffer holding the master gain (scalar)"><span class="n"><span class="pre">pMasterGain</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_exec-p-pOut" title="pOut (C function parameter) — [out] : Pointer to buffer holding the output buffer"><span class="n"><span class="pre">pOut</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function is the main kernel compute function. </p>
+<p>Please refer to details under <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1ga56555bfab85969f8cdafc905129d4435"><span class="std std-ref">AUDIOLIB_gainNChTrim_exec</span></a></p>
+<p>
+Non-interleave data<dl class="simple">
+<dt><strong>Assumptions:</strong></dt><dd><p><ul class="simple">
+<li><p>None<ul>
+<li><p>* </p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+</dd>
+<dt><strong>Memory Requirements</strong></dt><dd><p></p>
+</dd>
+</dl>
+</p>
+<p><table class="docutils data align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Buffer   </p></th>
+<th class="head"><p>dimY   </p></th>
+<th class="head"><p>dimX   </p></th>
+<th class="head"><p>Comments    </p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pIn   </p></td>
+<td><p>M   </p></td>
+<td><p>N   </p></td>
+<td><p>2D Input Buffer    </p></td>
+</tr>
+<tr class="row-odd"><td><p>pGain   </p></td>
+<td><p>1   </p></td>
+<td><p>M   </p></td>
+<td><p>Per-channel gain vector    </p></td>
+</tr>
+<tr class="row-even"><td><p>pGainMaster   </p></td>
+<td><p>1   </p></td>
+<td><p>1   </p></td>
+<td><p>Master gain (scalar)    </p></td>
+</tr>
+<tr class="row-odd"><td><p>pOut   </p></td>
+<td><p>M   </p></td>
+<td><p>N   </p></td>
+<td><p>2D Output Buffer   </p></td>
+</tr>
+</tbody>
+</table>
+</p>
+<p>Interleave data</p>
+<p><table class="docutils data align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Buffer   </p></th>
+<th class="head"><p>dimY   </p></th>
+<th class="head"><p>dimX   </p></th>
+<th class="head"><p>Comments    </p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pIn   </p></td>
+<td><p>M   </p></td>
+<td><p>N   </p></td>
+<td><p>2D Input Buffer    </p></td>
+</tr>
+<tr class="row-odd"><td><p>pGain   </p></td>
+<td><p>1   </p></td>
+<td><p>N   </p></td>
+<td><p>Per-channel gain vector    </p></td>
+</tr>
+<tr class="row-even"><td><p>pGainMaster   </p></td>
+<td><p>1   </p></td>
+<td><p>1   </p></td>
+<td><p>Master gain (scalar)    </p></td>
+</tr>
+<tr class="row-odd"><td><p>pOut   </p></td>
+<td><p>M   </p></td>
+<td><p>N   </p></td>
+<td><p>2D Output Buffer   </p></td>
+</tr>
+</tbody>
+</table>
+</p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Before calling this function, application is expected to call <a class="reference internal" href="#group__AUDIOLIB__gainNChTrim_1gaa2ccf7e84a513ce0bd40462d1e9fd8f7"><span class="std std-ref">AUDIOLIB_gainNChTrim_init</span></a> and This ensures resource configuration and error checks are done only once for several invocations of this function. </p>
+</div>
+<dl class="simple">
+<dt><strong>Performance Considerations:</strong></dt><dd><p>For best performance,<ul class="simple">
+<li><p>the input and output data buffers are expected to be in L2 memory</p></li>
+<li><p>the buffer pointers are assumed to be 64-byte aligned</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_gainNChTrim_exec-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_gainNChTrim_exec-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_exec-p-pIn"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pIn</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec-p-pIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_exec-p-pGain"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pGain</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec-p-pGain" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the per-channel gain vector </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_exec-p-pMasterGain"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pMasterGain</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec-p-pMasterGain" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the master gain (scalar) </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_exec-p-pOut"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pOut</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec-p-pOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to buffer holding the output buffer</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_gainNChTrim_exec-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_exec-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_gainNChTrim_perfEst">
+<span class="target" id="group__AUDIOLIB__gainNChTrim_1ga233613ed550c4a1213d5cc29254485ed"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_perfEst</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-archCycles" title="archCycles (C function parameter) — [in] : Arch compute cycles obtained from asm"><span class="n"><span class="pre">archCycles</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-estCycles" title="estCycles (C function parameter) — [in] : Cycles estimated for that purticular kenel"><span class="n"><span class="pre">estCycles</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-dataType" title="dataType (C function parameter) — [in] : Datatype of purticular test case"><span class="n"><span class="pre">dataType</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-samples" title="samples (C function parameter) — [in] : samples of the input data"><span class="n"><span class="pre">samples</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-strideIn" title="strideIn (C function parameter) — [in] : stride of the input data"><span class="n"><span class="pre">strideIn</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-strideOut" title="strideOut (C function parameter) — [in] : stride of the output data"><span class="n"><span class="pre">strideOut</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This funtion is called to calculate the arch cycles and estimate cycles of the loop used in the execution kernel. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_gainNChTrim_perfEst-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_gainNChTrim_perfEst-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_perfEst-p-archCycles"><span class="n">uint64_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">archCycles</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-archCycles" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Arch compute cycles obtained from asm </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_perfEst-p-estCycles"><span class="n">uint64_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">estCycles</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-estCycles" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Cycles estimated for that purticular kenel </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_perfEst-p-dataType"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">dataType</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-dataType" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Datatype of purticular test case </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_perfEst-p-samples"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">samples</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-samples" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : samples of the input data </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_perfEst-p-strideIn"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">strideIn</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-strideIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : stride of the input data </p>
+</dd>
+<dt id="c.AUDIOLIB_gainNChTrim_perfEst-p-strideOut"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">strideOut</span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_perfEst-p-strideOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : stride of the output data</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<dl class="c struct objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_gainNChTrim_InitArgs">
+<span class="target" id="structAUDIOLIB__gainNChTrim__InitArgs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_gainNChTrim_InitArgs</span></span></span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_InitArgs" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;AUDIOLIB_gainNChTrim.h&gt;</em></div>
+<p>Structure containing the parameters to initialize the kernel. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members<a class="headerlink" href="#breathe-section-title-public-members" title="Permalink to this headline">¶</a></p>
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_gainNChTrim_InitArgs.funcStyle">
+<span class="target" id="structAUDIOLIB__gainNChTrim__InitArgs_1af40f9bf6df02f61b32dce9de53816751"></span><span class="n"><span class="pre">int8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">funcStyle</span></span></span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_InitArgs.funcStyle" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Variant of the function refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga31d199392d7b10e4b1e7ffa8e5e2ec9c"><span class="std std-ref">AUDIOLIB_FUNCTION_STYLE</span></a></p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_gainNChTrim_InitArgs.isInterleave">
+<span class="target" id="structAUDIOLIB__gainNChTrim__InitArgs_1a76a84f184d74d7ef407400315267b205"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isInterleave</span></span></span><a class="headerlink" href="#c.AUDIOLIB_gainNChTrim_InitArgs.isInterleave" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Data layout flag: 1 for interleaved, 0 for non-interleaved (planar). </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    Aug 07, 2026
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, Texas Instruments Incorporated.
+        
+    </div>
+  
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "search.highlight", "toc.follow"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/design-tabs.js?v=f930bc37"></script>
+        <script id="MathJax-script" src="../_static/mathjax/tex-mml-chtml.js?v=cadf963e"></script>
+    
+  </body>
+</html>

@@ -1,0 +1,2876 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="AUDIOLIB_blockStatistics.html">
+      
+      
+        <link rel="next" href="effects_processing.html">
+      
+      
+      <link rel="icon" href="">
+    
+    
+      
+        <title>AUDIOLIB_subBlockStatistics - AUDIOLIB Documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.a027cd878cd91b31c.min.css?v=2be211a8" />
+        <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+        <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+        <link rel="stylesheet" type="text/css" href="../_static/css/theme_overrides.css?v=b4da5c7c" />
+        <link rel="stylesheet" type="text/css" href="../_static/css/immaterial_overrides.css?v=82266e3c" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#breathe-section-title-enums" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="AUDIOLIB Documentation" class="md-header__button md-logo" aria-label="AUDIOLIB Documentation" data-md-component="logo">
+      <img src="../_static/ti_logo_mono.svg" alt="logo">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            <a href="../index.html" style="color:inherit;text-decoration:none">AUDIOLIB Documentation</a>
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AUDIOLIB_subBlockStatistics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="teal"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/TexasInstruments/c7x_audiolib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    c7x_audiolib
+    <span class="ti-branch">main</span>
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="AUDIOLIB Documentation" class="md-nav__button md-logo" aria-label="AUDIOLIB Documentation" data-md-component="logo">
+      <img src="../_static/ti_logo_mono.svg" alt="logo">
+    </a>
+    AUDIOLIB Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/TexasInstruments/c7x_audiolib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    c7x_audiolib
+    <span class="ti-branch">main</span>
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m13.13 22.19-1.63-3.83c1.57-.58 3.04-1.36 4.4-2.27zM5.64 12.5l-3.83-1.63 6.1-2.77C7 9.46 6.22 10.93 5.64 12.5M21.61 2.39S16.66.269 11 5.93c-2.19 2.19-3.5 4.6-4.35 6.71-.28.75-.09 1.57.46 2.13l2.13 2.12c.55.56 1.37.74 2.12.46A19.1 19.1 0 0 0 18.07 13c5.66-5.66 3.54-10.61 3.54-10.61m-7.07 7.07c-.78-.78-.78-2.05 0-2.83s2.05-.78 2.83 0c.77.78.78 2.05 0 2.83s-2.05.78-2.83 0m-5.66 7.07-1.41-1.41zM6.24 22l3.64-3.64c-.34-.09-.67-.24-.97-.45L4.83 22zM2 22h1.41l4.77-4.76-1.42-1.41L2 20.59zm0-2.83 4.09-4.08c-.21-.3-.36-.62-.45-.97L2 17.76z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Getting Started</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.5c-1.35-.85-3.8-1.5-5.5-1.5-1.65 0-3.35.3-4.75 1.05-.1.05-.15.05-.25.05-.25 0-.5-.25-.5-.5V6c.6-.45 1.25-.75 2-1 1.11-.35 2.33-.5 3.5-.5 1.95 0 4.05.4 5.5 1.5 1.45-1.1 3.55-1.5 5.5-1.5 1.17 0 2.39.15 3.5.5.75.25 1.4.55 2 1v14.6c0 .25-.25.5-.5.5-.1 0-.15 0-.25-.05-1.4-.75-3.1-1.05-4.75-1.05-1.7 0-4.15.65-5.5 1.5M12 8v11.5c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5V7c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5m1 3.5c1.11-.68 2.6-1 4.5-1 .91 0 1.76.09 2.5.28V9.23c-.87-.15-1.71-.23-2.5-.23q-2.655 0-4.5.84zm4.5.17c-1.71 0-3.21.26-4.5.79v1.69c1.11-.65 2.6-.99 4.5-.99 1.04 0 1.88.08 2.5.24v-1.5c-.87-.16-1.71-.23-2.5-.23m2.5 2.9c-.87-.16-1.71-.24-2.5-.24-1.83 0-3.33.27-4.5.8v1.69c1.11-.66 2.6-.99 4.5-.99 1.04 0 1.88.08 2.5.24z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>API Reference</span>
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>API Reference</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="common.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Common</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gain_level.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Gain &amp; Level</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="conversion_measurement.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    <span>Conversion &amp; Measurement</span>
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Conversion &amp; Measurement</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_dB10.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>d<wbr>B10</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_dB20.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>d<wbr>B20</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_undB10.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>und<wbr>B10</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_undB20.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>und<wbr>B20</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_typeConversion.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>type<wbr>Conversion</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_blockStatistics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>block<wbr>Statistics</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics</span>
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics</span>
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-enums" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Enums</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>Statistics<wbr>Type</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_StatisticsType">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MAX" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>MAX</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MIN" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>MIN</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MAX_ABS" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>MAX_<wbr>ABS</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MEAN" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>MEAN</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_RMS" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>RMS</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_STDDEV" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>STDDEV</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_VARIANCE" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>VARIANCE</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_AVG_ENERGY" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>AVG_<wbr>ENERGY</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_SUM" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>SUM</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_SUM_SQUARES" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>SUM_<wbr>SQUARES</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-functions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Functions</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_getHandleSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>get<wbr>Handle<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_getHandleSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_getHandleSize.pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>init</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_init">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>init_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_init_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init_checkParams.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init_checkParams.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init_checkParams.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>set</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_set">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_set.handle (C function parameter) — [in] : Active handle to the kernel."><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set-p-pKerSetArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_set.pKerSetArgs (C function parameter) — [in] : Pointer to the structure containing the parameters to set the kernel."><span>p<wbr>Ker<wbr>Set<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>get</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_get">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_get.handle (C function parameter) — [in] : Active handle to the kernel."><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get-p-pKerSetArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_get.pKerSetArgs (C function parameter) — [out] : Pointer to the structure containing the parameters to set the kernel."><span>p<wbr>Ker<wbr>Set<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>exec_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_exec_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec_checkParams.pIn (C function parameter) — [in] : Pointer to the structure input buffer"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec_checkParams.pOut (C function parameter) — [out] : Pointer to the output buffer"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>perf<wbr>Est</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_perfEst">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_perfEst.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-archCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_perfEst.archCycles (C function parameter) — [in] : Arch cycles used in that particular kernel"><span>arch<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-estCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_perfEst.estCycles (C function parameter) — [in] : Cycles estimated for that particular kenel"><span>est<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>exec</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_exec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec.pIn (C function parameter) — [in] : Pointer to buffer holding the input buffer"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec.pOut (C function parameter) — [out] : Pointer to buffer holding the output buffer"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_InitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>Init<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_InitArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_InitArgs.funcStyle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>func<wbr>Style</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_InitArgs.subBlockSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>sub<wbr>Block<wbr>Size</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_SetArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>Set<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_SetArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_SetArgs.flagPerChanStats" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>flag<wbr>Per<wbr>Chan<wbr>Stats</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_SetArgs.statisticsType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>statistics<wbr>Type</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_SetArgs.funcStyle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>func<wbr>Style</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="effects_processing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Effects &amp; Processing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="routing_mixing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Routing &amp; Mixing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sample_rate_synthesis.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sample Rate &amp; Synthesis</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lookup_interpolation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Lookup &amp; Interpolation</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../perf/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m16 11.78 4.24-7.33 1.73 1-5.23 9.05-6.51-3.75L5.46 19H22v2H2V3h2v14.54L9.5 8z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Performance</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repository_layout.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h6v4H3zm12 7h6v4h-6zm0 7h6v4h-6zm-2-4H7v5h6v2H5V9h2v2h6z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Repository Layout</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3c-1.27 0-2.4.8-2.82 2H3v2h1.95L2 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3L6.05 7h3.12c.33.85.98 1.5 1.83 1.83V20H2v2h20v-2h-9V8.82c.85-.32 1.5-.97 1.82-1.82h3.13L15 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3l-2.95-7H21V5h-6.17C14.4 3.8 13.27 3 12 3m0 2a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1m-6.5 5.25L7 14H4zm13 0L20 14h-3z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>License</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-enums" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Enums</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>Statistics<wbr>Type</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_StatisticsType">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MAX" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>MAX</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MIN" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>MIN</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MAX_ABS" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>MAX_<wbr>ABS</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MEAN" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>MEAN</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_RMS" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>RMS</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_STDDEV" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>STDDEV</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_VARIANCE" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>VARIANCE</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_AVG_ENERGY" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>AVG_<wbr>ENERGY</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_SUM" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>SUM</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_SUM_SQUARES" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>STAT_<wbr>SUM_<wbr>SQUARES</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-functions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Functions</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_getHandleSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>get<wbr>Handle<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_getHandleSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_getHandleSize.pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>init</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_init">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>init_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_init_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init_checkParams.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init_checkParams.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_init_checkParams.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>set</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_set">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_set.handle (C function parameter) — [in] : Active handle to the kernel."><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set-p-pKerSetArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_set.pKerSetArgs (C function parameter) — [in] : Pointer to the structure containing the parameters to set the kernel."><span>p<wbr>Ker<wbr>Set<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_set-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>get</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_get">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_get.handle (C function parameter) — [in] : Active handle to the kernel."><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get-p-pKerSetArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_get.pKerSetArgs (C function parameter) — [out] : Pointer to the structure containing the parameters to set the kernel."><span>p<wbr>Ker<wbr>Set<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_get-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>exec_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_exec_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec_checkParams.pIn (C function parameter) — [in] : Pointer to the structure input buffer"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec_checkParams.pOut (C function parameter) — [out] : Pointer to the output buffer"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>perf<wbr>Est</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_perfEst">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_perfEst.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-archCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_perfEst.archCycles (C function parameter) — [in] : Arch cycles used in that particular kernel"><span>arch<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-estCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_perfEst.estCycles (C function parameter) — [in] : Cycles estimated for that particular kenel"><span>est<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>exec</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_exec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec.pIn (C function parameter) — [in] : Pointer to buffer holding the input buffer"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_subBlockStatistics_exec.pOut (C function parameter) — [out] : Pointer to buffer holding the output buffer"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_exec-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_InitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>Init<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_InitArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_InitArgs.funcStyle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>func<wbr>Style</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_InitArgs.subBlockSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>sub<wbr>Block<wbr>Size</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_SetArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>sub<wbr>Block<wbr>Statistics_<wbr>Set<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_subBlockStatistics_SetArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_SetArgs.flagPerChanStats" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>flag<wbr>Per<wbr>Chan<wbr>Stats</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_SetArgs.statisticsType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>statistics<wbr>Type</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_subBlockStatistics_SetArgs.funcStyle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>func<wbr>Style</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1 id="audiolib-subblockstatistics">AUDIOLIB_subBlockStatistics<a class="headerlink" href="#audiolib-subblockstatistics" title="Link to this heading">¶</a></h1>
+<dl class="objdesc">
+<dt class="sig sig-object highlight cpp">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">AUDIOLIB_subBlockStatistics</span></span></dt>
+<dd><p>Kernel for Single Channel/multichannel subBlockStatistics apply. </p>
+<p><ul class="simple">
+<li><p>Kernel for applying same subBlockStatistics on multiple channels </p></li>
+</ul>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums<a class="headerlink" href="#breathe-section-title-enums" title="Permalink to this headline">¶</a></p>
+<dl class="c enum objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1gab1e86f3d81eeffc4299097a440cf658d"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_StatisticsType</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Table of supported statistics for sub-blocks. </p>
+<p>This kernel computes statistics over sub-blocks of the input signal. In the formulas below, let <span class="math notranslate nohighlight">\(x_i\)</span> represent the i-th sample within the set of samples being processed, and let <span class="math notranslate nohighlight">\(N\)</span> be the total number of samples in that set. The mean, <span class="math notranslate nohighlight">\(\mu\)</span>, is defined as <span class="math notranslate nohighlight">\(\mu = \frac{1}{N} \sum_{i=1}^{N} x_i\)</span>.</p>
+<p>The definition of <span class="math notranslate nohighlight">\(N\)</span> depends on the <code class="docutils literal notranslate"><span class="pre">flagPerChanStats</span></code> parameter:<ul class="simple">
+<li><p>When <code class="docutils literal notranslate"><span class="pre">flagPerChanStats</span> <span class="pre">=</span> <span class="pre">0</span></code> (FALSE), statistics are computed across all channels combined. In this case, <span class="math notranslate nohighlight">\(N = \text{subBlockSize} \times \text{numChannels}\)</span>.</p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">flagPerChanStats</span> <span class="pre">=</span> <span class="pre">1</span></code> (TRUE), statistics are computed for each channel independently. In this case, <span class="math notranslate nohighlight">\(N = \text{subBlockSize}\)</span>.</p></li>
+</ul>
+</p>
+<p><ul class="simple">
+<li><p><strong>Maximum</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_MAX</span></code>) <div class="math notranslate nohighlight">
+\[ \max(x_1, x_2, ..., x_N) \]</div>
+</p></li>
+<li><p><strong>Minimum</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_MIN</span></code>) <div class="math notranslate nohighlight">
+\[ \min(x_1, x_2, ..., x_N) \]</div>
+</p></li>
+<li><p><strong>Maximum Absolute</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_MAX_ABS</span></code>) <div class="math notranslate nohighlight">
+\[ \max(|x_1|, |x_2|, ..., |x_N|) \]</div>
+</p></li>
+<li><p><strong>Mean</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_MEAN</span></code>) <div class="math notranslate nohighlight">
+\[ \mu = \frac{1}{N} \sum_{i=1}^{N} x_i \]</div>
+</p></li>
+<li><p><strong>Root Mean Square (RMS)</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_RMS</span></code>) <div class="math notranslate nohighlight">
+\[ \sqrt{\frac{1}{N} \sum_{i=1}^{N} x_i^2} \]</div>
+</p></li>
+<li><p><strong>Standard Deviation</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_STDDEV</span></code>) <div class="math notranslate nohighlight">
+\[ \sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2} \]</div>
+</p></li>
+<li><p><strong>Variance</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_VARIANCE</span></code>) <div class="math notranslate nohighlight">
+\[ \sigma^2 = \frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2 \]</div>
+</p></li>
+<li><p><strong>Average Energy</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_AVG_ENERGY</span></code>) <div class="math notranslate nohighlight">
+\[ \frac{1}{N} \sum_{i=1}^{N} x_i^2 \]</div>
+</p></li>
+<li><p><strong>Sum</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_SUM</span></code>) <div class="math notranslate nohighlight">
+\[ \sum_{i=1}^{N} x_i \]</div>
+</p></li>
+<li><p><strong>Sum of Squares</strong> (<code class="docutils literal notranslate"><span class="pre">AUDIOLIB_STAT_SUM_SQUARES</span></code>) <div class="math notranslate nohighlight">
+\[ \sum_{i=1}^{N} x_i^2 \]</div>
+</p></li>
+</ul>
+</p>
+<p>Enum defining the types of statistics to compute for each subblock </p>
+<p><em>Values:</em></p>
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MAX">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658da36c8ffd185d952991ed49d8f4d9d0aef"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_MAX</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MAX" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Maximum value </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MIN">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658dab0274cf23b2645312e7a828cb9a5cb08"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_MIN</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MIN" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Minimum value </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MAX_ABS">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658da58d5a0076b2a4694b06640aa3117586b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_MAX_ABS</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MAX_ABS" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Maximum absolute value </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MEAN">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658dae366c64578409088f79f50e24e89a595"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_MEAN</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_MEAN" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Mean value </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_RMS">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658da83244bf334bf0fe36b82c488dcd96f75"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_RMS</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_RMS" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Root mean square </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_STDDEV">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658da50588f758eb7656a0c88c6267432903b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_STDDEV</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_STDDEV" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Standard deviation </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_VARIANCE">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658da712f3c7c7e40eab39f804b971d36015c"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_VARIANCE</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_VARIANCE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Variance </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_AVG_ENERGY">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658daef5154429f3e8c74e5e371206f1e61fc"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_AVG_ENERGY</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_AVG_ENERGY" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Average energy </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_SUM">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658da04006f17247dd9c03ba3b8b4d67a976c"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_SUM</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_SUM" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Sum of values </p>
+</dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_SUM_SQUARES">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ggab1e86f3d81eeffc4299097a440cf658dae9a977ca5592ec796cb07324452c76c1"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_STAT_SUM_SQUARES</span></span></span><a class="headerlink" href="#c.AUDIOLIB_StatisticsType.AUDIOLIB_STAT_SUM_SQUARES" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Sum of squared values </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions<a class="headerlink" href="#breathe-section-title-functions" title="Permalink to this headline">¶</a></p>
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_subBlockStatistics_getHandleSize">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1gabe51823e1d0c1357202eea0715222c71"></span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_getHandleSize</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_InitArgs" title="AUDIOLIB_subBlockStatistics_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_getHandleSize" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This is a query function to calculate the size of internal handle. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to allocate buffer of the requested size and provide it as input to other functions requiring it. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_subBlockStatistics_getHandleSize-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_subBlockStatistics_getHandleSize-p-pKerInitArgs"><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_InitArgs" title="AUDIOLIB_subBlockStatistics_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_subBlockStatistics_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to structure holding init parameters </p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_subBlockStatistics_getHandleSize-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_getHandleSize-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Size of the buffer in bytes </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_subBlockStatistics_init">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ga786534edc02c0801dae1624f7036b5c3"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_init</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_init-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_init-p-bufParamsIn" title="bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span class="n"><span class="pre">bufParamsIn</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_init-p-bufParamsOut" title="bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span class="n"><span class="pre">bufParamsOut</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_InitArgs" title="AUDIOLIB_subBlockStatistics_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_init-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function should be called before the <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga90870ddc2bf064d61d3cc5309d574377"><span class="std std-ref">AUDIOLIB_subBlockStatistics_exec</span></a> function is called. This function takes care of any one-time operations such as setting up the configuration of required hardware resources such as the streaming engine. The results of these operations are stored in the handle. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to provide a valid handle. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_subBlockStatistics_init-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_subBlockStatistics_init-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_init-p-bufParamsIn"><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsIn</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init-p-bufParamsIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_init-p-bufParamsOut"><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsOut</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init-p-bufParamsOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the structure containing dimensional information of output buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_init-p-pKerInitArgs"><span class="k">const</span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_InitArgs" title="AUDIOLIB_subBlockStatistics_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_subBlockStatistics_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure holding init parameters</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_subBlockStatistics_init-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_subBlockStatistics_init_checkParams">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1gaf2443296cf4b6d479cfba7734b53251f"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_init_checkParams</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsIn" title="bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span class="n"><span class="pre">bufParamsIn</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsOut" title="bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of output buffer"><span class="n"><span class="pre">bufParamsOut</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_InitArgs" title="AUDIOLIB_subBlockStatistics_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function checks the validity of the parameters passed to <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga786534edc02c0801dae1624f7036b5c3"><span class="std std-ref">AUDIOLIB_subBlockStatistics_init</span></a> function. This function is called with the same parameters as the <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga786534edc02c0801dae1624f7036b5c3"><span class="std std-ref">AUDIOLIB_subBlockStatistics_init</span></a>, and this function must be called before the <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga786534edc02c0801dae1624f7036b5c3"><span class="std std-ref">AUDIOLIB_subBlockStatistics_init</span></a> is called. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_subBlockStatistics_init_checkParams-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_subBlockStatistics_init_checkParams-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsIn"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsIn</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsOut"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsOut</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-bufParamsOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the structure containing dimensional information of output buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_init_checkParams-p-pKerInitArgs"><span class="k">const</span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_InitArgs" title="AUDIOLIB_subBlockStatistics_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_subBlockStatistics_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure holding init parameters</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_subBlockStatistics_init_checkParams-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_init_checkParams-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_subBlockStatistics_set">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ga39297e9fc2dbeee3c5c5ba67ab0135e0"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_set</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_set-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel."><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_SetArgs" title="AUDIOLIB_subBlockStatistics_SetArgs (C struct) — Structure containing the parameters to set the kernel."><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_SetArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_set-p-pKerSetArgs" title="pKerSetArgs (C function parameter) — [in] : Pointer to the structure containing the parameters to set the kernel."><span class="n"><span class="pre">pKerSetArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_set" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function sets the kernel parameters for sub-block statistics. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Ensure that the handle and pKerSetArgs pointer are valid before calling this function. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_subBlockStatistics_set-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_set-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_subBlockStatistics_set-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_set-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel. </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_set-p-pKerSetArgs"><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_SetArgs" title="AUDIOLIB_subBlockStatistics_SetArgs (C struct) — Structure containing the parameters to set the kernel."><span class="n">AUDIOLIB_subBlockStatistics_SetArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerSetArgs</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_set-p-pKerSetArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing the parameters to set the kernel.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_subBlockStatistics_set-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_set-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_subBlockStatistics_get">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ga5f09cda7f2eaf27bb7bf4526a0ee7fbd"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_get</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_get-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel."><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_SetArgs" title="AUDIOLIB_subBlockStatistics_SetArgs (C struct) — Structure containing the parameters to set the kernel."><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_SetArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_get-p-pKerSetArgs" title="pKerSetArgs (C function parameter) — [out] : Pointer to the structure containing the parameters to set the kernel."><span class="n"><span class="pre">pKerSetArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_get" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function retrieves the kernel parameters for sub-block statistics. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Ensure that the handle and pKerSetArgs pointer are valid before calling this function. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_subBlockStatistics_get-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_get-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_subBlockStatistics_get-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_get-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel. </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_get-p-pKerSetArgs"><a class="reference internal" href="#c.AUDIOLIB_subBlockStatistics_SetArgs" title="AUDIOLIB_subBlockStatistics_SetArgs (C struct) — Structure containing the parameters to set the kernel."><span class="n">AUDIOLIB_subBlockStatistics_SetArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerSetArgs</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_get-p-pKerSetArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the structure containing the parameters to set the kernel.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_subBlockStatistics_get-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_get-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_subBlockStatistics_exec_checkParams">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1gabf5c7c20f9eae9c7fdad9cdc4f0d1a43"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_exec_checkParams</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pIn" title="pIn (C function parameter) — [in] : Pointer to the structure input buffer"><span class="n"><span class="pre">pIn</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pOut" title="pOut (C function parameter) — [out] : Pointer to the output buffer"><span class="n"><span class="pre">pOut</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function checks the validity of the parameters passed to <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga90870ddc2bf064d61d3cc5309d574377"><span class="std std-ref">AUDIOLIB_subBlockStatistics_exec</span></a> function. This function is called with the same parameters as the <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga786534edc02c0801dae1624f7036b5c3"><span class="std std-ref">AUDIOLIB_subBlockStatistics_init</span></a>, and this function must be called before the <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga786534edc02c0801dae1624f7036b5c3"><span class="std std-ref">AUDIOLIB_subBlockStatistics_init</span></a> is called. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_subBlockStatistics_exec_checkParams-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pIn"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pIn</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pOut"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pOut</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-p-pOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the output buffer</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_subBlockStatistics_exec_checkParams-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec_checkParams-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_subBlockStatistics_perfEst">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1gad1346b3c20d7f77752ce9ea47d4ff613"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_perfEst</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-archCycles" title="archCycles (C function parameter) — [in] : Arch cycles used in that particular kernel"><span class="n"><span class="pre">archCycles</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-estCycles" title="estCycles (C function parameter) — [in] : Cycles estimated for that particular kenel"><span class="n"><span class="pre">estCycles</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_perfEst" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This funtion is called to calculate the arch cycles and estimate cycles of the loop used in the execution kernel. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_subBlockStatistics_perfEst-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_perfEst-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_subBlockStatistics_perfEst-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_perfEst-p-archCycles"><span class="n">uint64_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">archCycles</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-archCycles" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Arch cycles used in that particular kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_perfEst-p-estCycles"><span class="n">uint64_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">estCycles</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_perfEst-p-estCycles" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Cycles estimated for that particular kenel</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_subBlockStatistics_exec">
+<span class="target" id="group__AUDIOLIB__subBlockStatistics_1ga90870ddc2bf064d61d3cc5309d574377"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_exec</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_exec-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_exec-p-pIn" title="pIn (C function parameter) — [in] : Pointer to buffer holding the input buffer"><span class="n"><span class="pre">pIn</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_subBlockStatistics_exec-p-pOut" title="pOut (C function parameter) — [out] : Pointer to buffer holding the output buffer"><span class="n"><span class="pre">pOut</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function is the main kernel compute function. </p>
+<p>Please refer to details under <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga90870ddc2bf064d61d3cc5309d574377"><span class="std std-ref">AUDIOLIB_subBlockStatistics_exec</span></a></p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Before calling this function, application is expected to call <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1ga786534edc02c0801dae1624f7036b5c3"><span class="std std-ref">AUDIOLIB_subBlockStatistics_init</span></a> This ensures resource configuration and error checks are done only once for several invocations of this function. </p>
+</div>
+<dl class="simple">
+<dt><strong>Assumptions:</strong></dt><dd><p><ul class="simple">
+<li><p>None</p></li>
+</ul>
+</p>
+</dd>
+<dt><strong>Performance Considerations:</strong></dt><dd><p>For best performance,<ul class="simple">
+<li><p>the input and output data buffers are expected to be in L2 memory</p></li>
+<li><p>the buffer pointers are assumed to be 64-byte aligned</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_subBlockStatistics_exec-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_subBlockStatistics_exec-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_exec-p-pIn"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pIn</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec-p-pIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_subBlockStatistics_exec-p-pOut"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pOut</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec-p-pOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to buffer holding the output buffer</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_subBlockStatistics_exec-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_exec-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<dl class="c struct objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_subBlockStatistics_InitArgs">
+<span class="target" id="structAUDIOLIB__subBlockStatistics__InitArgs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_InitArgs</span></span></span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_InitArgs" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;AUDIOLIB_subBlockStatistics.h&gt;</em></div>
+<p>Structure containing the parameters to initialize the kernel. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members<a class="headerlink" href="#breathe-section-title-public-members" title="Permalink to this headline">¶</a></p>
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_subBlockStatistics_InitArgs.funcStyle">
+<span class="target" id="structAUDIOLIB__subBlockStatistics__InitArgs_1a700baa5dc4eba7f801619437aa4cde3c"></span><span class="n"><span class="pre">int8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">funcStyle</span></span></span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_InitArgs.funcStyle" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Variant of the function refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga31d199392d7b10e4b1e7ffa8e5e2ec9c"><span class="std std-ref">AUDIOLIB_FUNCTION_STYLE</span></a></p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_subBlockStatistics_InitArgs.subBlockSize">
+<span class="target" id="structAUDIOLIB__subBlockStatistics__InitArgs_1a4334ae81318c93f541f82ff05a4aac5a"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subBlockSize</span></span></span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_InitArgs.subBlockSize" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Samples per subblock per channel </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="c struct objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_subBlockStatistics_SetArgs">
+<span class="target" id="structAUDIOLIB__subBlockStatistics__SetArgs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_subBlockStatistics_SetArgs</span></span></span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_SetArgs" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;AUDIOLIB_subBlockStatistics.h&gt;</em></div>
+<p>Structure containing the parameters to set the kernel. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members<a class="headerlink" href="#breathe-section-title-public-members" title="Permalink to this headline">¶</a></p>
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_subBlockStatistics_SetArgs.flagPerChanStats">
+<span class="target" id="structAUDIOLIB__subBlockStatistics__SetArgs_1a268f9d3a80ec93af5d4012584ed683da"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">flagPerChanStats</span></span></span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_SetArgs.flagPerChanStats" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Selects channel processing mode: 0 for all-channel statistics (single-channel output), 1 for per-channel statistics (multi-channel output). </p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_subBlockStatistics_SetArgs.statisticsType">
+<span class="target" id="structAUDIOLIB__subBlockStatistics__SetArgs_1a68fad531314666fe83c5cdef274893ec"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">statisticsType</span></span></span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_SetArgs.statisticsType" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Selects the statistic to compute. Refer to <a class="reference internal" href="#group__AUDIOLIB__subBlockStatistics_1gab1e86f3d81eeffc4299097a440cf658d"><span class="std std-ref">AUDIOLIB_StatisticsType</span></a> for options. </p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_subBlockStatistics_SetArgs.funcStyle">
+<span class="target" id="structAUDIOLIB__subBlockStatistics__SetArgs_1a8be3e2be41ec85fd4b6bd7d830d70e58"></span><span class="n"><span class="pre">int8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">funcStyle</span></span></span><a class="headerlink" href="#c.AUDIOLIB_subBlockStatistics_SetArgs.funcStyle" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Variant of the function refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga31d199392d7b10e4b1e7ffa8e5e2ec9c"><span class="std std-ref">AUDIOLIB_FUNCTION_STYLE</span></a></p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    Aug 07, 2026
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, Texas Instruments Incorporated.
+        
+    </div>
+  
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "search.highlight", "toc.follow"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/design-tabs.js?v=f930bc37"></script>
+        <script id="MathJax-script" src="../_static/mathjax/tex-mml-chtml.js?v=cadf963e"></script>
+    
+  </body>
+</html>

@@ -1,0 +1,4072 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="sample_rate_synthesis.html">
+      
+      
+        <link rel="next" href="AUDIOLIB_ssrc.html">
+      
+      
+      <link rel="icon" href="">
+    
+    
+      
+        <title>AUDIOLIB_asrc - AUDIOLIB Documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.a027cd878cd91b31c.min.css?v=2be211a8" />
+        <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+        <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+        <link rel="stylesheet" type="text/css" href="../_static/css/theme_overrides.css?v=b4da5c7c" />
+        <link rel="stylesheet" type="text/css" href="../_static/css/immaterial_overrides.css?v=82266e3c" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#breathe-section-title-defines" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="AUDIOLIB Documentation" class="md-header__button md-logo" aria-label="AUDIOLIB Documentation" data-md-component="logo">
+      <img src="../_static/ti_logo_mono.svg" alt="logo">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            <a href="../index.html" style="color:inherit;text-decoration:none">AUDIOLIB Documentation</a>
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AUDIOLIB_asrc
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="teal"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/TexasInstruments/c7x_audiolib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    c7x_audiolib
+    <span class="ti-branch">main</span>
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="AUDIOLIB Documentation" class="md-nav__button md-logo" aria-label="AUDIOLIB Documentation" data-md-component="logo">
+      <img src="../_static/ti_logo_mono.svg" alt="logo">
+    </a>
+    AUDIOLIB Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/TexasInstruments/c7x_audiolib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    c7x_audiolib
+    <span class="ti-branch">main</span>
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m13.13 22.19-1.63-3.83c1.57-.58 3.04-1.36 4.4-2.27zM5.64 12.5l-3.83-1.63 6.1-2.77C7 9.46 6.22 10.93 5.64 12.5M21.61 2.39S16.66.269 11 5.93c-2.19 2.19-3.5 4.6-4.35 6.71-.28.75-.09 1.57.46 2.13l2.13 2.12c.55.56 1.37.74 2.12.46A19.1 19.1 0 0 0 18.07 13c5.66-5.66 3.54-10.61 3.54-10.61m-7.07 7.07c-.78-.78-.78-2.05 0-2.83s2.05-.78 2.83 0c.77.78.78 2.05 0 2.83s-2.05.78-2.83 0m-5.66 7.07-1.41-1.41zM6.24 22l3.64-3.64c-.34-.09-.67-.24-.97-.45L4.83 22zM2 22h1.41l4.77-4.76-1.42-1.41L2 20.59zm0-2.83 4.09-4.08c-.21-.3-.36-.62-.45-.97L2 17.76z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Getting Started</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.5c-1.35-.85-3.8-1.5-5.5-1.5-1.65 0-3.35.3-4.75 1.05-.1.05-.15.05-.25.05-.25 0-.5-.25-.5-.5V6c.6-.45 1.25-.75 2-1 1.11-.35 2.33-.5 3.5-.5 1.95 0 4.05.4 5.5 1.5 1.45-1.1 3.55-1.5 5.5-1.5 1.17 0 2.39.15 3.5.5.75.25 1.4.55 2 1v14.6c0 .25-.25.5-.5.5-.1 0-.15 0-.25-.05-1.4-.75-3.1-1.05-4.75-1.05-1.7 0-4.15.65-5.5 1.5M12 8v11.5c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5V7c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5m1 3.5c1.11-.68 2.6-1 4.5-1 .91 0 1.76.09 2.5.28V9.23c-.87-.15-1.71-.23-2.5-.23q-2.655 0-4.5.84zm4.5.17c-1.71 0-3.21.26-4.5.79v1.69c1.11-.65 2.6-.99 4.5-.99 1.04 0 1.88.08 2.5.24v-1.5c-.87-.16-1.71-.23-2.5-.23m2.5 2.9c-.87-.16-1.71-.24-2.5-.24-1.83 0-3.33.27-4.5.8v1.69c1.11-.66 2.6-.99 4.5-.99 1.04 0 1.88.08 2.5.24z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>API Reference</span>
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>API Reference</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="common.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Common</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gain_level.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Gain &amp; Level</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="conversion_measurement.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Conversion &amp; Measurement</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="effects_processing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Effects &amp; Processing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="routing_mixing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Routing &amp; Mixing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="sample_rate_synthesis.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    <span>Sample Rate &amp; Synthesis</span>
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_6" id="__nav_2_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Sample Rate &amp; Synthesis</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>asrc</span>
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>asrc</span>
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-defines" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Defines</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_ASRC_DEFAULT_INPUT_FRAMELENGTH" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>ASRC_<wbr>DEFAULT_<wbr>INPUT_<wbr>FRAMELENGTH</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_ASRC_MAX_NUM_CHANNELS" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>ASRC_<wbr>MAX_<wbr>NUM_<wbr>CHANNELS</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_ASRC_MODE_SET" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>ASRC_<wbr>MODE_<wbr>SET</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_ASRC_MODE_RESET" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>ASRC_<wbr>MODE_<wbr>RESET</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-enums" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Enums</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.sample_rate_t" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>sample_<wbr>rate_<wbr>t</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="sample_rate_t">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.sample_rate_t.SAMPLE_RATE_NA" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>SAMPLE_<wbr>RATE_<wbr>NA</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.sample_rate_t.SAMPLE_RATE_32000" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>SAMPLE_<wbr>RATE_<wbr>32000</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.sample_rate_t.SAMPLE_RATE_44100" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>SAMPLE_<wbr>RATE_<wbr>44100</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.sample_rate_t.SAMPLE_RATE_48000" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>SAMPLE_<wbr>RATE_<wbr>48000</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-functions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Functions</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getHandleSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Handle<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getHandleSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getHandleSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getHandleSize-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getHandleSize.pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getHandleSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Non<wbr>Interleaved<wbr>Data<wbr>Buf<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getNonInterleavedDataBufSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-numChannels" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getNonInterleavedDataBufSize.numChannels (C function parameter) — [in] : Number of ASRC channels"><span>num<wbr>Channels</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleCount" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getNonInterleavedDataBufSize.sampleCount (C function parameter) — [in] : maximum sample count per block"><span>sample<wbr>Count</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleDataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getNonInterleavedDataBufSize.sampleDataType (C function parameter) — [in] : Sample&#39;s data type"><span>sample<wbr>Data<wbr>Type</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-dataFormat" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getNonInterleavedDataBufSize.dataFormat (C function parameter) — [in] : Data format (interleaved/non-interleaved)"><span>data<wbr>Format</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterCoeffSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Filter<wbr>Coeff<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getFilterCoeffSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterCoeffSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterCoeffSize-p-sampleDataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getFilterCoeffSize.sampleDataType (C function parameter) — [in] : Sample&#39;s data type"><span>sample<wbr>Data<wbr>Type</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterCoeffSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Filter<wbr>Rembuf<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getFilterRembufSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-numChannels" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getFilterRembufSize.numChannels (C function parameter) — [in] : Number of ASRC channels"><span>num<wbr>Channels</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-sampleDataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getFilterRembufSize.sampleDataType (C function parameter) — [in] : Sample&#39;s data type"><span>sample<wbr>Data<wbr>Type</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-frameModuloFactor" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getFilterRembufSize.frameModuloFactor (C function parameter) — [in] Frame modulo factor"><span>frame<wbr>Modulo<wbr>Factor</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Out<wbr>Buffer<wbr>Length</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getOutBufferLength">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-p-inputSampleRate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getOutBufferLength.inputSampleRate (C function parameter) — [in] : The input sample rate."><span>input<wbr>Sample<wbr>Rate</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-p-outputSampleRate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getOutBufferLength.outputSampleRate (C function parameter) — [in] : The output sample rate."><span>output<wbr>Sample<wbr>Rate</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-p-sampleCount" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getOutBufferLength.sampleCount (C function parameter) — [in] : The number of input samples."><span>sample<wbr>Count</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterLength" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Filter<wbr>Length</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getFilterLength">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterLength-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>init</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_init">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of ouput buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>init_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_init_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init_checkParams.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init_checkParams.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of ouput buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init_checkParams.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>set</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_set">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-mode" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.mode (C function parameter) — AUDIOLIB_ASRC_MODE_RESET"><span>mode</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-asrcRatio" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.asrcRatio (C function parameter) — [in] : Outputs to input sample rate ratio (used when mode is AUDIOLIB_ASRC_MODE_SET)"><span>asrc<wbr>Ratio</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-pNonInterleavedData" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data."><span>p<wbr>Non<wbr>Interleaved<wbr>Data</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.pIn (C function parameter) — [in] : Pointer to buffer holding the input data."><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>exec</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_exec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pIn (C function parameter) — [in] : Pointer to buffer holding the input data"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pNonInterleavedData" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data"><span>p<wbr>Non<wbr>Interleaved<wbr>Data</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pFiltCoeffs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pFiltCoeffs (C function parameter) — [in] : Pointer to buffer holding polyphase filter cefficients."><span>p<wbr>Filt<wbr>Coeffs</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pFilterRembuf" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pFilterRembuf (C function parameter) — [in] : Pointer to buffer holding the filter remaining buffer"><span>p<wbr>Filter<wbr>Rembuf</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pOut (C function parameter) — [out] : Pointer to buffer holding the output data"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pKerInArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pKerInArgs (C function parameter) — [in] : Pointer to structure holding input Arguments"><span>p<wbr>Ker<wbr>In<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pKerOutArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pKerOutArgs (C function parameter) — [out] : Pointer to structure holding output Arguments"><span>p<wbr>Ker<wbr>Out<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>exec_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_exec_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pIn (C function parameter) — [in] : Pointer to buffer holding the input data"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pNonInterleavedData" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data"><span>p<wbr>Non<wbr>Interleaved<wbr>Data</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pFiltCoeffs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pFiltCoeffs (C function parameter) — [in] : Pointer to buffer holding polyphase filter cefficients."><span>p<wbr>Filt<wbr>Coeffs</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pFilterRembuf" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pFilterRembuf (C function parameter) — [in] : Pointer to buffer holding the filter remaining buffer"><span>p<wbr>Filter<wbr>Rembuf</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pOut (C function parameter) — [out] : Pointer to buffer holding the output matrix"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pKerInArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pKerInArgs (C function parameter) — [in] : Pointer to structure holding input Arguments"><span>p<wbr>Ker<wbr>In<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pKerOutArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pKerOutArgs (C function parameter) — [out] : Pointer to structure holding output Arguments"><span>p<wbr>Ker<wbr>Out<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>perf<wbr>Est</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_perfEst">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of the input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.bufParamsOut (C function parameter) — [in] : Pointer to the structure containing dimensional information of the output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-archCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.archCycles (C function parameter) — [out] : Cycles estimated for the compute, startup and teardown"><span>arch<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-estCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.estCycles (C function parameter) — [out] : Cycles estimated for the compute, startup, teardown and any associated overhead"><span>est<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.convertSampleRateToInt" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>convert<wbr>Sample<wbr>Rate<wbr>To<wbr>Int</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convertSampleRateToInt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.convertSampleRateToInt-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.convertSampleRateToInt-p-rate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="convertSampleRateToInt.rate (C function parameter) — [in] The enum sample rate to convert."><span>rate</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.convertSampleRateToInt-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>Init<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_InitArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.funcStyle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>func<wbr>Style</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.maxSampleCountPerBlock" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>max<wbr>Sample<wbr>Count<wbr>Per<wbr>Block</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.sampleDataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>sample<wbr>Data<wbr>Type</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.inputSampleRate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>input<wbr>Sample<wbr>Rate</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.outputSampleRate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>output<wbr>Sample<wbr>Rate</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.numChannels" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>num<wbr>Channels</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.dataFormat" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>data<wbr>Format</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.frameModuloFactor" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>frame<wbr>Modulo<wbr>Factor</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_ExecInArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>Exec<wbr>In<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_ExecInArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_ExecInArgs.inputSampleCount" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>input<wbr>Sample<wbr>Count</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_ExecOutArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>Exec<wbr>Out<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_ExecOutArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_ExecOutArgs.outputSampleCount" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>output<wbr>Sample<wbr>Count</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_ssrc.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>ssrc</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_sinusoidGenerator.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>sinusoid<wbr>Generator</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="AUDIOLIB_whiteNoiseGenerator.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>AUDIOLIB_<wbr>white<wbr>Noise<wbr>Generator</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lookup_interpolation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Lookup &amp; Interpolation</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../perf/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m16 11.78 4.24-7.33 1.73 1-5.23 9.05-6.51-3.75L5.46 19H22v2H2V3h2v14.54L9.5 8z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Performance</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repository_layout.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 3h6v4H3zm12 7h6v4h-6zm0 7h6v4h-6zm-2-4H7v5h6v2H5V9h2v2h6z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>Repository Layout</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3c-1.27 0-2.4.8-2.82 2H3v2h1.95L2 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3L6.05 7h3.12c.33.85.98 1.5 1.83 1.83V20H2v2h20v-2h-9V8.82c.85-.32 1.5-.97 1.82-1.82h3.13L15 14c-.47 2 1 3 3.5 3s4.06-1 3.5-3l-2.95-7H21V5h-6.17C14.4 3.8 13.27 3 12 3m0 2a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1m-6.5 5.25L7 14H4zm13 0L20 14h-3z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span>License</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-defines" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Defines</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_ASRC_DEFAULT_INPUT_FRAMELENGTH" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>ASRC_<wbr>DEFAULT_<wbr>INPUT_<wbr>FRAMELENGTH</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_ASRC_MAX_NUM_CHANNELS" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>ASRC_<wbr>MAX_<wbr>NUM_<wbr>CHANNELS</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_ASRC_MODE_SET" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>ASRC_<wbr>MODE_<wbr>SET</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_ASRC_MODE_RESET" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>ASRC_<wbr>MODE_<wbr>RESET</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-enums" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Enums</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.sample_rate_t" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>sample_<wbr>rate_<wbr>t</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="sample_rate_t">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.sample_rate_t.SAMPLE_RATE_NA" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>SAMPLE_<wbr>RATE_<wbr>NA</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.sample_rate_t.SAMPLE_RATE_32000" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>SAMPLE_<wbr>RATE_<wbr>32000</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.sample_rate_t.SAMPLE_RATE_44100" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>SAMPLE_<wbr>RATE_<wbr>44100</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.sample_rate_t.SAMPLE_RATE_48000" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>SAMPLE_<wbr>RATE_<wbr>48000</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breathe-section-title-functions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Functions</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getHandleSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Handle<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getHandleSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getHandleSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getHandleSize-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getHandleSize.pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getHandleSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Non<wbr>Interleaved<wbr>Data<wbr>Buf<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getNonInterleavedDataBufSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-numChannels" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getNonInterleavedDataBufSize.numChannels (C function parameter) — [in] : Number of ASRC channels"><span>num<wbr>Channels</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleCount" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getNonInterleavedDataBufSize.sampleCount (C function parameter) — [in] : maximum sample count per block"><span>sample<wbr>Count</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleDataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getNonInterleavedDataBufSize.sampleDataType (C function parameter) — [in] : Sample&#39;s data type"><span>sample<wbr>Data<wbr>Type</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-dataFormat" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getNonInterleavedDataBufSize.dataFormat (C function parameter) — [in] : Data format (interleaved/non-interleaved)"><span>data<wbr>Format</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterCoeffSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Filter<wbr>Coeff<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getFilterCoeffSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterCoeffSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterCoeffSize-p-sampleDataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getFilterCoeffSize.sampleDataType (C function parameter) — [in] : Sample&#39;s data type"><span>sample<wbr>Data<wbr>Type</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterCoeffSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Filter<wbr>Rembuf<wbr>Size</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getFilterRembufSize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-numChannels" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getFilterRembufSize.numChannels (C function parameter) — [in] : Number of ASRC channels"><span>num<wbr>Channels</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-sampleDataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getFilterRembufSize.sampleDataType (C function parameter) — [in] : Sample&#39;s data type"><span>sample<wbr>Data<wbr>Type</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-frameModuloFactor" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getFilterRembufSize.frameModuloFactor (C function parameter) — [in] Frame modulo factor"><span>frame<wbr>Modulo<wbr>Factor</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterRembufSize-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Out<wbr>Buffer<wbr>Length</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getOutBufferLength">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-p-inputSampleRate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getOutBufferLength.inputSampleRate (C function parameter) — [in] : The input sample rate."><span>input<wbr>Sample<wbr>Rate</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-p-outputSampleRate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getOutBufferLength.outputSampleRate (C function parameter) — [in] : The output sample rate."><span>output<wbr>Sample<wbr>Rate</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-p-sampleCount" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_getOutBufferLength.sampleCount (C function parameter) — [in] : The number of input samples."><span>sample<wbr>Count</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getOutBufferLength-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterLength" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>get<wbr>Filter<wbr>Length</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_getFilterLength">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_getFilterLength-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>init</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_init">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of ouput buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>init_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_init_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init_checkParams.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init_checkParams.bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of ouput buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-p-pKerInitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_init_checkParams.pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span>p<wbr>Ker<wbr>Init<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_init_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>set</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_set">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-mode" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.mode (C function parameter) — AUDIOLIB_ASRC_MODE_RESET"><span>mode</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-asrcRatio" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.asrcRatio (C function parameter) — [in] : Outputs to input sample rate ratio (used when mode is AUDIOLIB_ASRC_MODE_SET)"><span>asrc<wbr>Ratio</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-pNonInterleavedData" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data."><span>p<wbr>Non<wbr>Interleaved<wbr>Data</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_set.pIn (C function parameter) — [in] : Pointer to buffer holding the input data."><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_set-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>exec</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_exec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pIn (C function parameter) — [in] : Pointer to buffer holding the input data"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pNonInterleavedData" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data"><span>p<wbr>Non<wbr>Interleaved<wbr>Data</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pFiltCoeffs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pFiltCoeffs (C function parameter) — [in] : Pointer to buffer holding polyphase filter cefficients."><span>p<wbr>Filt<wbr>Coeffs</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pFilterRembuf" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pFilterRembuf (C function parameter) — [in] : Pointer to buffer holding the filter remaining buffer"><span>p<wbr>Filter<wbr>Rembuf</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pOut (C function parameter) — [out] : Pointer to buffer holding the output data"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pKerInArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pKerInArgs (C function parameter) — [in] : Pointer to structure holding input Arguments"><span>p<wbr>Ker<wbr>In<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-p-pKerOutArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec.pKerOutArgs (C function parameter) — [out] : Pointer to structure holding output Arguments"><span>p<wbr>Ker<wbr>Out<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>exec_<wbr>check<wbr>Params</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_exec_checkParams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pIn (C function parameter) — [in] : Pointer to buffer holding the input data"><span>p<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pNonInterleavedData" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data"><span>p<wbr>Non<wbr>Interleaved<wbr>Data</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pFiltCoeffs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pFiltCoeffs (C function parameter) — [in] : Pointer to buffer holding polyphase filter cefficients."><span>p<wbr>Filt<wbr>Coeffs</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pFilterRembuf" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pFilterRembuf (C function parameter) — [in] : Pointer to buffer holding the filter remaining buffer"><span>p<wbr>Filter<wbr>Rembuf</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pOut (C function parameter) — [out] : Pointer to buffer holding the output matrix"><span>p<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pKerInArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pKerInArgs (C function parameter) — [in] : Pointer to structure holding input Arguments"><span>p<wbr>Ker<wbr>In<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-p-pKerOutArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_exec_checkParams.pKerOutArgs (C function parameter) — [out] : Pointer to structure holding output Arguments"><span>p<wbr>Ker<wbr>Out<wbr>Args</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_exec_checkParams-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>perf<wbr>Est</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_perfEst">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-handle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.handle (C function parameter) — [in] : Active handle to the kernel"><span>handle</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-bufParamsIn" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of the input buffer"><span>buf<wbr>Params<wbr>In</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-bufParamsOut" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.bufParamsOut (C function parameter) — [in] : Pointer to the structure containing dimensional information of the output buffer"><span>buf<wbr>Params<wbr>Out</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-archCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.archCycles (C function parameter) — [out] : Cycles estimated for the compute, startup and teardown"><span>arch<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_perfEst-p-estCycles" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="AUDIOLIB_asrc_perfEst.estCycles (C function parameter) — [out] : Cycles estimated for the compute, startup, teardown and any associated overhead"><span>est<wbr>Cycles</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.convertSampleRateToInt" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>convert<wbr>Sample<wbr>Rate<wbr>To<wbr>Int</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convertSampleRateToInt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.convertSampleRateToInt-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c.convertSampleRateToInt-p-rate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="convertSampleRateToInt.rate (C function parameter) — [in] The enum sample rate to convert."><span>rate</span></span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.convertSampleRateToInt-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>Init<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_InitArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.funcStyle" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>func<wbr>Style</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.maxSampleCountPerBlock" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>max<wbr>Sample<wbr>Count<wbr>Per<wbr>Block</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.sampleDataType" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>sample<wbr>Data<wbr>Type</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.inputSampleRate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>input<wbr>Sample<wbr>Rate</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.outputSampleRate" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>output<wbr>Sample<wbr>Rate</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.numChannels" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>num<wbr>Channels</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.dataFormat" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>data<wbr>Format</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_InitArgs.frameModuloFactor" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>frame<wbr>Modulo<wbr>Factor</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_ExecInArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>Exec<wbr>In<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_ExecInArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_ExecInArgs.inputSampleCount" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>input<wbr>Sample<wbr>Count</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_ExecOutArgs" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>AUDIOLIB_<wbr>asrc_<wbr>Exec<wbr>Out<wbr>Args</span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AUDIOLIB_asrc_ExecOutArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breathe-section-title-public-members" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Public Members</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c.AUDIOLIB_asrc_ExecOutArgs.outputSampleCount" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>output<wbr>Sample<wbr>Count</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1 id="audiolib-asrc">AUDIOLIB_asrc<a class="headerlink" href="#audiolib-asrc" title="Link to this heading">¶</a></h1>
+<dl class="objdesc">
+<dt class="sig sig-object highlight cpp">
+<span class="target" id="group__AUDIOLIB__asrc"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">AUDIOLIB_asrc</span></span></dt>
+<dd><p><strong>Asynchronous Sample Rate Conversion (ASRC)</strong></p>
+<p>The ASRC kernel performs asynchronous sample rate conversion of discrete input signals, converting audio data from one sample rate to another. It is designed for high-performance, multi-channel audio processing and supports both interleaved and non-interleaved data formats.</p>
+<p><strong>Key Features:</strong><ul class="simple">
+<li><p>Converts input audio streams from an input sample rate to a different output sample rate.</p></li>
+<li><p>Supports both channel interleaved and non-interleaved input data formats.</p></li>
+<li><p>Handles multiple audio channels in a single kernel call.</p></li>
+<li><p>Supports ping-pong buffer management.<ul>
+<li><p>Provides utility functions to calculate buffer sizes for output, intermediate and remaining data.</p></li>
+</ul>
+</p></li>
+<li><p>Ensures output sample count is a multiple of a configurable frame modulo factor for integrating with different system applications.</p></li>
+</ul>
+</p>
+<p><strong>Algorithm Overview:</strong><ol class="arabic simple">
+<li><p><strong>Initialization:</strong> The kernel is initialized with user-specified parameters such as input/output sample rates, number of channels, data format, and buffer sizes using <a class="reference internal" href="#structAUDIOLIB__asrc__InitArgs"><span class="std std-ref">AUDIOLIB_asrc_InitArgs</span></a>.</p></li>
+<li><p><strong>Buffer Preparation:</strong> The application allocates output, intermediate and remaining sample buffers based on the calculated sizes using utility functions like <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga8a4f8835b4924db2528adb9d84edaab1"><span class="std std-ref">AUDIOLIB_asrc_getOutBufferLength</span></a>, <a class="reference internal" href="#group__AUDIOLIB__asrc_1gaeeab7eb8724c9fa4f10480c0cd01ee75"><span class="std std-ref">AUDIOLIB_asrc_getNonInterleavedDataBufSize</span></a>, and <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga269cde36d29be9be7be9e710d3426015"><span class="std std-ref">AUDIOLIB_asrc_getFilterRembufSize</span></a>.</p></li>
+<li><p><strong>Configuration:</strong> The kernel is validated and configured using <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga53b2c71945cb7ccbdda6bea3256d2d9c"><span class="std std-ref">AUDIOLIB_asrc_init_checkParams</span></a> and <a class="reference internal" href="#group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"><span class="std std-ref">AUDIOLIB_asrc_init</span></a> APIs.</p></li>
+<li><p><strong>Ratio Setting / Reset:</strong> The ASRC ratio (output/input sample rate) is set or the filter state is reset using <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga263b78b2a5a2a6957c6f790a713b84db"><span class="std std-ref">AUDIOLIB_asrc_set</span></a>. After each <a class="reference internal" href="#group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"><span class="std std-ref">AUDIOLIB_asrc_init</span></a> call, the ASRC state must be reset first using <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga263b78b2a5a2a6957c6f790a713b84db"><span class="std std-ref">AUDIOLIB_asrc_set</span></a> before executing the conversion.</p></li>
+<li><p><strong>Execution:</strong> The main processing is performed by <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a>, which reads input samples, applies the sample rate conversion algorithm (using polyphase filtering and interpolation), and writes the converted output samples.</p></li>
+<li><p><strong>Output:</strong> The number of output samples generated is provided in <a class="reference internal" href="#structAUDIOLIB__asrc__ExecOutArgs"><span class="std std-ref">AUDIOLIB_asrc_ExecOutArgs</span></a>. If the input data format is channel interleaved, the output samples will also be in interleaved format. If the input data format is non-interleaved, the output will be in non-interleaved format.</p></li>
+</ol>
+</p>
+<p><strong>Performance Considerations:</strong><ul class="simple">
+<li><p>Buffers should be allocated in <strong>L2 memory</strong> and aligned for optimal performance on C7x targets.</p></li>
+<li><p>The kernel is optimized for batch processing of multiple channels and large blocks of audio data on the C7x DSP.</p></li>
+</ul>
+</p>
+<p><strong>Usage Flow:</strong><ul class="simple">
+<li><p>Allocate memory to all required buffers.</p></li>
+<li><p>Validate and Configure/Initialize parameters using <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga53b2c71945cb7ccbdda6bea3256d2d9c"><span class="std std-ref">AUDIOLIB_asrc_init_checkParams</span></a> and <a class="reference internal" href="#group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"><span class="std std-ref">AUDIOLIB_asrc_init</span></a>.</p></li>
+<li><p>Reset ASRC state using <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga263b78b2a5a2a6957c6f790a713b84db"><span class="std std-ref">AUDIOLIB_asrc_set</span></a>’s <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga0e78a320d272beeabd52c81ed646d94f"><span class="std std-ref">AUDIOLIB_ASRC_MODE_RESET</span></a> mode.</p></li>
+<li><p>Set <em>asrcRatio</em> using <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga263b78b2a5a2a6957c6f790a713b84db"><span class="std std-ref">AUDIOLIB_asrc_set</span></a>’s <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga7fa94208d909e399f37ca3cb77a24a47"><span class="std std-ref">AUDIOLIB_ASRC_MODE_SET</span></a> mode (must run at least once).</p></li>
+<li><p>For each input block:<ul>
+<li><p>Set <em>asrcRatio</em> (optional, using <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga263b78b2a5a2a6957c6f790a713b84db"><span class="std std-ref">AUDIOLIB_asrc_set</span></a>’s <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga7fa94208d909e399f37ca3cb77a24a47"><span class="std std-ref">AUDIOLIB_ASRC_MODE_SET</span></a> mode).</p></li>
+<li><p>Execute conversion for each input block <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a>.</p></li>
+<li><p>Retrieve output samples.</p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<p><strong>Input/Output Data Formats:</strong><ul class="simple">
+<li><p><strong>Interleaved Format:</strong><ul>
+<li><p>Input: Channels are stored in a single array with samples for each channel interleaved.</p></li>
+<li><p>ASRC algorithm is optimized to use non interleaved data. The input data is converted to non interleaved format internally before processing using <em>DSPLIB_matTrans</em> kernel. User has to provide the handle to this kernel in <code class="docutils literal notranslate"><span class="pre">AUDIOLIB_asrc_InitArgs::matTransHandle</span></code> and allocate all necessary buffers including the intermediate circular buffer. ASRC uses a novel circular ping-pong buffer technique; the intermediate circular buffer is half the size of the non-interleaved mode circular buffer because the user is already managing ping pong buffering via pIn buffer.</p></li>
+<li><p>The output data is converted back to interleaved format once the processing is done.</p></li>
+<li><p>The user has to manage the ping pong buffering when the input data is set to the channel interleaved format.</p></li>
+<li><p>Ex: Maintain two <em>pIn</em> buffers. Once the execution is started on the first <em>pIn</em> buffer, the user can start filling the second <em>pIn</em> buffer with new data.</p></li>
+<li><p>Once the execution is done on the first <em>pIn</em> buffer, submit the second <em>pIn</em> buffer to the execution function and the user can start filling the first <em>pIn</em> buffer with new data while the second <em>pIn</em> buffer is being processed.</p></li>
+<li><p>The format of channel interleaved data is shown in the diagram below: <img alt="../_images/AUDIOLIB_asrc_channel_interleaved_fmt.svg" src="../_images/AUDIOLIB_asrc_channel_interleaved_fmt.svg" /></p></li>
+</ul>
+</p></li>
+<li><p><strong>Non-Interleaved Format:</strong><ul>
+<li><p>Input: Each channel has its samples first before the next channel’s samples.</p></li>
+<li><p>Output: Same as input, with converted sample rates.</p></li>
+<li><p>The format of non interleaved data is shown in the diagram below: <img alt="../_images/AUDIOLIB_asrc_non_interleaved_fmt.svg" src="../_images/AUDIOLIB_asrc_non_interleaved_fmt.svg" /></p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<p>In C7x non-interleaved mode, the following additional constraints apply:<ul class="simple">
+<li><p>The user must write to the correct block of the circular buffer for each new block of data, cycling back to the first block once the last block is filled.</p></li>
+<li><p>The width of the circular buffer is determined by the maximum sample count per block.</p></li>
+<li><p>The maximum sample count per block must be a power of 2 to support circular buffering.</p></li>
+<li><p>If the maximum sample count per block is &gt;= 64, the circular buffer will have 4 blocks of the maximum sample count.</p></li>
+<li><p>If the maximum sample count per block is &lt; 64, the circular buffer width should be 128 samples.</p></li>
+<li><p>The circular buffer will have as many rows as the number of channels.</p></li>
+<li><p>The circular buffer is in L2 memory and MUST be <span class="math notranslate nohighlight">\((\text{totalWidthOfCircularBuffer} \times \text{sizeof(float)})\)</span>-byte aligned.</p></li>
+<li><p>Ping pong buffering is supported through this circular buffer (no need to allocate 2 buffers).</p></li>
+<li><p>Example: circular buffer of 128 samples total, each block 32 samples.</p></li>
+<li><p>Note:</p></li>
+</ul>
+</p>
+<p><img alt="../_images/AUDIOLIB_asrc_circular_ping_pong_buffer.svg" src="../_images/AUDIOLIB_asrc_circular_ping_pong_buffer.svg" /></p>
+<p><ul class="simple">
+<li><p>Each block can have multiple rows depending on the number of channels.</p></li>
+<li><p>Output sample buffer is not a circular buffer; it is a single contiguous block. The output data format matches the input data format.</p></li>
+</ul>
+</p>
+<p><strong>Other Considerations:</strong><ul class="simple">
+<li><p>Load the correct filter coefficients into pFiltCoeffs buffer based on the input/output sample rates (see AUDIOLIB_asrc_d.c).</p></li>
+<li><p>Filter coefficient header files are in the <em>$AUDIOLIB/src/AUDIOLIB_asrc/filt_coeffs</em> directory.</p></li>
+<li><p>In standard operation, initially set <em>asrcRatio</em> using <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga263b78b2a5a2a6957c6f790a713b84db"><span class="std std-ref">AUDIOLIB_asrc_set</span></a> based on the static input and output sample rates.</p></li>
+<li><p>Real sample clock frequencies can vary; it is the user’s responsibility to frequently calculate the correct <em>asrcRatio</em> = fsout / fsin value using a separate calcRatio driver with hardware counters. If this is not done, system-level buffers will eventually overflow.</p></li>
+<li><p>There are limitations on the asrcRatio that can be set to prevent internal buffer overflow.</p></li>
+<li><p>This is determined by: <span class="math notranslate nohighlight">\(\text{maxAsrcRatio} = \text{InitialSetSampleRateRatio} + \frac{(\text{AUDIOLIB\_ASRC\_MAX\_MODULO\_FACTOR} - \text{userSetFrameModuloFactor})}{maxSampleCountPerBlock}\)</span></p></li>
+<li><p><strong>FFT Plot:</strong><ul>
+<li><p>Follwing plot shows the FFT for 1 kHz Sine Input that was sample rate converted from 44.1KHz to 48KHz.</p></li>
+<li><p>Plot is based on output data collected by running ASRC kernel on a C7504 processor.</p></li>
+<li><p>Note that noise compomnents are lower than -140 dB which is what our filters are designed for. <img alt="../_images/AUDIOLIB_asrc_output_fft_plot.svg" src="../_images/AUDIOLIB_asrc_output_fft_plot.svg" /></p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines<a class="headerlink" href="#breathe-section-title-defines" title="Permalink to this headline">¶</a></p>
+<dl class="c macro objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_ASRC_DEFAULT_INPUT_FRAMELENGTH">
+<span class="target" id="group__AUDIOLIB__asrc_1ga6b43858efc85c45a0b481ed60c4c5814"></span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_ASRC_DEFAULT_INPUT_FRAMELENGTH</span></span></span><a class="headerlink" href="#c.AUDIOLIB_ASRC_DEFAULT_INPUT_FRAMELENGTH" title="Link to this definition">¶</a><br /></dt>
+<dd><p>ASRC’s input frame length. Only allowed values are multiples of 2 starting from 4 (4, 8, 16, 32, 64, 128, 256, etc). Note that ASRC uses quadruple buffers for ping ponging so for larger block sizes the input buffer size will be 4 times the standard buffer size. </p>
+</dd></dl>
+
+<dl class="c macro objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_ASRC_MAX_NUM_CHANNELS">
+<span class="target" id="group__AUDIOLIB__asrc_1ga5233d55752ea0efab346da1ed1c0c879"></span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_ASRC_MAX_NUM_CHANNELS</span></span></span><a class="headerlink" href="#c.AUDIOLIB_ASRC_MAX_NUM_CHANNELS" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Max number of channels supported by the ASRC. </p>
+</dd></dl>
+
+<dl class="c macro objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_ASRC_MODE_SET">
+<span class="target" id="group__AUDIOLIB__asrc_1ga7fa94208d909e399f37ca3cb77a24a47"></span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_ASRC_MODE_SET</span></span></span><a class="headerlink" href="#c.AUDIOLIB_ASRC_MODE_SET" title="Link to this definition">¶</a><br /></dt>
+<dd><p>ASRC set function modes. </p>
+<p>Mode: Set the ASRC ratio. </p>
+</dd></dl>
+
+<dl class="c macro objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_ASRC_MODE_RESET">
+<span class="target" id="group__AUDIOLIB__asrc_1ga0e78a320d272beeabd52c81ed646d94f"></span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_ASRC_MODE_RESET</span></span></span><a class="headerlink" href="#c.AUDIOLIB_ASRC_MODE_RESET" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Mode: Reset the ASRC state. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums<a class="headerlink" href="#breathe-section-title-enums" title="Permalink to this headline">¶</a></p>
+<dl class="c enum objdesc">
+<dt class="sig sig-object highlight c" id="c.sample_rate_t">
+<span class="target" id="group__AUDIOLIB__asrc_1ga8e017b87ec10ec050108df6203a36782"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sample_rate_t</span></span></span><a class="headerlink" href="#c.sample_rate_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Enum containing the allowed sample rates. </p>
+<p><em>Values:</em></p>
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.sample_rate_t.SAMPLE_RATE_NA">
+<span class="target" id="group__AUDIOLIB__asrc_1gga8e017b87ec10ec050108df6203a36782a6b73689f8ab5c0b1a0fc1ce828c226a9"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SAMPLE_RATE_NA</span></span></span><a class="headerlink" href="#c.sample_rate_t.SAMPLE_RATE_NA" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.sample_rate_t.SAMPLE_RATE_32000">
+<span class="target" id="group__AUDIOLIB__asrc_1gga8e017b87ec10ec050108df6203a36782a79f714073aa3901e28ad8f55f7c06791"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SAMPLE_RATE_32000</span></span></span><a class="headerlink" href="#c.sample_rate_t.SAMPLE_RATE_32000" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.sample_rate_t.SAMPLE_RATE_44100">
+<span class="target" id="group__AUDIOLIB__asrc_1gga8e017b87ec10ec050108df6203a36782a9dbc3d86312cdbc16d20d2869e1063ac"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SAMPLE_RATE_44100</span></span></span><a class="headerlink" href="#c.sample_rate_t.SAMPLE_RATE_44100" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c enumerator objdesc">
+<dt class="sig sig-object highlight c" id="c.sample_rate_t.SAMPLE_RATE_48000">
+<span class="target" id="group__AUDIOLIB__asrc_1gga8e017b87ec10ec050108df6203a36782a145edbc36830d9a675db57d77fb51a72"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SAMPLE_RATE_48000</span></span></span><a class="headerlink" href="#c.sample_rate_t.SAMPLE_RATE_48000" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions<a class="headerlink" href="#breathe-section-title-functions" title="Permalink to this headline">¶</a></p>
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_getHandleSize">
+<span class="target" id="group__AUDIOLIB__asrc_1ga43033d7c9671c71290befdff34b9bf06"></span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_getHandleSize</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="reference internal" href="#c.AUDIOLIB_asrc_InitArgs" title="AUDIOLIB_asrc_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_asrc_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getHandleSize-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getHandleSize" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Utility function to calculate the size of internal handle. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to allocate buffer of the requested size and provide it as input to other functions requiring it. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_getHandleSize-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getHandleSize-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_getHandleSize-p-pKerInitArgs"><a class="reference internal" href="#c.AUDIOLIB_asrc_InitArgs" title="AUDIOLIB_asrc_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_asrc_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getHandleSize-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to structure holding init parameters</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_getHandleSize-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getHandleSize-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Size of the buffer in bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_getNonInterleavedDataBufSize">
+<span class="target" id="group__AUDIOLIB__asrc_1gaeeab7eb8724c9fa4f10480c0cd01ee75"></span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_getNonInterleavedDataBufSize</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-numChannels" title="numChannels (C function parameter) — [in] : Number of ASRC channels"><span class="n"><span class="pre">numChannels</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleCount" title="sampleCount (C function parameter) — [in] : maximum sample count per block"><span class="n"><span class="pre">sampleCount</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleDataType" title="sampleDataType (C function parameter) — [in] : Sample's data type"><span class="n"><span class="pre">sampleDataType</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-dataFormat" title="dataFormat (C function parameter) — [in] : Data format (interleaved/non-interleaved)"><span class="n"><span class="pre">dataFormat</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Utility function to calculate the size of Non Interleaved Data circular buffer. This buffer is only required when the input data to ASRC is interleaved. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to allocate buffers of the requested size for the Non Interleaved Data circular buffer before making the <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> function call if the input data format is interleaved. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-numChannels"><span class="n">uint8_t</span><span class="w"> </span><span class="n sig-name">numChannels</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-numChannels" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Number of ASRC channels </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleCount"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">sampleCount</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleCount" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : maximum sample count per block </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleDataType"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">sampleDataType</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-sampleDataType" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Sample’s data type </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-dataFormat"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">dataFormat</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-p-dataFormat" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Data format (interleaved/non-interleaved)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getNonInterleavedDataBufSize-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Returns the size of the buffer in bytes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_getFilterCoeffSize">
+<span class="target" id="group__AUDIOLIB__asrc_1gaf51a65017b206f9908ba5c3838370cff"></span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_getFilterCoeffSize</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getFilterCoeffSize-p-sampleDataType" title="sampleDataType (C function parameter) — [in] : Sample's data type"><span class="n"><span class="pre">sampleDataType</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterCoeffSize" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Utility function to calculate the ssize of the polyphase filter coefficients. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to allocate buffers of the requested size for the filter coefficients buffer before making the <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> function call. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_getFilterCoeffSize-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterCoeffSize-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_getFilterCoeffSize-p-sampleDataType"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">sampleDataType</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterCoeffSize-p-sampleDataType" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Sample’s data type</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_getFilterCoeffSize-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterCoeffSize-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Returns the size of the buffer in bytes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_getFilterRembufSize">
+<span class="target" id="group__AUDIOLIB__asrc_1ga269cde36d29be9be7be9e710d3426015"></span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_getFilterRembufSize</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-numChannels" title="numChannels (C function parameter) — [in] : Number of ASRC channels"><span class="n"><span class="pre">numChannels</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-sampleDataType" title="sampleDataType (C function parameter) — [in] : Sample's data type"><span class="n"><span class="pre">sampleDataType</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-frameModuloFactor" title="frameModuloFactor (C function parameter) — [in] Frame modulo factor"><span class="n"><span class="pre">frameModuloFactor</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterRembufSize" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Utility function to calculate the size of filter remaining buffer. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to allocate buffers of the requested size for the filter remaining buffer before making the <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> function call. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_getFilterRembufSize-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterRembufSize-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_getFilterRembufSize-p-numChannels"><span class="n">uint8_t</span><span class="w"> </span><span class="n sig-name">numChannels</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-numChannels" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Number of ASRC channels </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_getFilterRembufSize-p-sampleDataType"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">sampleDataType</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-sampleDataType" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Sample’s data type </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_getFilterRembufSize-p-frameModuloFactor"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">frameModuloFactor</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterRembufSize-p-frameModuloFactor" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> Frame modulo factor</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_getFilterRembufSize-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterRembufSize-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Returns the size of the buffer in bytes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_getOutBufferLength">
+<span class="target" id="group__AUDIOLIB__asrc_1ga8a4f8835b4924db2528adb9d84edaab1"></span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_getOutBufferLength</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="#c.sample_rate_t" title="sample_rate_t (C enum) — Enum containing the allowed sample rates."><span class="n"><span class="pre">sample_rate_t</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getOutBufferLength-p-inputSampleRate" title="inputSampleRate (C function parameter) — [in] : The input sample rate."><span class="n"><span class="pre">inputSampleRate</span></span></a>, </span><span class="sig-param-decl"><a class="desctype reference internal" href="#c.sample_rate_t" title="sample_rate_t (C enum) — Enum containing the allowed sample rates."><span class="n"><span class="pre">sample_rate_t</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getOutBufferLength-p-outputSampleRate" title="outputSampleRate (C function parameter) — [in] : The output sample rate."><span class="n"><span class="pre">outputSampleRate</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_getOutBufferLength-p-sampleCount" title="sampleCount (C function parameter) — [in] : The number of input samples."><span class="n"><span class="pre">sampleCount</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getOutBufferLength" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Utility function to calculate the dimention x of output buffer. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to allocate buffers of the requested size for the output buffer before making the <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> function call. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_getOutBufferLength-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getOutBufferLength-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_getOutBufferLength-p-inputSampleRate"><a class="desctype reference internal" href="#c.sample_rate_t" title="sample_rate_t (C enum) — Enum containing the allowed sample rates."><span class="n">sample_rate_t</span></a><span class="w"> </span><span class="n sig-name">inputSampleRate</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getOutBufferLength-p-inputSampleRate" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : The input sample rate. </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_getOutBufferLength-p-outputSampleRate"><a class="desctype reference internal" href="#c.sample_rate_t" title="sample_rate_t (C enum) — Enum containing the allowed sample rates."><span class="n">sample_rate_t</span></a><span class="w"> </span><span class="n sig-name">outputSampleRate</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getOutBufferLength-p-outputSampleRate" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : The output sample rate. </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_getOutBufferLength-p-sampleCount"><span class="n">uint32_t</span><span class="w"> </span><span class="n sig-name">sampleCount</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getOutBufferLength-p-sampleCount" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : The number of input samples.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_getOutBufferLength-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getOutBufferLength-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Returns the length of the output buffer in element count.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_getFilterLength">
+<span class="target" id="group__AUDIOLIB__asrc_1gaaa2ecf7d1e47018f725a323e1de725f0"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_getFilterLength</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterLength" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Retrieves the filter length used in audio sample rate conversion. </p>
+<p>This function returns the predefined filter length value used in the audio sample rate conversion process.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_getFilterLength-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_getFilterLength-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>uint32_t The filter length, which is set to 64. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_init">
+<span class="target" id="group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_init</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_init-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_init-p-bufParamsIn" title="bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span class="n"><span class="pre">bufParamsIn</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_init-p-bufParamsOut" title="bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of ouput buffer"><span class="n"><span class="pre">bufParamsOut</span></span></a>, </span><span class="sig-param-decl"><a class="reference internal" href="#c.AUDIOLIB_asrc_InitArgs" title="AUDIOLIB_asrc_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_asrc_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_init-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function should be called before the <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> function is called. This function takes care of any one-time operations such as setting up the configuration of required hardware resources such as the MMA accelerator and the streaming engine. The results of these operations are stored in the handle. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Application is expected to provide a valid handle. </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_init-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_init-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_init-p-bufParamsIn"><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsIn</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init-p-bufParamsIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_init-p-bufParamsOut"><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsOut</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init-p-bufParamsOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the structure containing dimensional information of ouput buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_init-p-pKerInitArgs"><a class="reference internal" href="#c.AUDIOLIB_asrc_InitArgs" title="AUDIOLIB_asrc_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_asrc_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure holding init parameters</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_init-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_init_checkParams">
+<span class="target" id="group__AUDIOLIB__asrc_1ga53b2c71945cb7ccbdda6bea3256d2d9c"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_init_checkParams</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_init_checkParams-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_init_checkParams-p-bufParamsIn" title="bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of input buffer"><span class="n"><span class="pre">bufParamsIn</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_init_checkParams-p-bufParamsOut" title="bufParamsOut (C function parameter) — [out] : Pointer to the structure containing dimensional information of ouput buffer"><span class="n"><span class="pre">bufParamsOut</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_asrc_InitArgs" title="AUDIOLIB_asrc_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n"><span class="pre">AUDIOLIB_asrc_InitArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_init_checkParams-p-pKerInitArgs" title="pKerInitArgs (C function parameter) — [in] : Pointer to the structure holding init parameters"><span class="n"><span class="pre">pKerInitArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init_checkParams" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function checks the validity of the parameters passed to <a class="reference internal" href="#group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"><span class="std std-ref">AUDIOLIB_asrc_init</span></a> function. This function is called with the same parameters as the <a class="reference internal" href="#group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"><span class="std std-ref">AUDIOLIB_asrc_init</span></a>, and this function must be called before the <a class="reference internal" href="#group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"><span class="std std-ref">AUDIOLIB_asrc_init</span></a> is called. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_init_checkParams-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init_checkParams-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_init_checkParams-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init_checkParams-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_init_checkParams-p-bufParamsIn"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsIn</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init_checkParams-p-bufParamsIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_init_checkParams-p-bufParamsOut"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsOut</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init_checkParams-p-bufParamsOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to the structure containing dimensional information of ouput buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_init_checkParams-p-pKerInitArgs"><span class="k">const</span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_asrc_InitArgs" title="AUDIOLIB_asrc_InitArgs (C struct) — Structure containing the parameters to initialize the kernel."><span class="n">AUDIOLIB_asrc_InitArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInitArgs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init_checkParams-p-pKerInitArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure holding init parameters</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_init_checkParams-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_init_checkParams-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_set">
+<span class="target" id="group__AUDIOLIB__asrc_1ga263b78b2a5a2a6957c6f790a713b84db"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_set</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_set-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_set-p-mode" title="mode (C function parameter) — AUDIOLIB_ASRC_MODE_RESET"><span class="n"><span class="pre">mode</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">double</span></span><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_set-p-asrcRatio" title="asrcRatio (C function parameter) — [in] : Outputs to input sample rate ratio (used when mode is AUDIOLIB_ASRC_MODE_SET)"><span class="n"><span class="pre">asrcRatio</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_set-p-pNonInterleavedData" title="pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data."><span class="n"><span class="pre">pNonInterleavedData</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_set-p-pIn" title="pIn (C function parameter) — [in] : Pointer to buffer holding the input data."><span class="n"><span class="pre">pIn</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_set" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function does 2 operations based on mode parameter. </p>
+<p><ul>
+<li><p>mode = <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga0e78a320d272beeabd52c81ed646d94f"><span class="std std-ref">AUDIOLIB_ASRC_MODE_RESET</span></a> resets the filter state</p></li>
+<li><p>mode = <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga7fa94208d909e399f37ca3cb77a24a47"><span class="std std-ref">AUDIOLIB_ASRC_MODE_SET</span></a> sets the asrcRatio</p>
+<p>Please refer to details under <a class="reference internal" href="#group__AUDIOLIB__asrc"><span class="std std-ref">AUDIOLIB_asrc</span></a></p>
+</li>
+</ul>
+</p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Before calling this function, application is expected to call <a class="reference internal" href="#group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"><span class="std std-ref">AUDIOLIB_asrc_init</span></a> function. This ensures resource configuration and error checks are done only once for several invocations of this function. This function MUST be called ONCE with mode = <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga0e78a320d272beeabd52c81ed646d94f"><span class="std std-ref">AUDIOLIB_ASRC_MODE_RESET</span></a> before calling <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a></p>
+</div>
+<dl class="simple">
+<dt><strong>Assumptions:</strong></dt><dd><p><ul class="simple">
+<li><p>The kernel handle must be active and valid</p></li>
+<li><p>pNonInterleavedData, pIn and pFiltCoeffs must not be NULL when mode is <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga0e78a320d272beeabd52c81ed646d94f"><span class="std std-ref">AUDIOLIB_ASRC_MODE_RESET</span></a>.</p></li>
+<li><p>The buffer pointers are assumed to be aligned to the size of circular buffer in bytes. To be precise,<ul>
+<li><p>When the input data format is <code class="docutils literal notranslate"><span class="pre">AUDIOLIB_DATA_FORMAT_INTERLEAVED</span></code>, pIn must be aligned to the size of 64-bytes and the pNonInterleavedData must be aligned to the size of circular buffer in bytes.</p></li>
+<li><p>When the input data format is <code class="docutils literal notranslate"><span class="pre">AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED</span></code>, pIn must be aligned to the size of circular buffer in bytes.</p></li>
+<li><p>If this alignment is not set properly streming engine circular buffer will not work and the algorithm will break!!!</p></li>
+<li><p>pFiltCoeffs must be aligned to the size of 64-bytes.</p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+</dd>
+<dt><strong>Performance Considerations:</strong></dt><dd><p>For best performance,<ul class="simple">
+<li><p>The pNonInterleavedData, pIn and pFiltCoeffs buffers are expected to be in L2 memory</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_set-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_set-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_set-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_asrc_set-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_set-p-mode"><span class="n">uint8_t</span><span class="w"> </span><span class="n sig-name">mode</span><a class="headerlink" href="#c.AUDIOLIB_asrc_set-p-mode" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Operation mode<ul class="simple">
+<li><p><a class="reference internal" href="#group__AUDIOLIB__asrc_1ga0e78a320d272beeabd52c81ed646d94f"><span class="std std-ref">AUDIOLIB_ASRC_MODE_RESET</span></a></p></li>
+<li><p><a class="reference internal" href="#group__AUDIOLIB__asrc_1ga7fa94208d909e399f37ca3cb77a24a47"><span class="std std-ref">AUDIOLIB_ASRC_MODE_SET</span></a></p></li>
+</ul>
+</p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_set-p-asrcRatio"><span class="kt">double</span><span class="w"> </span><span class="n sig-name">asrcRatio</span><a class="headerlink" href="#c.AUDIOLIB_asrc_set-p-asrcRatio" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Outputs to input sample rate ratio (used when mode is <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga7fa94208d909e399f37ca3cb77a24a47"><span class="std std-ref">AUDIOLIB_ASRC_MODE_SET</span></a>) </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_set-p-pNonInterleavedData"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pNonInterleavedData</span><a class="headerlink" href="#c.AUDIOLIB_asrc_set-p-pNonInterleavedData" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the intermediate non interleaved data. </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_set-p-pIn"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pIn</span><a class="headerlink" href="#c.AUDIOLIB_asrc_set-p-pIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the input data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_set-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_set-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_exec">
+<span class="target" id="group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_exec</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec-p-pIn" title="pIn (C function parameter) — [in] : Pointer to buffer holding the input data"><span class="n"><span class="pre">pIn</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec-p-pNonInterleavedData" title="pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data"><span class="n"><span class="pre">pNonInterleavedData</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec-p-pFiltCoeffs" title="pFiltCoeffs (C function parameter) — [in] : Pointer to buffer holding polyphase filter cefficients."><span class="n"><span class="pre">pFiltCoeffs</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec-p-pFilterRembuf" title="pFilterRembuf (C function parameter) — [in] : Pointer to buffer holding the filter remaining buffer"><span class="n"><span class="pre">pFilterRembuf</span></span></a>, </span><span class="sig-param-decl"><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec-p-pOut" title="pOut (C function parameter) — [out] : Pointer to buffer holding the output data"><span class="n"><span class="pre">pOut</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_asrc_ExecInArgs" title="AUDIOLIB_asrc_ExecInArgs (C struct) — Structure containing the input parameters to exec function."><span class="n"><span class="pre">AUDIOLIB_asrc_ExecInArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec-p-pKerInArgs" title="pKerInArgs (C function parameter) — [in] : Pointer to structure holding input Arguments"><span class="n"><span class="pre">pKerInArgs</span></span></a>, </span><span class="sig-param-decl"><a class="reference internal" href="#c.AUDIOLIB_asrc_ExecOutArgs" title="AUDIOLIB_asrc_ExecOutArgs (C struct) — Structure containing the output parameters from exec function."><span class="n"><span class="pre">AUDIOLIB_asrc_ExecOutArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec-p-pKerOutArgs" title="pKerOutArgs (C function parameter) — [out] : Pointer to structure holding output Arguments"><span class="n"><span class="pre">pKerOutArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function is the main kernel compute function. </p>
+<p>Please refer to details under <a class="reference internal" href="#group__AUDIOLIB__asrc"><span class="std std-ref">AUDIOLIB_asrc</span></a></p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>Before calling this function, application is expected to call <a class="reference internal" href="#group__AUDIOLIB__asrc_1gadf2981409d77ab1baff60547d340841b"><span class="std std-ref">AUDIOLIB_asrc_init</span></a>, <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga263b78b2a5a2a6957c6f790a713b84db"><span class="std std-ref">AUDIOLIB_asrc_set</span></a> in <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga0e78a320d272beeabd52c81ed646d94f"><span class="std std-ref">AUDIOLIB_ASRC_MODE_RESET</span></a> mode and <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga9d1b41a636e4f78bad0f3a5d158b3d88"><span class="std std-ref">AUDIOLIB_asrc_exec_checkParams</span></a> functions. This ensures resource configuration and error checks are done only once for several invocations of this function. </p>
+</div>
+<dl class="simple">
+<dt><strong>Assumptions:</strong></dt><dd><p><ul class="simple">
+<li><p>Memory pointed by <em>pIn</em>, <em>pNonInterleavedData</em>, <em>pFiltCoeffs</em>, <em>pFilterRembuf</em>, <em>pOut</em> shall NOT be shared. Library code is using the restrict keyword to optimize the kernel. So any of these pointer should not point to the same memory region at any time.</p></li>
+<li><p>When the input data format is <code class="docutils literal notranslate"><span class="pre">AUDIOLIB_DATA_FORMAT_INTERLEAVED</span></code>, pIn must be aligned to the size of 64-bytes and the pNonInterleavedData must be aligned to the size of circular buffer in bytes.</p></li>
+<li><p>When the input data format is <code class="docutils literal notranslate"><span class="pre">AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED</span></code>, pIn must be aligned to the size of circular buffer in bytes and pNonInterleavedData is unsed.</p></li>
+<li><p>If this alignment is not set properly streming engine circular buffer will not work and the algorithm will break!!!</p></li>
+</ul>
+</p>
+</dd>
+<dt><strong>Performance Considerations:</strong></dt><dd><p>For best performance,<ul class="simple">
+<li><p>The input, output and intermediate data buffers are expected to be in L2 memory</p></li>
+<li><p>The buffer pointers are assumed to be 64-byte aligned unless it’s a circular buffer which needs and alignment equal to the size of the circular buffer in bytes.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_exec-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_exec-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec-p-pIn"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pIn</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-p-pIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the input data </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec-p-pNonInterleavedData"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pNonInterleavedData</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-p-pNonInterleavedData" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the intermediate non interleaved data </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec-p-pFiltCoeffs"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pFiltCoeffs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-p-pFiltCoeffs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding polyphase filter cefficients. </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec-p-pFilterRembuf"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pFilterRembuf</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-p-pFilterRembuf" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the filter remaining buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec-p-pOut"><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pOut</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-p-pOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to buffer holding the output data </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec-p-pKerInArgs"><span class="k">const</span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_asrc_ExecInArgs" title="AUDIOLIB_asrc_ExecInArgs (C struct) — Structure containing the input parameters to exec function."><span class="n">AUDIOLIB_asrc_ExecInArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInArgs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-p-pKerInArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to structure holding input Arguments </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec-p-pKerOutArgs"><a class="reference internal" href="#c.AUDIOLIB_asrc_ExecOutArgs" title="AUDIOLIB_asrc_ExecOutArgs (C struct) — Structure containing the output parameters from exec function."><span class="n">AUDIOLIB_asrc_ExecOutArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerOutArgs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-p-pKerOutArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to structure holding output Arguments</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_exec-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_exec_checkParams">
+<span class="target" id="group__AUDIOLIB__asrc_1ga9d1b41a636e4f78bad0f3a5d158b3d88"></span><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_STATUS" title="AUDIOLIB_STATUS (C type) — Return value for AUDIOLIB functions."><span class="n"><span class="pre">AUDIOLIB_STATUS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_exec_checkParams</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec_checkParams-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pIn" title="pIn (C function parameter) — [in] : Pointer to buffer holding the input data"><span class="n"><span class="pre">pIn</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pNonInterleavedData" title="pNonInterleavedData (C function parameter) — [in] : Pointer to buffer holding the intermediate non interleaved data"><span class="n"><span class="pre">pNonInterleavedData</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pFiltCoeffs" title="pFiltCoeffs (C function parameter) — [in] : Pointer to buffer holding polyphase filter cefficients."><span class="n"><span class="pre">pFiltCoeffs</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pFilterRembuf" title="pFilterRembuf (C function parameter) — [in] : Pointer to buffer holding the filter remaining buffer"><span class="n"><span class="pre">pFilterRembuf</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pOut" title="pOut (C function parameter) — [out] : Pointer to buffer holding the output matrix"><span class="n"><span class="pre">pOut</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_asrc_ExecInArgs" title="AUDIOLIB_asrc_ExecInArgs (C struct) — Structure containing the input parameters to exec function."><span class="n"><span class="pre">AUDIOLIB_asrc_ExecInArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pKerInArgs" title="pKerInArgs (C function parameter) — [in] : Pointer to structure holding input Arguments"><span class="n"><span class="pre">pKerInArgs</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_asrc_ExecOutArgs" title="AUDIOLIB_asrc_ExecOutArgs (C struct) — Structure containing the output parameters from exec function."><span class="n"><span class="pre">AUDIOLIB_asrc_ExecOutArgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pKerOutArgs" title="pKerOutArgs (C function parameter) — [out] : Pointer to structure holding output Arguments"><span class="n"><span class="pre">pKerOutArgs</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This function checks the validity of the parameters passed to <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> function. This function is called with the same parameters as the <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a>, and this function must be called before the <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> is called. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_exec_checkParams-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_exec_checkParams-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec_checkParams-p-pIn"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pIn</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the input data </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec_checkParams-p-pNonInterleavedData"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pNonInterleavedData</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pNonInterleavedData" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the intermediate non interleaved data </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec_checkParams-p-pFiltCoeffs"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pFiltCoeffs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pFiltCoeffs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding polyphase filter cefficients. </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec_checkParams-p-pFilterRembuf"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pFilterRembuf</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pFilterRembuf" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to buffer holding the filter remaining buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec_checkParams-p-pOut"><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">pOut</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to buffer holding the output matrix </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec_checkParams-p-pKerInArgs"><span class="k">const</span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_asrc_ExecInArgs" title="AUDIOLIB_asrc_ExecInArgs (C struct) — Structure containing the input parameters to exec function."><span class="n">AUDIOLIB_asrc_ExecInArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerInArgs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pKerInArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to structure holding input Arguments </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_exec_checkParams-p-pKerOutArgs"><span class="k">const</span><span class="w"> </span><a class="reference internal" href="#c.AUDIOLIB_asrc_ExecOutArgs" title="AUDIOLIB_asrc_ExecOutArgs (C struct) — Structure containing the output parameters from exec function."><span class="n">AUDIOLIB_asrc_ExecOutArgs</span></a><span class="w"> </span><span class="p">*</span><span class="n sig-name">pKerOutArgs</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-p-pKerOutArgs" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Pointer to structure holding output Arguments</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.AUDIOLIB_asrc_exec_checkParams-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_exec_checkParams-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Status value indicating success or failure. Refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga1abed4e5579c764cb727699ad167dd9b"><span class="std std-ref">AUDIOLIB_STATUS</span></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight sig-wrap c" id="c.AUDIOLIB_asrc_perfEst">
+<span class="target" id="group__AUDIOLIB__asrc_1ga3db7991017ff82afda968c1533dcfdbc"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_perfEst</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n"><span class="pre">AUDIOLIB_kernelHandle</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.AUDIOLIB_asrc_perfEst-p-handle" title="handle (C function parameter) — [in] : Active handle to the kernel"><span class="n"><span class="pre">handle</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_perfEst-p-bufParamsIn" title="bufParamsIn (C function parameter) — [in] : Pointer to the structure containing dimensional information of the input buffer"><span class="n"><span class="pre">bufParamsIn</span></span></a>, </span><span class="sig-param-decl"><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">AUDIOLIB_bufParams2D_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_perfEst-p-bufParamsOut" title="bufParamsOut (C function parameter) — [in] : Pointer to the structure containing dimensional information of the output buffer"><span class="n"><span class="pre">bufParamsOut</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_perfEst-p-archCycles" title="archCycles (C function parameter) — [out] : Cycles estimated for the compute, startup and teardown"><span class="n"><span class="pre">archCycles</span></span></a>, </span><span class="sig-param-decl"><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><a class="n reference internal" href="#c.AUDIOLIB_asrc_perfEst-p-estCycles" title="estCycles (C function parameter) — [out] : Cycles estimated for the compute, startup, teardown and any associated overhead"><span class="n"><span class="pre">estCycles</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AUDIOLIB_asrc_perfEst" title="Link to this definition">¶</a><br /></dt>
+<dd><p>This is a utility function that gives an estimate of the cycles consumed for the kernel execution. </p>
+<p><div class="remark admonition">
+<p class="admonition-title">Remark</p>
+<p>None </p>
+</div>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.AUDIOLIB_asrc_perfEst-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.AUDIOLIB_asrc_perfEst-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.AUDIOLIB_asrc_perfEst-p-handle"><a class="desctype reference internal" href="AUDIOLIB_COMMON.html#c.AUDIOLIB_kernelHandle" title="AUDIOLIB_kernelHandle (C type) — Handle type for AUDIOLIB operations."><span class="n">AUDIOLIB_kernelHandle</span></a><span class="w"> </span><span class="n sig-name">handle</span><a class="headerlink" href="#c.AUDIOLIB_asrc_perfEst-p-handle" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Active handle to the kernel </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_perfEst-p-bufParamsIn"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsIn</span><a class="headerlink" href="#c.AUDIOLIB_asrc_perfEst-p-bufParamsIn" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of the input buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_perfEst-p-bufParamsOut"><span class="k">const</span><span class="w"> </span><span class="n">AUDIOLIB_bufParams2D_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">bufParamsOut</span><a class="headerlink" href="#c.AUDIOLIB_asrc_perfEst-p-bufParamsOut" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> : Pointer to the structure containing dimensional information of the output buffer </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_perfEst-p-archCycles"><span class="n">uint64_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">archCycles</span><a class="headerlink" href="#c.AUDIOLIB_asrc_perfEst-p-archCycles" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Cycles estimated for the compute, startup and teardown </p>
+</dd>
+<dt id="c.AUDIOLIB_asrc_perfEst-p-estCycles"><span class="n">uint64_t</span><span class="w"> </span><span class="p">*</span><span class="n sig-name">estCycles</span><a class="headerlink" href="#c.AUDIOLIB_asrc_perfEst-p-estCycles" title="Permalink to this definition">¶</a></dt><dd><p><strong>[out]</strong> : Cycles estimated for the compute, startup, teardown and any associated overhead</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="c function objdesc">
+<dt class="sig sig-object highlight c" id="c.convertSampleRateToInt">
+<span class="target" id="group__AUDIOLIB__asrc_1gaa81edf4276dafb90b7eaadd78d90692d"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">convertSampleRateToInt</span></span></span><span class="sig-paren">(</span><span class="sig-param-decl"><a class="desctype reference internal" href="#c.sample_rate_t" title="sample_rate_t (C enum) — Enum containing the allowed sample rates."><span class="n"><span class="pre">sample_rate_t</span></span></a><span class="w"> </span><a class="n reference internal" href="#c.convertSampleRateToInt-p-rate" title="rate (C function parameter) — [in] The enum sample rate to convert."><span class="n"><span class="pre">rate</span></span></a></span><span class="sig-paren">)</span><a class="headerlink" href="#c.convertSampleRateToInt" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Converts an enum sample rate to an integer sample rate. </p>
+<dl class="field-list simple">
+<dt class="field-odd" id="c.convertSampleRateToInt-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#c.convertSampleRateToInt-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="c.convertSampleRateToInt-p-rate"><a class="desctype reference internal" href="#c.sample_rate_t" title="sample_rate_t (C enum) — Enum containing the allowed sample rates."><span class="n">sample_rate_t</span></a><span class="w"> </span><span class="n sig-name">rate</span><a class="headerlink" href="#c.convertSampleRateToInt-p-rate" title="Permalink to this definition">¶</a></dt><dd><p><strong>[in]</strong> The enum sample rate to convert.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="c.convertSampleRateToInt-returns">Returns<span class="colon">:</span><a class="headerlink" href="#c.convertSampleRateToInt-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>The integer sample rate, or 0 if the enum value is invalid. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<dl class="c struct objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_InitArgs</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;AUDIOLIB_asrc.h&gt;</em></div>
+<p>Structure containing the parameters to initialize the kernel. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members<a class="headerlink" href="#breathe-section-title-public-members" title="Permalink to this headline">¶</a></p>
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs.funcStyle">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs_1a1cef5287836d491af0fa592185f3e4c4"></span><span class="n"><span class="pre">int8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">funcStyle</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs.funcStyle" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Variant of the function refer to <a class="reference internal" href="AUDIOLIB_COMMON.html#group__AUDIOLIB__COMMON_1ga31d199392d7b10e4b1e7ffa8e5e2ec9c"><span class="std std-ref">AUDIOLIB_FUNCTION_STYLE</span></a></p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs.maxSampleCountPerBlock">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs_1a9c7e8beec32603965820701db353a8ff"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">maxSampleCountPerBlock</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs.maxSampleCountPerBlock" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Max number of asrc input samples requested by the user per data block. This is necessary to allocate the in/out buffer sizes. User cannot send more data than this value in a single call to exec function. </p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs.sampleDataType">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs_1a2923b86f9c108616427f4f5e9977e6b2"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sampleDataType</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs.sampleDataType" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Asrc input sample’s data type. Only float type is supported. </p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs.inputSampleRate">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs_1a9acdd2fde19b5f780cd4d7db7d428a74"></span><a class="desctype reference internal" href="#c.sample_rate_t" title="sample_rate_t (C enum) — Enum containing the allowed sample rates."><span class="n"><span class="pre">sample_rate_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">inputSampleRate</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs.inputSampleRate" title="Link to this definition">¶</a><br /></dt>
+<dd><p>input sample rate set by the user. Allowed values are 32kHz, 44.1 kHz, and 48 kHz. </p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs.outputSampleRate">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs_1ae669137901bf9be32e6b64c8f1b55e30"></span><a class="desctype reference internal" href="#c.sample_rate_t" title="sample_rate_t (C enum) — Enum containing the allowed sample rates."><span class="n"><span class="pre">sample_rate_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">outputSampleRate</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs.outputSampleRate" title="Link to this definition">¶</a><br /></dt>
+<dd><p>output sample rate set by the user. Allowed values are 48 kHz. </p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs.numChannels">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs_1a32aa2f27de070ee1e0eb4e0d5d2ba1c1"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">numChannels</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs.numChannels" title="Link to this definition">¶</a><br /></dt>
+<dd><p>number of asrc channels requested by the user. </p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs.dataFormat">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs_1a7945c4d7df53a10200ed5b8f80f5c933"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dataFormat</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs.dataFormat" title="Link to this definition">¶</a><br /></dt>
+<dd><p>data format of the input samples. This could either be <code class="docutils literal notranslate"><span class="pre">AUDIOLIB_DATA_FORMAT_INTERLEAVED</span></code> = 1 or <code class="docutils literal notranslate"><span class="pre">AUDIOLIB_DATA_FORMAT_NON_INTERLEAVED</span></code> = 0. </p>
+</dd></dl>
+
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_InitArgs.frameModuloFactor">
+<span class="target" id="structAUDIOLIB__asrc__InitArgs_1ae8224798585f6e2c7fbfebd072699847"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">frameModuloFactor</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_InitArgs.frameModuloFactor" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Frame modulo factor, used to calculate the output sample count. This is used to ensure that the output sample count is a multiple of this factor. Default value is 4 for low latency. Max is set to 32 for now (AUDIOLIB_ASRC_MAX_MODULO_FACTOR) </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="c struct objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_ExecInArgs">
+<span class="target" id="structAUDIOLIB__asrc__ExecInArgs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_ExecInArgs</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_ExecInArgs" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;AUDIOLIB_asrc.h&gt;</em></div>
+<p>Structure containing the input parameters to exec function. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members<a class="headerlink" href="#breathe-section-title-public-members" title="Permalink to this headline">¶</a></p>
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_ExecInArgs.inputSampleCount">
+<span class="target" id="structAUDIOLIB__asrc__ExecInArgs_1affe96d617c1e18aab06e3d2e0c0a1bf2"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">inputSampleCount</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_ExecInArgs.inputSampleCount" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Number of asrc input sample count requested by the user. This should be equal to the <a class="reference internal" href="#structAUDIOLIB__asrc__InitArgs_1a9c7e8beec32603965820701db353a8ff"><span class="std std-ref">AUDIOLIB_asrc_InitArgs::maxSampleCountPerBlock</span></a> for all the calls of <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> except for the last call. In the last call you can set this to any value &gt; 0 and &lt;= <a class="reference internal" href="#structAUDIOLIB__asrc__InitArgs_1a9c7e8beec32603965820701db353a8ff"><span class="std std-ref">AUDIOLIB_asrc_InitArgs::maxSampleCountPerBlock</span></a>. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="c struct objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_ExecOutArgs">
+<span class="target" id="structAUDIOLIB__asrc__ExecOutArgs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AUDIOLIB_asrc_ExecOutArgs</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_ExecOutArgs" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;AUDIOLIB_asrc.h&gt;</em></div>
+<p>Structure containing the output parameters from exec function. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members<a class="headerlink" href="#breathe-section-title-public-members" title="Permalink to this headline">¶</a></p>
+<dl class="c var objdesc">
+<dt class="sig sig-object highlight c" id="c.AUDIOLIB_asrc_ExecOutArgs.outputSampleCount">
+<span class="target" id="structAUDIOLIB__asrc__ExecOutArgs_1ad093365a7ac21cc5ad0d30017665c067"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">outputSampleCount</span></span></span><a class="headerlink" href="#c.AUDIOLIB_asrc_ExecOutArgs.outputSampleCount" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Number of asrc output sample count produced by the <a class="reference internal" href="#group__AUDIOLIB__asrc_1ga4761679b15363dec6192903f1752b8ce"><span class="std std-ref">AUDIOLIB_asrc_exec</span></a> on each call. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    Aug 07, 2026
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, Texas Instruments Incorporated.
+        
+    </div>
+  
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "search.highlight", "toc.follow"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/design-tabs.js?v=f930bc37"></script>
+        <script id="MathJax-script" src="../_static/mathjax/tex-mml-chtml.js?v=cadf963e"></script>
+    
+  </body>
+</html>
