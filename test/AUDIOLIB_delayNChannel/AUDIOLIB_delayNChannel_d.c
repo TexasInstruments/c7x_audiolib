@@ -114,35 +114,37 @@ int AUDIOLIB_delayNChannel_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             bufParamsOut.dim_y = currPrm.numChannels;
          }
 
+         uint32_t *pDelaySize = (uint32_t *) currPrm.staticDelaySizeCase;
+         uint32_t  ch;
+         uint32_t  maxDelay = 0;
+         for (ch = 0; ch < currPrm.numChannels; ch++) {
+            kerInitArgs.delaySize[ch] = pDelaySize[ch];
+            if (pDelaySize[ch] > maxDelay) {
+               maxDelay = pDelaySize[ch];
+            }
+         }
+
          uint32_t CircularBufBaseMmemSize = 512;
 
          if (currPrm.mode == 0) {
             bufParamsDelay.data_type = currPrm.dataType;
-            bufParamsDelay.dim_x     = currPrm.maxDelay;
+            bufParamsDelay.dim_x     = maxDelay;
             bufParamsDelay.dim_y     = currPrm.numChannels;
-            bufParamsDelay.stride_y  = (currPrm.maxDelay + currPrm.numSamples) * AUDIOLIB_sizeof(currPrm.dataType);
+            bufParamsDelay.stride_y  = (maxDelay + currPrm.numSamples) * AUDIOLIB_sizeof(currPrm.dataType);
          }
          else {
-            while (CircularBufBaseMmemSize < (currPrm.maxDelay + currPrm.numSamples)) {
+            while (CircularBufBaseMmemSize < (maxDelay + currPrm.numSamples)) {
                CircularBufBaseMmemSize *= 2;
             }
 
             bufParamsDelay.data_type = currPrm.dataType;
-            bufParamsDelay.dim_x     = currPrm.maxDelay + currPrm.numSamples;
+            bufParamsDelay.dim_x     = maxDelay + currPrm.numSamples;
             bufParamsDelay.dim_y     = currPrm.numChannels;
             bufParamsDelay.stride_y  = CircularBufBaseMmemSize * AUDIOLIB_sizeof(currPrm.dataType);
          }
 
          kerInitArgs.mode       = currPrm.mode;
          kerInitArgs.interleave = currPrm.interleave;
-         kerInitArgs.maxDelay   = currPrm.maxDelay;
-
-         // Copy all the delay sizes for each channel
-         uint32_t *pDelaySize = (uint32_t *) currPrm.staticDelaySizeCase;
-         uint32_t  ch;
-         for (ch = 0; ch < currPrm.numChannels; ch++) {
-            kerInitArgs.delaySize[ch] = pDelaySize[ch];
-         }
 
          eleCount             = 2 * (__C7X_VEC_SIZE_BYTES__ / AUDIOLIB_sizeof(currPrm.dataType));
          int32_t dim_y_padded = AUDIOLIB_ROW_STRIDE(bufParamsIn.dim_y, eleCount);
@@ -400,7 +402,7 @@ int AUDIOLIB_delayNChannel_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             //  write to CSV, must happen prior to write to screen because
             //  TI_profile_formula_add clears values in counters
             fprintf(fpOutputCSV, "AUDIOLIB_delayNChannel, %d, %d, %d, %d, %d, %d, %d, %d, %ld, %ld, %f, %u\n", testNum,
-                    currPrm.testPattern, AUDIOLIB_sizeof(currPrm.dataType) * 8, currPrm.maxDelay, currPrm.numSamples,
+                    currPrm.testPattern, AUDIOLIB_sizeof(currPrm.dataType) * 8, maxDelay, currPrm.numSamples,
                     currPrm.numChannels, currPrm.interleave, currPrm.mode, estCycles,
                     cycles[TI_PROFILE_KERNEL_OPT_WARM],
                     ((AUDIOLIB_F32) cycles[TI_PROFILE_KERNEL_OPT_WARM]) / ((AUDIOLIB_F32) estCycles), !currentTestFail);
@@ -524,7 +526,6 @@ int coverage_test_main()
    pOut   = (void *) malloc(OutSize);
 
    /* Seed init args read by the init() copy loop in the cases below. */
-   kerInitArgs.maxDelay = 0;
    int32_t ch;
    for (ch = 0; ch < MAX_NUM_CHANNELS; ch++) {
       kerInitArgs.delaySize[ch] = 0;

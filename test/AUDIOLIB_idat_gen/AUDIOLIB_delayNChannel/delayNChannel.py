@@ -13,7 +13,6 @@ class AUDIOLIB_delayNChannel:
         interleave=0,
         numChannels=1,
         numSamples=1,
-        maxDelay=1,
         numExecReps=1,
         delaySize=None,
     ):
@@ -25,16 +24,15 @@ class AUDIOLIB_delayNChannel:
             interleave (int): Interleave flag (0 or 1)
             numChannels (int): Number of channels
             numSamples (int): Number of samples per channel
-            maxDelay (int): Maximum delay value
             numExecReps (int): Number of execution repetitions
-            delaySize (numpy.ndarray, optional): Delay size for each channel. If None, will be initialized with random values.
+            delaySize (numpy.ndarray): Delay size for each channel. Its maximum value
+                                       determines the delay buffer's allocation size.
         """
         self.__dType = dType
         self.__mode = mode
         self.__interleave = interleave
         self.__numChannels = numChannels
         self.__numSamples = numSamples
-        self.__maxDelay = maxDelay
         self.__numExecReps = numExecReps
 
         # Define min/max values for random generation
@@ -55,21 +53,8 @@ class AUDIOLIB_delayNChannel:
             self.__minVal = -(2 ** (bits - 1))
             self.__maxVal = 2 ** (bits - 1)
 
-        self.__minDelaySize = 1
-        self.__maxDelaySize = maxDelay
-
-        # Initialize delay size if not provided
-        if delaySize is None:
-            self.__delaySize = np.random.randint(
-                low=self.__minDelaySize,
-                high=self.__maxDelaySize,
-                size=(self.__numChannels),
-            ).astype("uint32")
-            if self.__maxDelay not in self.__delaySize:
-                self.__delaySize[self.__numChannels - 1] = self.__maxDelay
-            np.random.shuffle(self.__delaySize)
-        else:
-            self.__delaySize = delaySize
+        self.__delaySize = delaySize
+        self.__maxDelay = int(np.max(self.__delaySize))
 
     def exec(self, inputBuff, delayBuff=None, persistState=False):
         """Execute the delayNChannel algorithm

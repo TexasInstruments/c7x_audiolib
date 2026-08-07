@@ -104,7 +104,6 @@ AUDIOLIB_STATUS AUDIOLIB_delayNChannel_init(AUDIOLIB_kernelHandle               
    if (status == AUDIOLIB_SUCCESS) {
       pKerPrivArgs->mode                = pKerInitArgs->mode;
       pKerPrivArgs->interleave          = pKerInitArgs->interleave;
-      pKerPrivArgs->maxDelay            = pKerInitArgs->maxDelay;
       pKerPrivArgs->delayBuffSize       = bufParamsDelay->stride_y / AUDIOLIB_sizeof(bufParamsDelay->data_type);
       pKerPrivArgs->strideInElements    = bufParamsIn->stride_y / AUDIOLIB_sizeof(bufParamsIn->data_type);
       pKerPrivArgs->strideOutElements   = bufParamsOut->stride_y / AUDIOLIB_sizeof(bufParamsOut->data_type);

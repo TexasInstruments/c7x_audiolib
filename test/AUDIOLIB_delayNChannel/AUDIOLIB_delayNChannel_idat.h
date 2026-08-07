@@ -14,7 +14,6 @@
 typedef struct {
    uint8_t testPattern; /* 0: constant, 1: sequential, 2: random, 3: static
                            array, 4: file, etc */
-   uint32_t maxDelay;
    uint32_t dataType;
    uint32_t mode;
    void    *staticRefInCase;

@@ -243,7 +243,6 @@ typedef struct {
     * interleave = 0 for the data in de-interleave format
     * interleave = 1 for the data in interleave format */
    uint32_t interleave;
-   uint32_t maxDelay;                    /**< \brief Maximum Delay. */
    uint32_t delaySize[MAX_NUM_CHANNELS]; /**< \brief Delay Size for each channel. */
    uint32_t delayBuffSize;               /**< \brief Total size of Delay buffer (Parameter for Circular Delay). */
 

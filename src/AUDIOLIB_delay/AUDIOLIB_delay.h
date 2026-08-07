@@ -39,7 +39,8 @@ typedef struct {
     *  mode = 0 for Linear Delay
     *  mode = 1 for Circular Delay                                */
    uint32_t mode;
-   uint32_t delaySize;
+   /*! @brief Delay in number of Samples. */
+   uint32_t delaySize; 
 } AUDIOLIB_delay_InitArgs;
 
 /**
