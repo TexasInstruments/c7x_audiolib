@@ -7,7 +7,7 @@
  *
  *  @brief    File to hold private parameter of function AUDIOLIB_gainSmoothing
  *
- *  @version  0.1 - Mar 2022 : Initial Version
+ *  @version  0.1 - Oct 2026 : Initial Version
  *
  ********************************************************************************/
 
@@ -28,19 +28,33 @@
  *        @ref AUDIOLIB_gainSmoothing_PrivArgs structure.
  *
  */
-#define AUDIOLIB_GAINSMOOTHING_PBLOCK_SIZE (1* SE_PARAM_SIZE + 1* SA_PARAM_SIZE)
+#define AUDIOLIB_GAINSMOOTHING_PBLOCK_SIZE (3 * SE_PARAM_SIZE + 3 * SA_PARAM_SIZE)
 
-#define SE_PARAM_BASE (0x0000) ///< Base offset for hardware accelerator parameter blocks.
-#define SE_SE0_PARAM_OFFSET (SE_PARAM_BASE) ///< Memory offset for the first Streaming Engine (SE0) template.
-#define SE_SA0_PARAM_OFFSET (SE_SE0_PARAM_OFFSET + SE_PARAM_SIZE) ///< Memory offset for the first Stream Address Generator (SA0) template.
+#define SE_PARAM_BASE (0x0000)              ///< Base offset for hardware accelerator parameter blocks.
+#define SE_SE_BYPASS_PARAM_OFFSET (SE_PARAM_BASE) ///< Memory offset for the first Streaming Engine (SE0) template.
+#define SE_SA_BYPASS_PARAM_OFFSET                                                                                            \
+   (SE_SE_BYPASS_PARAM_OFFSET + SE_PARAM_SIZE) ///< Memory offset for the first Stream Address Generator (SA0) template.
 
-/// @brief A small floating-point threshold to determine if the current gain is effectively at the target, allowing smoothing to be bypassed.
+/// Fade-kernel data template (SE0). Planar: first half of the channels. Interleaved: lane layout.
+#define AUDIOLIB_GAINSMOOTHING_SE_FADE_OFFSET (SE_SA_BYPASS_PARAM_OFFSET + SA_PARAM_SIZE)
+/// Fade-kernel store template (SA0). Planar: first half of the channels. Interleaved: lane layout.
+#define AUDIOLIB_GAINSMOOTHING_SA_FADE_OFFSET (AUDIOLIB_GAINSMOOTHING_SE_FADE_OFFSET + SE_PARAM_SIZE)
+/// Planar only: fade-kernel data template of the second half of the channels (SE1).
+#define AUDIOLIB_GAINSMOOTHING_SE_FADE_B_OFFSET (AUDIOLIB_GAINSMOOTHING_SA_FADE_OFFSET + SA_PARAM_SIZE)
+/// Planar only: fade-kernel store template of the second half of the channels (SA1).
+#define AUDIOLIB_GAINSMOOTHING_SA_FADE_B_OFFSET (AUDIOLIB_GAINSMOOTHING_SE_FADE_B_OFFSET + SE_PARAM_SIZE)
+
+/// Number of independent ramp chains (sample rows) per interleaved fade iteration.
+#define AUDIOLIB_GAINSMOOTHING_ROW_CHAINS (4)
+
+/// @brief A small floating-point threshold to determine if the current gain is effectively at the target, allowing
+/// smoothing to be bypassed.
 #define AUDIOLIB_GAINSMOOTHING_GAIN_EPSILON 1e-6f
 
 #if __C7X_VEC_SIZE_BITS__ == 256
-  #define AUDIOLIB_GAINSMOOTHING_LANES_F32 8
+#define AUDIOLIB_GAINSMOOTHING_LANES_F32 8
 #else
-  #define AUDIOLIB_GAINSMOOTHING_LANES_F32 16
+#define AUDIOLIB_GAINSMOOTHING_LANES_F32 16
 #endif
 
 /*!
@@ -58,29 +72,23 @@ typedef enum {
    be able to name the fade types when populating AUDIOLIB_gainSmoothing_SetArgs. */
 
 /*!
- *  @brief This is a function pointer type that conforms to the
- *         declaration of @ref AUDIOLIB_gainSmoothing_exec_ci
- *         and @ref AUDIOLIB_gainSmoothing_exec_cn.
+ *  @brief Function pointer type of every exec variant (optimized fade and constant-gain
+ *         kernels, and the natural C kernels). It matches @ref AUDIOLIB_gainSmoothing_exec.
  */
-typedef AUDIOLIB_STATUS (*pFxnAUDIOLIB_gainSmoothing_exec)(AUDIOLIB_kernelHandle handle, 
-                                                      void *restrict pIn,
-                                                      void *restrict pOut);
+typedef AUDIOLIB_STATUS (*pFxnAUDIOLIB_gainSmoothing_exec)(AUDIOLIB_kernelHandle handle,
+                                                           void *restrict pIn,
+                                                           void *restrict pOut);
 
 /*!
  *  @brief This function is the initialization function for the C7x
  *         implementation of the kernel. The function declaration conforms
  *         to the declaration of @ref AUDIOLIB_gainSmoothing_init.
  *
- * @details This function determines the configuration for the streaming engine
- *          and MMA hardware resources based on the function call parameters,
- *          and the configuration is saved in bufPBlock array. In the kernel
- *          call sequence, @ref AUDIOLIB_gainSmoothing_exec_ci would be
- *          called later independently by the application. When
- *          @ref AUDIOLIB_gainSmoothing_exec_ci runs, it merely retrieves
- *          the configuration from the bufPBlock and uses it to set up the
- *          hardware resources. This arrangement is so that
- *          @ref AUDIOLIB_gainSmoothing_exec_ci does not lose cycles
- *          to determine the hardware configuration.
+ * @details Builds the streaming engine (SE) and streaming address generator (SA)
+ *          templates for the constant-gain kernel and for the fade kernels of the buffer
+ *          layout, and stores them in bufPblock. It also stores the loop counts
+ *          (numOuter, numInner, bypassIters). The exec kernels only load these templates,
+ *          so they spend no cycles working out the hardware configuration.
  *
  *  @param [in]  handle        :  Active handle to the kernel. The buffer geometry was
  *                                already resolved into it by @ref AUDIOLIB_gainSmoothing_init,
@@ -93,148 +101,214 @@ typedef AUDIOLIB_STATUS (*pFxnAUDIOLIB_gainSmoothing_exec)(AUDIOLIB_kernelHandle
  */
 
 template <typename dataType>
-AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_init_ci(AUDIOLIB_kernelHandle             handle,
-                                          const AUDIOLIB_gainSmoothing_InitArgs *pKerInitArgs);
+AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_init_ci(AUDIOLIB_kernelHandle                  handle,
+                                               const AUDIOLIB_gainSmoothing_InitArgs *pKerInitArgs);
 
 /*!
- * @brief Execution functions for the C7x implementation.
- * @details These functions perform the core gainSmoothing/ungainSmoothing processing using
- *          hardware-accelerated, vectorized instructions for different fade types. 
- *          The function declaration conforms to the declaration of @ref AUDIOLIB_gainSmoothing_exec.
+ * @brief SYMMETRIC fade for interleaved buffers.
+ * @details One channel per lane, channel blocks of one vector (outer loop). Four sample rows
+ *          (vectors) per inner iteration, each with its own ramp chain gain0 * step^(r + 1)
+ *          advanced by step^4. Rows are padded to whole groups of four; DECDIM zero-fills and
+ *          store-masks the padding rows and the lanes past numChannels. A row whose sample
+ *          offset reaches fadeSamplesLeft takes targetGain instead of the ramp gain.
  *
- *  @param [in]  handle      : Active handle to the kernel
- *  @param [in]  pIn         : Pointer to buffer holding the input buffer
- *  @param [out] pOut        : Pointer to buffer holding the output buffer
+ * @tparam dataType Sample data type.
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
+ * @param [in]  handle  Active handle to the kernel, configured by
+ *                      @ref AUDIOLIB_gainSmoothing_init and @ref AUDIOLIB_gainSmoothing_set.
+ * @param [in]  pIn     Input buffer.
+ * @param [out] pOut    Output buffer.
  *
- *  @par Performance Considerations:
+ * @return Always @ref AUDIOLIB_SUCCESS (parameters are validated by the init/set API).
+ */
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_gainSmoothingSymmetricFade_exec_lane_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+/*!
+ * @brief SMOOTH fade for interleaved buffers. Same layout as
+ *        @ref AUDIOLIB_gainSmoothingSymmetricFade_exec_lane_ci, with the one-pole decay chains
+ *        (gain0 - target) * coeff^(r + 1).
+ *
+ * @tparam dataType Sample data type.
+ *
+ * @param [in]  handle  Active handle to the kernel, configured by
+ *                      @ref AUDIOLIB_gainSmoothing_init and @ref AUDIOLIB_gainSmoothing_set.
+ * @param [in]  pIn     Input buffer.
+ * @param [out] pOut    Output buffer.
+ *
+ * @return Always @ref AUDIOLIB_SUCCESS (parameters are validated by the init/set API).
+ */
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_gainSmoothingSmoothFade_exec_lane_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+/*!
+ * @brief SYMMETRIC fade for planar (non-interleaved) buffers.
+ * @details Two channels per outer iteration: SE0/SA0 stream channels [0, H) and SE1/SA1
+ *          channels [H, 2H), H = ceil(C / 2). For odd C >= 3 the last SE1/SA1 row does not
+ *          exist: DECDIM zero-fills it and masks its stores (mono runs both halves on
+ *          channel 0 in lockstep). Two vectors per channel per iteration. A lane whose sample
+ *          offset reaches fadeSamplesLeft takes targetGain instead of the ramp gain.
+ *
+ * @tparam dataType Sample data type.
+ *
+ * @param [in]  handle  Active handle to the kernel, configured by
+ *                      @ref AUDIOLIB_gainSmoothing_init and @ref AUDIOLIB_gainSmoothing_set.
+ * @param [in]  pIn     Input buffer.
+ * @param [out] pOut    Output buffer.
+ *
+ * @return Always @ref AUDIOLIB_SUCCESS (parameters are validated by the init/set API).
+ */
+template <typename dataType>
+AUDIOLIB_STATUS AUDIOLIB_gainSmoothingSymmetricFade_exec_planar_ci(AUDIOLIB_kernelHandle handle,
+                                                                   void *restrict pIn,
+                                                                   void *restrict pOut);
+
+/*!
+ * @brief SMOOTH fade for planar (non-interleaved) buffers. Same channel-pair streaming as
+ *        @ref AUDIOLIB_gainSmoothingSymmetricFade_exec_planar_ci, with one-pole decay chains.
+ *
+ * @tparam dataType Sample data type.
+ *
+ * @param [in]  handle  Active handle to the kernel, configured by
+ *                      @ref AUDIOLIB_gainSmoothing_init and @ref AUDIOLIB_gainSmoothing_set.
+ * @param [in]  pIn     Input buffer.
+ * @param [out] pOut    Output buffer.
+ *
+ * @return Always @ref AUDIOLIB_SUCCESS (parameters are validated by the init/set API).
+ */
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_gainSmoothingSmoothFade_exec_planar_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+/*!
+ * @brief Constant-gain path. Used when fadeTime is 0, and once a ramp has converged
+ *        on its target, at which point every remaining sample gets the same gain.
+ *
+ * @tparam dataType Sample data type.
+ *
+ * @param [in]  handle  Active handle to the kernel, configured by
+ *                      @ref AUDIOLIB_gainSmoothing_init and @ref AUDIOLIB_gainSmoothing_set.
+ * @param [in]  pIn     Input buffer.
+ * @param [out] pOut    Output buffer.
+ *
+ * @return Always @ref AUDIOLIB_SUCCESS (parameters are validated by the init/set API).
+ */
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_gainSmoothingBypass_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+/*!
+ * @brief Execute function for the NATC implementation of the symmetric fade kernel.
+ *
+ * @tparam dataType     Sample data type.
+ * @param [in]  handle  Active handle to the kernel
+ * @param [in]  pIn     Pointer to buffer holding the input buffer
+ * @param [out] pOut    Pointer to buffer holding the output buffer
+ *
+ * @return      Status value indicating success or failure. Refer to @ref AUDIOLIB_STATUS.
+ *
+ * @par Performance Considerations:
  *    For best performance,
  *    - the input and output data buffers are expected to be in L2 memory
  *    - the buffer pointers are assumed to be 64-byte aligned
- *
  */
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_gainSmoothingSymmetricFade_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
 /*!
- * @brief Saturating clamp for the geometric ramp, which overshoots the target by design.
- * @details Selected at compile time via the fadeUp template parameter, so the exec
- *          functions contain no runtime compare or branch for the ramp direction.
- */
-template <bool fadeUp> struct AUDIOLIB_gainSmoothing_clamp;
-
-template <> struct AUDIOLIB_gainSmoothing_clamp<true> {
-   /*! @brief Fading up: the gain approaches the target from below. */
-   template <typename vec> static inline vec apply(vec gain, vec target) { return __min(gain, target); }
-};
-
-template <> struct AUDIOLIB_gainSmoothing_clamp<false> {
-   /*! @brief Fading down: the gain approaches the target from above. */
-   template <typename vec> static inline vec apply(vec gain, vec target) { return __max(gain, target); }
-};
-
-/*!
- * @brief Geometric (constant-dB) gain ramp.
- * @tparam dataType Sample type; only float is instantiated.
- * @tparam fadeUp   true when targetGain > currentGain. Selects the clamp direction.
- */
-template <typename dataType, bool fadeUp>
-AUDIOLIB_STATUS
-AUDIOLIB_gainSmoothingSymmetricFade_exec_ci(AUDIOLIB_kernelHandle handle,
-                        void *restrict pIn,
-                        void *restrict pOut);
-
-/*! @brief One-pole gain ramp. Direction-agnostic: it interpolates toward the target
- *         with no clamp, so it needs no fadeUp parameter. */
-template<typename dataType>
-AUDIOLIB_STATUS
-AUDIOLIB_gainSmoothingSmoothFade_exec_ci(AUDIOLIB_kernelHandle handle,
-                        void *restrict pIn,
-                        void *restrict pOut);
-
-/*! @brief Constant-gain path. Used when fadeTime is 0, and once a ramp has converged
- *         on its target, at which point every remaining sample gets the same gain. */
-template<typename dataType>
-AUDIOLIB_STATUS
-AUDIOLIB_gainSmoothingBypass_exec_ci(AUDIOLIB_kernelHandle handle,
-                        void *restrict pIn,
-                        void *restrict pOut);
-
-
-/*!
- *  @brief Execute functions for the NATC implementation of the kernel. The function declaration conforms
- * to the declaration of @ref AUDIOLIB_gainSmoothing_exec.
+ * @brief Execute function for the NATC implementation of the smooth fade kernel.
  *
- *  @param [in]  handle      : Active handle to the kernel
- *  @param [in]  pIn        : Pointer to buffer holding the input buffer
- *  @param [out] pOut       : Pointer to buffer holding the output buffer
+ * @tparam dataType     Sample data type.
+ * @param [in]  handle  Active handle to the kernel
+ * @param [in]  pIn     Pointer to buffer holding the input buffer
+ * @param [out] pOut    Pointer to buffer holding the output buffer
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
+ * @return      Status value indicating success or failure. Refer to @ref AUDIOLIB_STATUS.
  *
- *  @par Performance Considerations:
+ * @par Performance Considerations:
  *    For best performance,
  *    - the input and output data buffers are expected to be in L2 memory
  *    - the buffer pointers are assumed to be 64-byte aligned
- *
  */
 template <typename dataType>
-AUDIOLIB_STATUS AUDIOLIB_gainSmoothingSymmetricFade_exec_cn(AUDIOLIB_kernelHandle handle,
-                         void *restrict pIn,
-                         void *restrict pOut);
-template <typename dataType>
-AUDIOLIB_STATUS AUDIOLIB_gainSmoothingSmoothFade_exec_cn(AUDIOLIB_kernelHandle handle,
-                         void *restrict pIn,
-                         void *restrict pOut);
+AUDIOLIB_STATUS
+AUDIOLIB_gainSmoothingSmoothFade_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
 /*!
  * @brief Structure that is reserved for internal use by the kernel
  */
 typedef struct {
-  /*! @brief Dispatch table, indexed by @ref AUDIOLIB_gainSmoothing_execVariant.
-   *         @ref AUDIOLIB_gainSmoothing_exec indexes this with the result of its
-   *         convergence test, so dispatch is a table lookup and neither the wrapper
-   *         nor the exec variants themselves contain a bypass branch. */
-  pFxnAUDIOLIB_gainSmoothing_exec execute[AUDIOLIB_GAINSMOOTHING_NUM_EXEC_VARIANTS];
-  /** @brief Elements along the fastest-varying axis of the buffer (bufParams dim_x).
-   *         Planar: samples per channel. Interleaved: channels per sample frame. */
-  uint32_t numCols;
-  /** @brief Number of rows in the buffer (bufParams dim_y).
-   *         Planar: channels. Interleaved: sample frames. */
-  uint32_t numRows;
-  /** @brief Stride between consecutive rows in the input buffer, in elements. */
-  uint32_t strideInElements;
-  /** @brief Stride between consecutive rows in the output buffer, in elements. */
-  uint32_t strideOutElements;
-  /** @brief The current gain value, updated after each execution frame. */
-  float currentGain;
-  /** @brief The gain the ramp is moving toward. */
-  float targetGain;
-  /** @brief The smoothing coefficient (`alpha`) for the smooth fade algorithm. */
-  float smoothingCoefficient;
-  /** @brief A copy of the initialization arguments. */
-  AUDIOLIB_gainSmoothing_InitArgs initArgs;
-  /** @brief A copy of the last-set runtime arguments. */
-  AUDIOLIB_gainSmoothing_SetArgs setArgs;
-  /** @brief The per-sample gain ratio for SYMMETRIC fading. Multiplicative, not additive. */
-  float gainStep;
-  /** @brief A raw buffer to store pre-calculated SE/SA hardware templates. */
-  uint8_t bufPblock[AUDIOLIB_GAINSMOOTHING_PBLOCK_SIZE];
-  /*! @brief Pre-calculated per-lane gain coefficients. The _ci path reads this as one
-   *         full-width vector, so it must be vector-aligned. */
-  float alphaCoeff[AUDIOLIB_GAINSMOOTHING_LANES_F32] __attribute__((aligned(AUDIOLIB_L2DATA_ALIGNMENT)));
-  /** @brief Factor that advances alphaCoeff by one full vector of samples in SYMMETRIC fades. */
-  float gainStepMultiplier;
-  /** @brief Number of gain updates per exec: the outer loop counter. */
-  uint32_t numBlocks;
-  /** @brief Indicates whether the kernel has been initialized. */
-  uint8_t initialized;
-  /** @brief Vectors covered by each gain update: the inner loop counter. */
-  uint32_t wBlocks;
-  /** @brief A flag (0 or 1) to indicate if gain ramp should be bypassed. */
-  uint8_t bypassSmoothing;
-  /** @brief Pre-calculated multiplier to efficiently update the alphaCoeff vector for smooth fades. */
-  float alphaMultiplier;
+   /*! @brief Dispatch table, indexed by @ref AUDIOLIB_GAINSMOOTHING_execVariant.
+    *         @ref AUDIOLIB_gainSmoothing_exec indexes this with the result of its
+    *         convergence test, so dispatch is a table lookup and neither the wrapper
+    *         nor the exec variants themselves contain a bypass branch. */
+   pFxnAUDIOLIB_gainSmoothing_exec execute[AUDIOLIB_GAINSMOOTHING_NUM_EXEC_VARIANTS];
+   /** @brief Elements along the fastest-varying axis of the buffer (bufParams dim_x).
+    *         Planar: samples per channel. Interleaved: channels per sample frame. */
+   uint32_t numCols;
+   /** @brief Number of rows to process. */
+   uint32_t numRows;
+   /** @brief Stride between consecutive rows in the input buffer, in elements. */
+   uint32_t strideInElements;
+   /** @brief Stride between consecutive rows in the output buffer, in elements. */
+   uint32_t strideOutElements;
+   /** @brief The current gain value, updated after each execution frame. */
+   float currentGain;
+   /** @brief The gain the ramp is moving toward. */
+   float targetGain;
+   /** @brief The smoothing coefficient (`alpha`) for the smooth fade algorithm. */
+   float smoothingCoefficient;
+     /** @brief The implementation style to use. See @ref AUDIOLIB_FUNCTION_STYLE for options. */
+   int8_t funcStyle;
+   /** @brief The audio sampling rate in Hz (e.g., 48000). */
+   float   samplingRate;
+   /** @brief Specifies the data format: 1 for interleaved, 0 for non-interleaved (planar). */
+   uint8_t isInterleaved;
+   /** @brief A copy of the last-set runtime arguments. */
+   AUDIOLIB_gainSmoothing_SetArgs setArgs;
+   /** @brief The per-sample gain ratio for SYMMETRIC fading. Multiplicative, not additive. */
+   float gainStep;
+   /** @brief SYMMETRIC: samples of the ramp still to run. A sample whose offset into the
+    *         ramp reaches this count takes targetGain instead of the ramp gain. */
+   float fadeSamplesLeft;
+   /** @brief A raw buffer to store pre-calculated SE/SA hardware templates. */
+   uint8_t bufPblock[AUDIOLIB_GAINSMOOTHING_PBLOCK_SIZE];
+   /** @brief Planar only: per-lane powers base^(l + 1) of the gain step (SYMMETRIC) or the
+    *         smoothing coefficient (SMOOTH), vector-aligned for CI processing. */
+   float alphaCoeff[AUDIOLIB_GAINSMOOTHING_LANES_F32] __attribute__((aligned(AUDIOLIB_L2DATA_ALIGNMENT)));
+   /** @brief Planar SYMMETRIC, optimized only: 1-based sample offset (l + 1) of each lane within
+    *         one vector, compared against fadeSamplesLeft to pick the ramp or the target gain. */
+   float laneOffset[AUDIOLIB_GAINSMOOTHING_LANES_F32] __attribute__((aligned(AUDIOLIB_L2DATA_ALIGNMENT)));
+   /** @brief Planar SYMMETRIC: step^L, advances a ramp chain by one vector of samples. */
+   float gainStepMultiplier;
+   /** @brief Planar SYMMETRIC: step^(2L), advances a ramp chain by one pair of vectors. */
+   float gainStepMultiplierBi;
+   /** @brief Planar SMOOTH: coeff^L, advances a decay chain by one vector of samples. */
+   float alphaMultiplier;
+   /** @brief Planar SMOOTH: coeff^(2L), advances a decay chain by one pair of vectors. */
+   float alphaMultiplierBi;
+   /** @brief Gain-step (SYMMETRIC) or coefficient (SMOOTH) raised to the frame length: advances
+    *         the running gain by one exec() call. */
+   float factorPerBlock;
+   /** @brief A flag (0 or 1) to indicate if gain ramp should be bypassed. */
+   uint8_t bypassSmoothing;
+   /** @brief Total number of input samples per processing block. */
+   uint32_t inSamples;
+   /** @brief Number of channels in the buffer (interleaved: columns, planar: rows). */
+   uint32_t numChannels;
+   /** @brief Number of samples per channel in one frame (interleaved: rows, planar: columns). */
+   uint32_t numSamples;
+   /** @brief Optimized only, fade outer loop count. Interleaved: channel blocks of one vector.
+    *         Planar: channel pairs, ceil(numChannels / 2). */
+   uint32_t numOuter;
+   /** @brief Optimized only, fade inner loop count. Interleaved: groups of four (padded) rows.
+    *         Planar: groups of two (padded) vectors per channel. */
+   uint32_t numInner;
+   /** @brief Optimized only: vectors streamed by the constant-gain (bypass) kernel. */
+   uint32_t bypassIters;
 } AUDIOLIB_gainSmoothing_PrivArgs;
 
 #endif /* AUDIOLIB_gainSmoothing_IXX_OXX_PRIV_H_ */

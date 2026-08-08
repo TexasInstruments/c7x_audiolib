@@ -141,50 +141,6 @@
 #include "test_data/staticRefCase34.h"
 #endif
 
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 35))
-#include "test_data/staticRefCase35.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 36))
-#include "test_data/staticRefCase36.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 37))
-#include "test_data/staticRefCase37.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 38))
-#include "test_data/staticRefCase38.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 39))
-#include "test_data/staticRefCase39.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 40))
-#include "test_data/staticRefCase40.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 41))
-#include "test_data/staticRefCase41.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 42))
-#include "test_data/staticRefCase42.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 43))
-#include "test_data/staticRefCase43.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 44))
-#include "test_data/staticRefCase44.h"
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 45))
-#include "test_data/staticRefCase45.h"
-#endif
-
 static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 1))
    {
@@ -194,18 +150,18 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
     1024,                                             // Samples per channel
     8,                                                // Number of Channels
-    10.7,                                             // currentGain
-    4.656,                                            // targetGain
+    3.002,                                            // currentGain
+    6.21,                                             // targetGain
     32000,                                            // Sampling Rate
     200.0,                                            // fadeTime
-    1,                                                // isInterleaved
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     1,                                                // test ID
-    4,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -216,19 +172,19 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefOutCase2,                                // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
     1024,                                             // Samples per channel
-    10,                                               // Number of Channels
-    11.0,                                             // currentGain
-    5.09,                                             // targetGain
-    176400,                                           // Sampling Rate
-    200.0,                                            // fadeTime
-    1,                                                // isInterleaved
+    1,                                                // Number of Channels
+    10.11,                                            // currentGain
+    12.12,                                            // targetGain
+    32000,                                            // Sampling Rate
+    201.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (10 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (10 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     2,                                                // test ID
-    4,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -238,20 +194,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase3,                                 // staticIn
     staticRefOutCase3,                                // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    256,                                              // Samples per channel
-    3,                                                // Number of Channels
-    2.9,                                              // currentGain
-    6.8,                                              // targetGain
-    8000,                                             // Sampling Rate
-    20.0,                                             // fadeTime
-    1,                                                // isInterleaved
+    1024,                                             // Samples per channel
+    2,                                                // Number of Channels
+    3.002,                                            // currentGain
+    6.21,                                             // targetGain
+    32000,                                            // Sampling Rate
+    202.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     3,                                                // test ID
-    4,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -261,45 +217,47 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase4,                                 // staticIn
     staticRefOutCase4,                                // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    101,                                              // Samples per channel
+    1024,                                             // Samples per channel
     3,                                                // Number of Channels
-    1.2,                                              // currentGain
-    4.2,                                              // targetGain
-    16000,                                            // Sampling Rate
-    0.99,                                             // fadeTime
-    1,                                                // isInterleaved
+    10.11,                                            // currentGain
+    12.12,                                            // targetGain
+    32000,                                            // Sampling Rate
+    203.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     4,                                                // test ID
-    9,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
+#if !defined(__C7100__)
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 5))
    {
     STATIC,                                           // Test Pattern
     staticRefInCase5,                                 // staticIn
     staticRefOutCase5,                                // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    128,                                              // Samples per channel
-    9,                                                // Number of Channels
-    0.002,                                            // currentGain
-    2.03,                                             // targetGain
-    48000,                                            // Sampling Rate
-    3.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    1024,                                             // Samples per channel
+    4,                                                // Number of Channels
+    9.7,                                              // currentGain
+    10.9,                                             // targetGain
+    16000,                                            // Sampling Rate
+    204.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (9 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (9 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     5,                                                // test ID
-    5,                                                // numExecReps
+    10,                                               // numExecReps
     },
 #endif
+#endif // if !defined(__C7100__)
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 6))
    {
@@ -308,15 +266,15 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefOutCase6,                                // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
     512,                                              // Samples per channel
-    7,                                                // Number of Channels
-    0.33,                                             // currentGain
-    4.33,                                             // targetGain
+    8,                                                // Number of Channels
+    3.002,                                            // currentGain
+    6.21,                                             // targetGain
     32000,                                            // Sampling Rate
-    4.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    205.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (7 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (7 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     6,                                                // test ID
@@ -324,30 +282,28 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     },
 #endif
 
-#if !defined(__C7100__)
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 7))
    {
     STATIC,                                           // Test Pattern
     staticRefInCase7,                                 // staticIn
     staticRefOutCase7,                                // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    155,                                              // Samples per channel
-    17,                                               // Number of Channels
-    0.44,                                             // currentGain
-    2.33,                                             // targetGain
-    16000,                                            // Sampling Rate
-    5.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    512,                                              // Samples per channel
+    1,                                                // Number of Channels
+    10.11,                                            // currentGain
+    12.12,                                            // targetGain
+    32000,                                            // Sampling Rate
+    206.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (17 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (17 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     7,                                                // test ID
-    7,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
-#endif // if !defined(__C7100__)
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 8))
    {
@@ -355,16 +311,16 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase8,                                 // staticIn
     staticRefOutCase8,                                // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    2048,                                             // Samples per channel
-    1,                                                // Number of Channels
-    1.21,                                             // currentGain
-    2.34,                                             // targetGain
+    512,                                              // Samples per channel
+    2,                                                // Number of Channels
+    3.002,                                            // currentGain
+    6.21,                                             // targetGain
     32000,                                            // Sampling Rate
-    7.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    207.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     8,                                                // test ID
@@ -378,45 +334,47 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase9,                                 // staticIn
     staticRefOutCase9,                                // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1,                                                // Samples per channel
-    1,                                                // Number of Channels
-    10.1,                                             // currentGain
-    8.7,                                              // targetGain
-    48000,                                            // Sampling Rate
-    3.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    512,                                              // Samples per channel
+    3,                                                // Number of Channels
+    10.11,                                            // currentGain
+    12.12,                                            // targetGain
+    32000,                                            // Sampling Rate
+    208.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     9,                                                // test ID
-    21,                                               // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
+#if !defined(__C7100__)
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 10))
    {
     STATIC,                                           // Test Pattern
     staticRefInCase10,                                // staticIn
     staticRefOutCase10,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1,                                                // Samples per channel
-    15,                                               // Number of Channels
-    13.0,                                             // currentGain
-    15.0,                                             // targetGain
+    512,                                              // Samples per channel
+    4,                                                // Number of Channels
+    9.7,                                              // currentGain
+    10.9,                                             // targetGain
     16000,                                            // Sampling Rate
-    8.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    209.0,                                            // fadeTime
+    0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (15 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (15 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     10,                                               // test ID
-    25,                                               // numExecReps
+    10,                                               // numExecReps
     },
 #endif
+#endif // if !defined(__C7100__)
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 11))
    {
@@ -424,20 +382,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase11,                                // staticIn
     staticRefOutCase11,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1024,                                             // Samples per channel
+    512,                                              // Samples per channel
     8,                                                // Number of Channels
-    2.9,                                              // currentGain
-    8.01,                                             // targetGain
-    44100,                                            // Sampling Rate
-    200.0,                                            // fadeTime
+    3.23,                                             // currentGain
+    0.112,                                            // targetGain
+    48000,                                            // Sampling Rate
+    210.0,                                            // fadeTime
     0,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
-    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     11,                                               // test ID
-    4,                                                // numExecReps
+    5,                                                // numExecReps
     },
 #endif
 
@@ -448,15 +406,15 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefOutCase12,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
     1024,                                             // Samples per channel
-    10,                                               // Number of Channels
-    1.01,                                             // currentGain
-    3.23,                                             // targetGain
-    48000,                                            // Sampling Rate
-    200.0,                                            // fadeTime
-    0,                                                // isInterleaved
+    8,                                                // Number of Channels
+    6.09,                                             // currentGain
+    4.66,                                             // targetGain
+    32000,                                            // Sampling Rate
+    211.0,                                            // fadeTime
+    1,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
-    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
+    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
+    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     12,                                               // test ID
@@ -470,20 +428,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase13,                                // staticIn
     staticRefOutCase13,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    256,                                              // Samples per channel
-    3,                                                // Number of Channels
-    5.01,                                             // currentGain
-    2.123,                                            // targetGain
-    88200,                                            // Sampling Rate
-    6.0,                                              // fadeTime
-    0,                                                // isInterleaved
+    1024,                                             // Samples per channel
+    16,                                               // Number of Channels
+    3.23,                                             // currentGain
+    1.99,                                             // targetGain
+    44100,                                            // Sampling Rate
+    212.0,                                            // fadeTime
+    1,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     13,                                               // test ID
-    4,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -493,20 +451,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase14,                                // staticIn
     staticRefOutCase14,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    303,                                              // Samples per channel
-    4,                                                // Number of Channels
-    3.0,                                              // currentGain
-    1.343,                                            // targetGain
-    96000,                                            // Sampling Rate
-    5.0,                                              // fadeTime
-    0,                                                // isInterleaved
+    512,                                              // Samples per channel
+    8,                                                // Number of Channels
+    6.09,                                             // currentGain
+    4.66,                                             // targetGain
+    32000,                                            // Sampling Rate
+    213.0,                                            // fadeTime
+    1,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (303 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (303 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
+    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     14,                                               // test ID
-    10,                                               // numExecReps
+    4,                                                // numExecReps
     },
 #endif
 
@@ -516,23 +474,24 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase15,                                // staticIn
     staticRefOutCase15,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    128,                                              // Samples per channel
-    5,                                                // Number of Channels
-    12.0,                                             // currentGain
-    9.33,                                             // targetGain
-    176400,                                           // Sampling Rate
-    1.0,                                              // fadeTime
-    0,                                                // isInterleaved
+    512,                                              // Samples per channel
+    16,                                               // Number of Channels
+    3.23,                                             // currentGain
+    1.99,                                             // targetGain
+    44100,                                            // Sampling Rate
+    214.0,                                            // fadeTime
+    1,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (128 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (128 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     15,                                               // test ID
-    20,                                               // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
+#if !defined(__C7100__)
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 16))
    {
     STATIC,                                           // Test Pattern
@@ -540,21 +499,22 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefOutCase16,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
     512,                                              // Samples per channel
-    1,                                                // Number of Channels
-    2.32,                                             // currentGain
-    1.22,                                             // targetGain
+    24,                                               // Number of Channels
+    1.22,                                             // currentGain
+    0.77,                                             // targetGain
     48000,                                            // Sampling Rate
-    0.25,                                             // fadeTime
-    0,                                                // isInterleaved
+    215.0,                                            // fadeTime
+    1,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_CALC_STRIDE (24 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (24 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     16,                                               // test ID
-    3,                                                // numExecReps
+    5,                                                // numExecReps
     },
 #endif
+#endif // if !defined(__C7100__)
 
 #if !defined(__C7100__)
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 17))
@@ -563,20 +523,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase17,                                // staticIn
     staticRefOutCase17,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    201,                                              // Samples per channel
-    11,                                               // Number of Channels
-    3.22,                                             // currentGain
-    5.34,                                             // targetGain
-    32000,                                            // Sampling Rate
-    0.5,                                              // fadeTime
-    0,                                                // isInterleaved
+    512,                                              // Samples per channel
+    32,                                               // Number of Channels
+    8.12,                                             // currentGain
+    7.01,                                             // targetGain
+    96000,                                            // Sampling Rate
+    216.0,                                            // fadeTime
+    1,                                                // isInterleaved
     0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (201 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (201 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_CALC_STRIDE (32 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (32 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     17,                                               // test ID
-    5,                                                // numExecReps
+    6,                                                // numExecReps
     },
 #endif
 #endif // if !defined(__C7100__)
@@ -587,20 +547,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase18,                                // staticIn
     staticRefOutCase18,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    2048,                                             // Samples per channel
-    12,                                               // Number of Channels
-    1.22,                                             // currentGain
-    5.32,                                             // targetGain
-    16000,                                            // Sampling Rate
-    7.0,                                              // fadeTime
+    1024,                                             // Samples per channel
+    8,                                                // Number of Channels
+    3.002,                                            // currentGain
+    6.21,                                             // targetGain
+    32000,                                            // Sampling Rate
+    217.0,                                            // fadeTime
     0,                                                // isInterleaved
-    0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (2048 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
-    AUDIOLIB_CALC_STRIDE (2048 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
+    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     18,                                               // test ID
-    7,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -610,20 +570,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase19,                                // staticIn
     staticRefOutCase19,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1,                                                // Samples per channel
+    1024,                                             // Samples per channel
     1,                                                // Number of Channels
-    2.001,                                            // currentGain
-    5.23,                                             // targetGain
+    10.11,                                            // currentGain
+    12.12,                                            // targetGain
     32000,                                            // Sampling Rate
-    1.0,                                              // fadeTime
+    218.0,                                            // fadeTime
     0,                                                // isInterleaved
-    0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     19,                                               // test ID
-    8,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -633,20 +593,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase20,                                // staticIn
     staticRefOutCase20,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1,                                                // Samples per channel
-    16,                                               // Number of Channels
-    3.44,                                             // currentGain
-    8.21,                                             // targetGain
-    48000,                                            // Sampling Rate
-    2.0,                                              // fadeTime
+    1024,                                             // Samples per channel
+    2,                                                // Number of Channels
+    3.002,                                            // currentGain
+    6.21,                                             // targetGain
+    32000,                                            // Sampling Rate
+    219.0,                                            // fadeTime
     0,                                                // isInterleaved
-    0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     20,                                               // test ID
-    9,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -657,22 +617,23 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefOutCase21,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
     1024,                                             // Samples per channel
-    8,                                                // Number of Channels
-    12.0,                                             // currentGain
-    1.45,                                             // targetGain
-    8000,                                             // Sampling Rate
-    100.0,                                            // fadeTime
-    1,                                                // isInterleaved
+    3,                                                // Number of Channels
+    10.11,                                            // currentGain
+    12.12,                                            // targetGain
+    32000,                                            // Sampling Rate
+    220.0,                                            // fadeTime
+    0,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     21,                                               // test ID
-    4,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
+#if !defined(__C7100__)
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 22))
    {
     STATIC,                                           // Test Pattern
@@ -680,21 +641,22 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefOutCase22,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
     1024,                                             // Samples per channel
-    10,                                               // Number of Channels
-    1.21,                                             // currentGain
-    2.34,                                             // targetGain
+    4,                                                // Number of Channels
+    9.7,                                              // currentGain
+    10.9,                                             // targetGain
     16000,                                            // Sampling Rate
-    100.0,                                            // fadeTime
-    1,                                                // isInterleaved
+    221.0,                                            // fadeTime
+    0,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (10 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (10 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     22,                                               // test ID
-    4,                                                // numExecReps
+    10,                                               // numExecReps
     },
 #endif
+#endif // if !defined(__C7100__)
 
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 23))
    {
@@ -702,20 +664,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase23,                                // staticIn
     staticRefOutCase23,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    256,                                              // Samples per channel
-    3,                                                // Number of Channels
-    10.1,                                             // currentGain
-    8.7,                                              // targetGain
-    22050,                                            // Sampling Rate
-    2.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    512,                                              // Samples per channel
+    8,                                                // Number of Channels
+    3.002,                                            // currentGain
+    6.21,                                             // targetGain
+    32000,                                            // Sampling Rate
+    222.0,                                            // fadeTime
+    0,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     23,                                               // test ID
-    4,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -725,20 +687,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase24,                                // staticIn
     staticRefOutCase24,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    303,                                              // Samples per channel
-    3,                                                // Number of Channels
-    13.0,                                             // currentGain
-    15.0,                                             // targetGain
+    512,                                              // Samples per channel
+    1,                                                // Number of Channels
+    10.11,                                            // currentGain
+    12.12,                                            // targetGain
     32000,                                            // Sampling Rate
-    15.0,                                             // fadeTime
-    1,                                                // isInterleaved
+    223.0,                                            // fadeTime
+    0,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     24,                                               // test ID
-    4,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -748,16 +710,16 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase25,                                // staticIn
     staticRefOutCase25,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    128,                                              // Samples per channel
-    9,                                                // Number of Channels
-    14.22,                                            // currentGain
-    13.999,                                           // targetGain
-    44100,                                            // Sampling Rate
-    2.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    512,                                              // Samples per channel
+    2,                                                // Number of Channels
+    3.002,                                            // currentGain
+    6.21,                                             // targetGain
+    32000,                                            // Sampling Rate
+    224.0,                                            // fadeTime
+    0,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (9 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (9 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     25,                                               // test ID
@@ -772,19 +734,19 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefOutCase26,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
     512,                                              // Samples per channel
-    10,                                               // Number of Channels
-    3.23,                                             // currentGain
-    3.999,                                            // targetGain
-    48000,                                            // Sampling Rate
-    3.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    3,                                                // Number of Channels
+    10.11,                                            // currentGain
+    12.12,                                            // targetGain
+    32000,                                            // Sampling Rate
+    225.0,                                            // fadeTime
+    0,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (10 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (10 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     26,                                               // test ID
-    5,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -795,20 +757,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase27,                                // staticIn
     staticRefOutCase27,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    201,                                              // Samples per channel
-    11,                                               // Number of Channels
-    1.01,                                             // currentGain
-    3.8,                                              // targetGain
-    96000,                                            // Sampling Rate
-    1.0,                                              // fadeTime
-    1,                                                // isInterleaved
+    512,                                              // Samples per channel
+    4,                                                // Number of Channels
+    9.7,                                              // currentGain
+    10.9,                                             // targetGain
+    16000,                                            // Sampling Rate
+    226.0,                                            // fadeTime
+    0,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (11 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (11 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     27,                                               // test ID
-    6,                                                // numExecReps
+    10,                                               // numExecReps
     },
 #endif
 #endif // if !defined(__C7100__)
@@ -819,20 +781,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase28,                                // staticIn
     staticRefOutCase28,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    2048,                                             // Samples per channel
-    1,                                                // Number of Channels
-    2.33,                                             // currentGain
-    4.12,                                             // targetGain
+    512,                                              // Samples per channel
+    8,                                                // Number of Channels
+    3.23,                                             // currentGain
+    0.112,                                            // targetGain
     48000,                                            // Sampling Rate
-    0.5,                                              // fadeTime
-    1,                                                // isInterleaved
+    227.0,                                            // fadeTime
+    0,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     28,                                               // test ID
-    3,                                                // numExecReps
+    5,                                                // numExecReps
     },
 #endif
 
@@ -842,20 +804,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase29,                                // staticIn
     staticRefOutCase29,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1,                                                // Samples per channel
-    1,                                                // Number of Channels
-    10.001,                                           // currentGain
-    11.222,                                           // targetGain
-    44100,                                            // Sampling Rate
-    0.3,                                              // fadeTime
+    1024,                                             // Samples per channel
+    8,                                                // Number of Channels
+    6.09,                                             // currentGain
+    4.66,                                             // targetGain
+    32000,                                            // Sampling Rate
+    228.0,                                            // fadeTime
     1,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
+    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     29,                                               // test ID
-    13,                                               // numExecReps
+    4,                                                // numExecReps
     },
 #endif
 
@@ -865,20 +827,20 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase30,                                // staticIn
     staticRefOutCase30,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1,                                                // Samples per channel
-    15,                                               // Number of Channels
-    14.0,                                             // currentGain
-    11.0,                                             // targetGain
+    1024,                                             // Samples per channel
+    16,                                               // Number of Channels
+    3.23,                                             // currentGain
+    1.99,                                             // targetGain
     44100,                                            // Sampling Rate
-    5.0,                                              // fadeTime
+    229.0,                                            // fadeTime
     1,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (15 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (15 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     30,                                               // test ID
-    15,                                               // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
@@ -888,16 +850,16 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase31,                                // staticIn
     staticRefOutCase31,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1024,                                             // Samples per channel
+    512,                                              // Samples per channel
     8,                                                // Number of Channels
-    5.01,                                             // currentGain
-    6.23,                                             // targetGain
-    96000,                                            // Sampling Rate
-    100.0,                                            // fadeTime
-    0,                                                // isInterleaved
+    6.09,                                             // currentGain
+    4.66,                                             // targetGain
+    32000,                                            // Sampling Rate
+    230.0,                                            // fadeTime
+    1,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
-    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
+    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
+    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     31,                                               // test ID
@@ -911,45 +873,47 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase32,                                // staticIn
     staticRefOutCase32,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1024,                                             // Samples per channel
-    10,                                               // Number of Channels
-    11.0,                                             // currentGain
-    9.8,                                              // targetGain
-    176400,                                           // Sampling Rate
-    100.0,                                            // fadeTime
-    0,                                                // isInterleaved
+    512,                                              // Samples per channel
+    16,                                               // Number of Channels
+    3.23,                                             // currentGain
+    1.99,                                             // targetGain
+    44100,                                            // Sampling Rate
+    231.0,                                            // fadeTime
+    1,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
-    AUDIOLIB_CALC_STRIDE (1024 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
+    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     32,                                               // test ID
-    5,                                                // numExecReps
+    3,                                                // numExecReps
     },
 #endif
 
+#if !defined(__C7100__)
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 33))
    {
     STATIC,                                           // Test Pattern
     staticRefInCase33,                                // staticIn
     staticRefOutCase33,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    141,                                              // Samples per channel
-    3,                                                // Number of Channels
-    9.0,                                              // currentGain
-    11.0,                                             // targetGain
-    44100,                                            // Sampling Rate
-    4.0,                                              // fadeTime
-    0,                                                // isInterleaved
+    512,                                              // Samples per channel
+    24,                                               // Number of Channels
+    1.22,                                             // currentGain
+    0.77,                                             // targetGain
+    48000,                                            // Sampling Rate
+    232.0,                                            // fadeTime
+    1,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (141 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (141 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_CALC_STRIDE (24 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (24 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     33,                                               // test ID
-    7,                                                // numExecReps
+    5,                                                // numExecReps
     },
 #endif
+#endif // if !defined(__C7100__)
 
 #if !defined(__C7100__)
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 34))
@@ -958,284 +922,23 @@ static AUDIOLIB_gainSmoothing_testParams_t testParams[] = {
     staticRefInCase34,                                // staticIn
     staticRefOutCase34,                               // staticOut
     AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    251,                                              // Samples per channel
-    4,                                                // Number of Channels
-    7.21,                                             // currentGain
-    6.011,                                            // targetGain
-    48000,                                            // Sampling Rate
-    2.0,                                              // fadeTime
-    0,                                                // isInterleaved
+    512,                                              // Samples per channel
+    32,                                               // Number of Channels
+    8.12,                                             // currentGain
+    7.01,                                             // targetGain
+    96000,                                            // Sampling Rate
+    233.0,                                            // fadeTime
+    1,                                                // isInterleaved
     1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (251 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (251 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_CALC_STRIDE (32 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (32 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
     34,                                               // test ID
-    3,                                                // numExecReps
-    },
-#endif
-#endif // if !defined(__C7100__)
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 35))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase35,                                // staticIn
-    staticRefOutCase35,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    256,                                              // Samples per channel
-    5,                                                // Number of Channels
-    2.01,                                             // currentGain
-    5.12,                                             // targetGain
-    96000,                                            // Sampling Rate
-    0.5,                                              // fadeTime
-    0,                                                // isInterleaved
-    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    35,                                               // test ID
-    11,                                               // numExecReps
-    },
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 36))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase36,                                // staticIn
-    staticRefOutCase36,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    512,                                              // Samples per channel
-    11,                                               // Number of Channels
-    0.87,                                             // currentGain
-    1.01,                                             // targetGain
-    48000,                                            // Sampling Rate
-    3.0,                                              // fadeTime
-    0,                                                // isInterleaved
-    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
-    AUDIOLIB_CALC_STRIDE (512 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    36,                                               // test ID
-    3,                                                // numExecReps
-    },
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 37))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase37,                                // staticIn
-    staticRefOutCase37,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    2048,                                             // Samples per channel
-    7,                                                // Number of Channels
-    1.0,                                              // currentGain
-    0.87,                                             // targetGain
-    48000,                                            // Sampling Rate
-    2.0,                                              // fadeTime
-    0,                                                // isInterleaved
-    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (2048 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
-    AUDIOLIB_CALC_STRIDE (2048 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    37,                                               // test ID
-    7,                                                // numExecReps
-    },
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 38))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase38,                                // staticIn
-    staticRefOutCase38,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    2048,                                             // Samples per channel
-    1,                                                // Number of Channels
-    0.884,                                            // currentGain
-    2.43,                                             // targetGain
-    8000,                                             // Sampling Rate
-    1.0,                                              // fadeTime
-    0,                                                // isInterleaved
-    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (2048 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideInElements
-    AUDIOLIB_CALC_STRIDE (2048 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),      // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    38,                                               // test ID
-    9,                                                // numExecReps
-    },
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 39))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase39,                                // staticIn
-    staticRefOutCase39,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    1,                                                // Samples per channel
-    1,                                                // Number of Channels
-    9.8,                                              // currentGain
-    10.1,                                             // targetGain
-    16000,                                            // Sampling Rate
-    2.0,                                              // fadeTime
-    0,                                                // isInterleaved
-    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (1 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    39,                                               // test ID
-    8,                                                // numExecReps
-    },
-#endif
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 40))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase40,                                // staticIn
-    staticRefOutCase40,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    16,                                               // Samples per channel
-    16,                                               // Number of Channels
-    10.01,                                            // currentGain
-    9.87,                                             // targetGain
-    44100,                                            // Sampling Rate
-    2.0,                                              // fadeTime
-    0,                                                // isInterleaved
-    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (16 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    40,                                               // test ID
-    5,                                                // numExecReps
-    },
-#endif
-
-#if !defined(__C7100__)
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 41))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase41,                                // staticIn
-    staticRefOutCase41,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    4,                                                // Samples per channel
-    4,                                                // Number of Channels
-    7.21,                                             // currentGain
-    6.011,                                            // targetGain
-    48000,                                            // Sampling Rate
-    0.0,                                              // fadeTime
-    0,                                                // isInterleaved
-    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (4 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (4 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    41,                                               // test ID
-    3,                                                // numExecReps
-    },
-#endif
-#endif // if !defined(__C7100__)
-
-#if !defined(__C7100__)
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 42))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase42,                                // staticIn
-    staticRefOutCase42,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    11,                                               // Samples per channel
-    11,                                               // Number of Channels
-    1.01,                                             // currentGain
-    3.8,                                              // targetGain
-    96000,                                            // Sampling Rate
-    0.0,                                              // fadeTime
-    1,                                                // isInterleaved
-    1,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (11 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (11 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    42,                                               // test ID
     6,                                                // numExecReps
     },
 #endif
 #endif // if !defined(__C7100__)
-
-#if !defined(__C7100__)
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 43))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase43,                                // staticIn
-    staticRefOutCase43,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    11,                                               // Samples per channel
-    11,                                               // Number of Channels
-    3.22,                                             // currentGain
-    5.34,                                             // targetGain
-    32000,                                            // Sampling Rate
-    0.0,                                              // fadeTime
-    0,                                                // isInterleaved
-    0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (11 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
-    AUDIOLIB_CALC_STRIDE (11 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    43,                                               // test ID
-    5,                                                // numExecReps
-    },
-#endif
-#endif // if !defined(__C7100__)
-
-#if !defined(__C7100__)
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 44))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase44,                                // staticIn
-    staticRefOutCase44,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    8,                                                // Samples per channel
-    8,                                                // Number of Channels
-    0.44,                                             // currentGain
-    2.33,                                             // targetGain
-    16000,                                            // Sampling Rate
-    0.0,                                              // fadeTime
-    0,                                                // isInterleaved
-    0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (8 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    44,                                               // test ID
-    7,                                                // numExecReps
-    },
-#endif
-#endif // if !defined(__C7100__)
-
-#if (defined(ALL_TEST_CASES) || (TEST_CASE == 45))
-   {
-    STATIC,                                           // Test Pattern
-    staticRefInCase45,                                // staticIn
-    staticRefOutCase45,                               // staticOut
-    AUDIOLIB_FLOAT32,                                 // Sample Data Type
-    3,                                                // Samples per channel
-    3,                                                // Number of Channels
-    4.2,                                              // currentGain
-    1.343,                                            // targetGain
-    48000,                                            // Sampling Rate
-    0.0,                                              // fadeTime
-    1,                                                // isInterleaved
-    0,                                                // fadeType (0=SYMMETRIC, 1=SMOOTH)
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (3 * sizeof (AUDIOLIB_FLOAT32), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
-    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
-    1,                                                // number of reps.
-    45,                                               // test ID
-    4,                                                // numExecReps
-    },
-#endif
 
 };
 

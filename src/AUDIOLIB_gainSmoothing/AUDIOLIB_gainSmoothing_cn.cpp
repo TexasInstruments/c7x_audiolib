@@ -21,27 +21,24 @@ AUDIOLIB_gainSmoothingSymmetricFade_exec_cn(AUDIOLIB_kernelHandle handle, void *
    float    gainStep          = pKerPrivArgs->gainStep;
    float    targetGain        = pKerPrivArgs->targetGain;
    float    currentGain       = pKerPrivArgs->currentGain;
-   uint8_t  isInterleaved     = pKerPrivArgs->initArgs.isInterleaved;
+   uint8_t  isInterleaved     = pKerPrivArgs->isInterleaved;
    uint32_t strideInElements  = pKerPrivArgs->strideInElements;
    uint32_t strideOutElements = pKerPrivArgs->strideOutElements;
 
    float          localCurrentGain = currentGain;
-   const uint32_t isFadingUp       = (pKerPrivArgs->targetGain > pKerPrivArgs->currentGain);
+   const uint32_t isFadingUp       = (uint32_t) (pKerPrivArgs->targetGain > pKerPrivArgs->currentGain);
    const uint32_t enablebyPassSmoothing =
        (uint32_t) (fabsf(pKerPrivArgs->currentGain - pKerPrivArgs->targetGain) < AUDIOLIB_GAINSMOOTHING_GAIN_EPSILON);
 
-   // The gain advances once per sample. Interleaved buffers hold one sample frame per
-   // row, planar buffers hold one sample per column, so the two layouts differ only in
-   // which axis carries the gain.
-   const uint32_t numGainUpdates     = isInterleaved ? numRows : numCols;
-   const uint32_t elemsPerGainUpdate = isInterleaved ? numCols : numRows;
+   const uint32_t numGainUpdates     = (isInterleaved != 0U) ? numRows : numCols;
+   const uint32_t elemsPerGainUpdate = (isInterleaved != 0U) ? numCols : numRows;
 
-   if (pKerPrivArgs->bypassSmoothing || enablebyPassSmoothing) {
+   if ((pKerPrivArgs->bypassSmoothing != 0U) || (enablebyPassSmoothing != 0U)) {
       // The gain is constant, so the channel/sample layout does not matter here:
       // walk numRows rows of numCols elements for either layout.
       for (uint32_t row = 0; row < numRows; row++) {
          for (uint32_t col = 0; col < numCols; col++) {
-            pOutLocal[row * strideOutElements + col] = pInLocal[row * strideInElements + col] * targetGain;
+            pOutLocal[(row * strideOutElements) + col] = pInLocal[(row * strideInElements) + col] * targetGain;
          }
       }
    }
@@ -49,22 +46,26 @@ AUDIOLIB_gainSmoothingSymmetricFade_exec_cn(AUDIOLIB_kernelHandle handle, void *
       for (uint32_t upd = 0; upd < numGainUpdates; upd++) {
          localCurrentGain *= gainStep;
          // The ramp overshoots by design; clamp it at the target.
-         if (isFadingUp) {
-            if (localCurrentGain > targetGain)
+         if (isFadingUp != 0U) {
+            if (localCurrentGain > targetGain) {
                localCurrentGain = targetGain;
+            }
          }
          else {
-            if (localCurrentGain < targetGain)
+            if (localCurrentGain < targetGain) {
                localCurrentGain = targetGain;
+            }
          }
          for (uint32_t e = 0; e < elemsPerGainUpdate; e++) {
-            const uint32_t inIdx  = isInterleaved ? (upd * strideInElements + e) : (e * strideInElements + upd);
-            const uint32_t outIdx = isInterleaved ? (upd * strideOutElements + e) : (e * strideOutElements + upd);
-            pOutLocal[outIdx]     = pInLocal[inIdx] * localCurrentGain;
+            const uint32_t inIdx =
+                (isInterleaved != 0U) ? ((upd * strideInElements) + e) : ((e * strideInElements) + upd);
+            const uint32_t outIdx =
+                (isInterleaved != 0U) ? ((upd * strideOutElements) + e) : ((e * strideOutElements) + upd);
+            pOutLocal[outIdx] = pInLocal[inIdx] * localCurrentGain;
          }
       }
    }
-   if (pKerPrivArgs->bypassSmoothing) {
+   if (pKerPrivArgs->bypassSmoothing != 0U) {
       pKerPrivArgs->currentGain = targetGain;
    }
    else {
@@ -90,21 +91,20 @@ AUDIOLIB_gainSmoothingSmoothFade_exec_cn(AUDIOLIB_kernelHandle handle, void *res
    float    currentGain          = pKerPrivArgs->currentGain;
    uint32_t strideInElements     = pKerPrivArgs->strideInElements;
    uint32_t strideOutElements    = pKerPrivArgs->strideOutElements;
-   uint8_t  isInterleaved        = pKerPrivArgs->initArgs.isInterleaved;
+   uint8_t  isInterleaved        = pKerPrivArgs->isInterleaved;
    float    smoothingCoefficient = pKerPrivArgs->smoothingCoefficient;
    float    localCurrentGain     = currentGain;
 
-   // As in the symmetric variant: the gain advances once per sample, which is once per
-   // row when interleaved and once per column when planar.
-   const uint32_t numGainUpdates     = isInterleaved ? numRows : numCols;
-   const uint32_t elemsPerGainUpdate = isInterleaved ? numCols : numRows;
+   const uint32_t numGainUpdates     = (isInterleaved != 0U) ? numRows : numCols;
+   const uint32_t elemsPerGainUpdate = (isInterleaved != 0U) ? numCols : numRows;
 
    for (uint32_t upd = 0; upd < numGainUpdates; upd++) {
       localCurrentGain = (smoothingCoefficient * localCurrentGain) + ((1.0f - smoothingCoefficient) * targetGain);
       for (uint32_t e = 0; e < elemsPerGainUpdate; e++) {
-         const uint32_t inIdx  = isInterleaved ? (upd * strideInElements + e) : (e * strideInElements + upd);
-         const uint32_t outIdx = isInterleaved ? (upd * strideOutElements + e) : (e * strideOutElements + upd);
-         pOutLocal[outIdx]     = pInLocal[inIdx] * localCurrentGain;
+         const uint32_t inIdx = (isInterleaved != 0U) ? ((upd * strideInElements) + e) : ((e * strideInElements) + upd);
+         const uint32_t outIdx =
+             (isInterleaved != 0U) ? ((upd * strideOutElements) + e) : ((e * strideOutElements) + upd);
+         pOutLocal[outIdx] = pInLocal[inIdx] * localCurrentGain;
       }
    }
    pKerPrivArgs->currentGain = localCurrentGain;

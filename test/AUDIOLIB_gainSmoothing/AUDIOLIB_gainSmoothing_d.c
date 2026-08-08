@@ -56,23 +56,25 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
    AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_gainSmoothing_d CP 0\n");
 
    kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
-   int32_t               handleSize = AUDIOLIB_gainSmoothing_getHandleSize(&kerInitArgs);
+   int32_t handleSize    = AUDIOLIB_gainSmoothing_getHandleSize(&kerInitArgs);
    /* The kernel vector-loads coefficients from inside the handle, so it must be aligned. */
-   AUDIOLIB_kernelHandle handle     = TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, handleSize);
+   AUDIOLIB_kernelHandle handle = TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, handleSize);
+   memset(handle , 0, handleSize);
 
    AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_gainSmoothing_d CP 1\n");
 
    TI_profile_init("AUDIOLIB_gainSmoothing");
    // file IO for EVM benchmarking
    FILE *fpOutputCSV = fopen("AUDIOLIB_gainSmoothing.csv", "w+");
-   fprintf(fpOutputCSV, "Test ID,Bit Width,inSamples,inChannels,frames,isInterleaved,fadeTime,fadeType, TargetGain,sampling "
-                        "rate,EST cycles,EVM cycles,Pass/Fail\n");
+   fprintf(fpOutputCSV,
+           "Test ID,Bit Width,inSamples,inChannels,frames,isInterleaved,fadeTime,fadeType, TargetGain,sampling "
+           "rate,EST cycles,EVM cycles,Pass/Fail\n");
    for (tpi = 0; tpi < test_cases; tpi++) {
       uint64_t archCycles = 0, estCycles = 0;
       numReps                   = prm[tpi].numReps;
       testNum                   = prm[tpi].testID;
       currPrm                   = prm[tpi];
-      kerSetArgs.targetGain           = (float) currPrm.targetGain;
+      kerSetArgs.targetGain     = (float) currPrm.targetGain;
       kerSetArgs.currentGain    = (float) currPrm.currentGain;
       kerSetArgs.fadeTime       = (float) currPrm.fadeTime;
       kerSetArgs.fadeType       = currPrm.fadeType;
@@ -96,23 +98,23 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             bufParamsIn.data_type = currPrm.sampleDataType;
             bufParamsIn.dim_x     = currPrm.numChannels;
             bufParamsIn.dim_y     = currPrm.numSamples;
-            bufParamsIn.stride_y  = bufParamsIn.dim_x * AUDIOLIB_sizeof(bufParamsIn.data_type);
+            bufParamsIn.stride_y  = currPrm.strideIn;
 
             bufParamsOut.data_type = currPrm.sampleDataType;
             bufParamsOut.dim_x     = currPrm.numChannels;
             bufParamsOut.dim_y     = currPrm.numSamples;
-            bufParamsOut.stride_y  = bufParamsOut.dim_x * AUDIOLIB_sizeof(bufParamsOut.data_type);
+            bufParamsOut.stride_y  = currPrm.strideOut;
          }
          else {
             bufParamsIn.data_type = currPrm.sampleDataType;
             bufParamsIn.dim_x     = currPrm.numSamples;
             bufParamsIn.dim_y     = currPrm.numChannels;
-            bufParamsIn.stride_y  = bufParamsIn.dim_x * AUDIOLIB_sizeof(bufParamsIn.data_type);
+            bufParamsIn.stride_y  = currPrm.strideIn;
 
             bufParamsOut.data_type = currPrm.sampleDataType;
             bufParamsOut.dim_x     = currPrm.numSamples;
             bufParamsOut.dim_y     = currPrm.numChannels;
-            bufParamsOut.stride_y  = bufParamsOut.dim_x * AUDIOLIB_sizeof(bufParamsOut.data_type);
+            bufParamsOut.stride_y  = currPrm.strideOut;
          }
 
          // Here, stride is in bytes
@@ -159,12 +161,12 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                int32_t frame = 0;
                for (frame = 0; frame < numExecReps; frame++) {
 
-                  TI_fillBuffer_float(prm[tpi].testPattern, 0, (void *) ((int8_t *) pIn + (frame * inpLeftSizeBytes)),
-                                      (prm[tpi].staticIn != NULL)
-                                          ? (void *) ((int8_t *) prm[tpi].staticIn + (frame * inpLeftSizeBytes))
-                                          : NULL,
-                                      bufParamsIn.dim_x, bufParamsIn.dim_y, bufParamsIn.stride_y,
-                                      AUDIOLIB_sizeof(currPrm.sampleDataType), testPatternString);
+                  TI_fillBuffer_float(
+                      prm[tpi].testPattern, 0, (void *) ((int8_t *) pIn + (frame * inpLeftSizeBytes)),
+                      (void *) ((int8_t *) prm[tpi].staticIn + (frame * currPrm.numSamples * currPrm.numChannels *
+                                                                AUDIOLIB_sizeof(currPrm.sampleDataType))),
+                      bufParamsIn.dim_x, bufParamsIn.dim_y, bufParamsIn.stride_y,
+                      AUDIOLIB_sizeof(currPrm.sampleDataType), testPatternString);
                }
             }
             else {
@@ -213,7 +215,7 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 
                status_opt = AUDIOLIB_gainSmoothing_exec(handle, (void *) ((int8_t *) pIn + (k + 1) * inpLeftSizeBytes),
                                                         (void *) ((int8_t *) pOut + (k + 1) * outLeftSizeBytes));
-               
+
                TI_profile_stop();
             }
 
@@ -267,7 +269,7 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                for (frame = 0; frame < numExecReps; frame++) {
                   // Compare optimized vs. natural C for this frame
                   int32_t frame_status_nat_vs_opt =
-                      TI_compare_mem_2D_float((void *) ((int8_t *) pOut + frame * outLeftSizeBytes), // changed
+                      TI_compare_mem_2D_float((void *) ((int8_t *) pOut + frame * outLeftSizeBytes),
                                               (void *) ((int8_t *) pOutCn + frame * outLeftSizeBytes), 0.001,
                                               (double) powf(2, -10), bufParamsOut.dim_x, bufParamsOut.dim_y,
                                               bufParamsOut.stride_y, AUDIOLIB_sizeof(currPrm.sampleDataType));
@@ -294,7 +296,7 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                bufParamsOutTemp.stride_y = bufParamsOutTemp.dim_x * AUDIOLIB_sizeof(bufParamsOutTemp.data_type);
                // print_matrix("staticOut", (void *) currPrm.staticOut, &bufParamsOutTemp);
 
-               if (currPrm.sampleDataType == AUDIOLIB_FLOAT32 || currPrm.sampleDataType == AUDIOLIB_FLOAT64) {
+               if (currPrm.sampleDataType == AUDIOLIB_FLOAT32) {
 
                   // Initialize reference comparison statuses
                   status_ref_vs_opt = TI_TEST_KERNEL_PASS;
@@ -302,8 +304,9 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                   // Frame-by-frame comparison for reference outputs
                   for (frame = 0; frame < numExecReps; frame++) {
                      int32_t frame_status_ref_vs_opt = TI_compare_mem_2DDualStride_float(
-                         (void *) ((int8_t *) pOut + frame * outLeftSizeBytes), // changed
-                         (void *) ((int8_t *) currPrm.staticOut + (frame * outLeftSizeBytes)),
+                         (void *) ((int8_t *) pOut + frame * outLeftSizeBytes),
+                         (void *) ((int8_t *) currPrm.staticOut + (frame * currPrm.numSamples * currPrm.numChannels *
+                                                                   AUDIOLIB_sizeof(currPrm.sampleDataType))),
                          0.001, (double) powf(2, -10), bufParamsOut.dim_x, bufParamsOut.dim_y, bufParamsOut.stride_y,
                          bufParamsOut.dim_x * AUDIOLIB_sizeof(currPrm.sampleDataType),
                          AUDIOLIB_sizeof(currPrm.sampleDataType));
@@ -322,9 +325,10 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                /* Set to pass since it wasn't supposed to run. */
                status_ref_vs_opt = TI_TEST_KERNEL_PASS;
             }
-            AUDIOLIB_DEBUGPRINTFN(
-                0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_gainSmoothing_d CP 8 status_nat_vs_opt %d status_ref_vs_opt %d currentTestFail %d\n",
-                status_nat_vs_opt, status_ref_vs_opt, currentTestFail);
+            AUDIOLIB_DEBUGPRINTFN(0,
+                                  "AUDIOLIB_DEBUGPRINT  AUDIOLIB_gainSmoothing_d CP 8 status_nat_vs_opt %d "
+                                  "status_ref_vs_opt %d currentTestFail %d\n",
+                                  status_nat_vs_opt, status_ref_vs_opt, currentTestFail);
 
             AUDIOLIB_DEBUGPRINTFN(
                 0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_gainSmoothing_d CP 8 status_init %d status_opt %d status_nat %d\n",
@@ -347,8 +351,11 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             pProfile[3 * tpi + 2] = (int32_t) TI_profile_get_cycles(TI_PROFILE_KERNEL_OPT_WARMWRB);
 
             AUDIOLIB_gainSmoothing_get(handle, &kerSetArgs);
-            sprintf(desc, "%s generated input | inSamples = %d, inChannels = %d, currentGain = %0.3f, TargetGain = %0.3f, fadeTime = %0.3f ms, dataType = %d", 
-                    testPatternString, currPrm.numSamples, currPrm.numChannels, kerSetArgs.currentGain, kerSetArgs.targetGain, kerSetArgs.fadeTime, currPrm.sampleDataType);
+            sprintf(desc,
+                    "%s generated input | inSamples = %d, inChannels = %d, currentGain = %0.3f, TargetGain = %0.3f, "
+                    "fadeTime = %0.3f ms, dataType = %d",
+                    testPatternString, currPrm.numSamples, currPrm.numChannels, kerSetArgs.currentGain,
+                    kerSetArgs.targetGain, kerSetArgs.fadeTime, currPrm.sampleDataType);
 
             AUDIOLIB_gainSmoothing_perfEst(handle, &archCycles, &estCycles);
 
@@ -356,8 +363,8 @@ int AUDIOLIB_gainSmoothing_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             // TI_profile_formula_add clears values in counters
             fprintf(fpOutputCSV, "%d,%d,%d,%d,%d,%u,%f,%u,%f,%d,%lld,%d,%d\n", currPrm.testID,
                     AUDIOLIB_sizeof(currPrm.sampleDataType) * 8, currPrm.numSamples, currPrm.numChannels,
-                    currPrm.frames, currPrm.isInterleaved, currPrm.fadeTime, currPrm.fadeType, (float) currPrm.targetGain,
-                    currPrm.samplingRate, (long long) estCycles,
+                    currPrm.frames, currPrm.isInterleaved, currPrm.fadeTime, currPrm.fadeType,
+                    (float) currPrm.targetGain, currPrm.samplingRate, (long long) estCycles,
                     pProfile[3 * tpi + 1], // EVM cycles (warm cycles)
                     !currentTestFail);
 
@@ -433,6 +440,9 @@ int coverage_test_main()
 
    AUDIOLIB_STATUS status_nat;
    AUDIOLIB_STATUS status_opt;
+   AUDIOLIB_STATUS status_init;
+
+   AUDIOLIB_gainSmoothing_SetArgs setArgs;
 
    AUDIOLIB_bufParams2D_t bufParamsIn, bufParamsOut;
 
@@ -459,172 +469,129 @@ int coverage_test_main()
 
    pIn0 = (void *) malloc(In0Size);
    pOut = (void *) malloc(OutSize);
+   AUDIOLIB_gainSmoothing_init(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
 
    while (testNum <= 1010) {
 
       switch (testNum) {
       case 1000:
-         bufParamsInTemp.data_type  = bufParamsIn.data_type;
-         bufParamsOutTemp.data_type = bufParamsOut.data_type;
-
-         bufParamsInTemp.dim_x  = bufParamsIn.dim_x;
-         bufParamsOutTemp.dim_x = bufParamsOut.dim_x;
-
-         bufParamsInTemp.dim_y  = bufParamsIn.dim_y;
-         bufParamsOutTemp.dim_y = bufParamsOut.dim_y;
-
-         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
-         status_nat = AUDIOLIB_gainSmoothing_init_checkParams(NULL, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt = AUDIOLIB_gainSmoothing_init_checkParams(NULL, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         /* init_checkParams(): NULL handle (nat), NULL input buffer descriptor (opt). */
+         status_nat      = AUDIOLIB_gainSmoothing_init_checkParams(NULL, &bufParamsIn, &bufParamsOut, &kerInitArgs);
+         status_opt      = AUDIOLIB_gainSmoothing_init_checkParams(handle, NULL, &bufParamsOut, &kerInitArgs);
          currentTestFail = ((status_nat != AUDIOLIB_ERR_NULL_POINTER) || (status_opt != AUDIOLIB_ERR_NULL_POINTER));
          break;
+
       case 1001:
-
-         bufParamsInTemp.data_type  = AUDIOLIB_UINT32;
-         bufParamsOutTemp.data_type = bufParamsOut.data_type;
-
-         bufParamsInTemp.dim_x  = bufParamsIn.dim_x;
-         bufParamsOutTemp.dim_x = bufParamsOut.dim_x;
-
-         bufParamsInTemp.dim_y  = bufParamsIn.dim_y;
-         bufParamsOutTemp.dim_y = bufParamsOut.dim_y;
-
-         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
-         status_nat =
-             AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt =
-             AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
+         /* init_checkParams(): NULL output buffer descriptor (nat), NULL init args (opt). */
+         status_nat      = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsIn, NULL, &kerInitArgs);
+         status_opt      = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsIn, &bufParamsOut, NULL);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_NULL_POINTER) || (status_opt != AUDIOLIB_ERR_NULL_POINTER));
          break;
+
       case 1002:
-         bufParamsInTemp.data_type  = bufParamsIn.data_type;
-         bufParamsOutTemp.data_type = AUDIOLIB_UINT32;
-
-         bufParamsInTemp.dim_x  = bufParamsIn.dim_x;
-         bufParamsOutTemp.dim_x = bufParamsOut.dim_x;
-
-         bufParamsInTemp.dim_y  = bufParamsIn.dim_y;
-         bufParamsOutTemp.dim_y = bufParamsOut.dim_y;
-
-         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
-         status_nat =
-             AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         bufParamsInTemp.data_type  = AUDIOLIB_UINT32;
-         bufParamsOutTemp.data_type = AUDIOLIB_UINT32;
-         kerInitArgs.funcStyle      = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt =
-             AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
-         break;
-
-      case 1003: {
-         /* FLOAT64 is not implemented and must be rejected, not silently accepted: the
-            double-precision exec variants do not exist. */
+         /* init_checkParams(): FLOAT64 input (nat), output type differs from input (opt). */
+         bufParamsInTemp            = bufParamsIn;
+         bufParamsOutTemp           = bufParamsOut;
          bufParamsInTemp.data_type  = AUDIOLIB_FLOAT64;
          bufParamsOutTemp.data_type = AUDIOLIB_FLOAT64;
-         bufParamsInTemp.dim_x      = bufParamsIn.dim_x;
-         bufParamsOutTemp.dim_x     = bufParamsOut.dim_x;
-         bufParamsInTemp.dim_y      = bufParamsIn.dim_y;
-         bufParamsOutTemp.dim_y     = bufParamsOut.dim_y;
-
-         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
-         currentTestFail = (status_opt != AUDIOLIB_ERR_INVALID_TYPE);
+         status_nat =
+             AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsIn, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
          break;
-      }
 
-      case 1004: {
-         /* Invalid init args: non-positive sampling rate, out-of-range isInterleaved. */
-         bufParamsInTemp  = bufParamsIn;
-         bufParamsOutTemp = bufParamsOut;
-
+      case 1003:
+         /* init_checkParams(): zero sampling rate (nat), out-of-range isInterleaved (opt). */
          kerInitArgs.samplingRate = 0.0f;
-         status_nat = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_nat = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
          kerInitArgs.samplingRate  = 48000.0f;
          kerInitArgs.isInterleaved = 2;
-         status_opt = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         status_opt = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
          kerInitArgs.isInterleaved = 0;
-
          currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_VALUE) || (status_opt != AUDIOLIB_ERR_INVALID_VALUE));
          break;
-      }
 
-      case 1005: {
-         /* set(): NULL handle and NULL args. */
-         AUDIOLIB_gainSmoothing_SetArgs setArgs;
+      case 1004:
+         /* init_checkParams(): zero width (nat), zero height (opt). */
+         bufParamsInTemp        = bufParamsIn;
+         bufParamsOutTemp       = bufParamsOut;
+         bufParamsInTemp.dim_x  = 0;
+         bufParamsOutTemp.dim_x = 0;
+         status_nat =
+             AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         bufParamsInTemp        = bufParamsIn;
+         bufParamsOutTemp       = bufParamsOut;
+         bufParamsInTemp.dim_y  = 0;
+         bufParamsOutTemp.dim_y = 0;
+         status_opt =
+             AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsInTemp, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail =
+             ((status_nat != AUDIOLIB_ERR_INVALID_DIMENSION) || (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION));
+         break;
+
+      case 1005:
+         /* init_checkParams(): output width (nat) and output height (opt) differ from the input. */
+         bufParamsOutTemp       = bufParamsOut;
+         bufParamsOutTemp.dim_x = bufParamsIn.dim_x - 1;
+         status_nat = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsIn, &bufParamsOutTemp, &kerInitArgs);
+         bufParamsOutTemp       = bufParamsOut;
+         bufParamsOutTemp.dim_y = bufParamsIn.dim_y + 1;
+         status_opt = AUDIOLIB_gainSmoothing_init_checkParams(handle, &bufParamsIn, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail =
+             ((status_nat != AUDIOLIB_ERR_INVALID_DIMENSION) || (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION));
+         break;
+
+      case 1006:
+         /* set(): NULL handle (nat), NULL set args (opt). */
          setArgs.currentGain = 1.0f;
          setArgs.targetGain  = 2.0f;
          setArgs.fadeTime    = 10.0f;
          setArgs.fadeType    = AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC;
-
-         currentTestFail = ((AUDIOLIB_gainSmoothing_set(NULL, &setArgs) != AUDIOLIB_ERR_NULL_POINTER) ||
-                            (AUDIOLIB_gainSmoothing_set(handle, NULL) != AUDIOLIB_ERR_NULL_POINTER));
+         status_nat          = AUDIOLIB_gainSmoothing_set(NULL, &setArgs);
+         status_opt          = AUDIOLIB_gainSmoothing_set(handle, NULL);
+         currentTestFail     = ((status_nat != AUDIOLIB_ERR_NULL_POINTER) || (status_opt != AUDIOLIB_ERR_NULL_POINTER));
          break;
-      }
 
-      case 1006: {
-         /* set(): fadeType out of range would leave the execute pointer unassigned;
-            negative fadeTime would silently bypass instead of ramping. */
-         AUDIOLIB_gainSmoothing_SetArgs setArgs;
+      case 1007:
+         /* set(): fadeType out of range (nat), negative fadeTime (opt). */
          setArgs.currentGain = 1.0f;
          setArgs.targetGain  = 2.0f;
          setArgs.fadeTime    = 10.0f;
          setArgs.fadeType    = AUDIOLIB_GAINSMOOTHING_FADE_TYPE_MAX + 1;
+         status_nat          = AUDIOLIB_gainSmoothing_set(handle, &setArgs);
+         setArgs.fadeType    = AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC;
+         setArgs.fadeTime    = -1.0f;
          status_opt          = AUDIOLIB_gainSmoothing_set(handle, &setArgs);
-
-         setArgs.fadeType = AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC;
-         setArgs.fadeTime = -1.0f;
-         status_nat       = AUDIOLIB_gainSmoothing_set(handle, &setArgs);
-
-         currentTestFail = ((status_opt != AUDIOLIB_ERR_INVALID_VALUE) || (status_nat != AUDIOLIB_ERR_INVALID_VALUE));
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_VALUE) || (status_opt != AUDIOLIB_ERR_INVALID_VALUE));
          break;
-      }
 
-      case 1007: {
-         /* set(): SYMMETRIC with a zero or negative gain makes pow() return inf/NaN and
-            poisons the whole output buffer, so both must be rejected. */
-         AUDIOLIB_gainSmoothing_SetArgs setArgs;
+      case 1008:
+         /* set(): a zero gain is rejected by SYMMETRIC (nat, pow() would give inf/NaN) but
+            accepted by SMOOTH (opt). */
+         setArgs.currentGain = 0.0f;
+         setArgs.targetGain  = 2.0f;
          setArgs.fadeTime    = 10.0f;
          setArgs.fadeType    = AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC;
-         setArgs.currentGain = 0.0f;
-         setArgs.targetGain  = 2.0f;
-         status_opt          = AUDIOLIB_gainSmoothing_set(handle, &setArgs);
-
-         setArgs.currentGain = 1.0f;
-         setArgs.targetGain  = -2.0f;
          status_nat          = AUDIOLIB_gainSmoothing_set(handle, &setArgs);
-
-         currentTestFail = ((status_opt != AUDIOLIB_ERR_INVALID_VALUE) || (status_nat != AUDIOLIB_ERR_INVALID_VALUE));
-         break;
-      }
-
-      case 1008: {
-         /* SMOOTH interpolates linearly, so the same gains that SYMMETRIC rejects are
-            valid here. Guards against over-tightening the validation. */
-         AUDIOLIB_gainSmoothing_SetArgs setArgs;
-         setArgs.currentGain = 0.0f;
-         setArgs.targetGain  = 2.0f;
-         setArgs.fadeTime    = 10.0f;
          setArgs.fadeType    = AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH;
-
-         currentTestFail = (AUDIOLIB_gainSmoothing_set(handle, &setArgs) != AUDIOLIB_SUCCESS);
+         status_opt          = AUDIOLIB_gainSmoothing_set(handle, &setArgs);
+         currentTestFail     = ((status_nat != AUDIOLIB_ERR_INVALID_VALUE) || (status_opt != AUDIOLIB_SUCCESS));
          break;
-      }
 
-      case 1009: {
-         /* get(): NULL handle and NULL args. */
-         AUDIOLIB_gainSmoothing_SetArgs setArgs;
-         currentTestFail = ((AUDIOLIB_gainSmoothing_get(NULL, &setArgs) != AUDIOLIB_ERR_NULL_POINTER) ||
-                            (AUDIOLIB_gainSmoothing_get(handle, NULL) != AUDIOLIB_ERR_NULL_POINTER));
+      case 1009:
+         /* get(): NULL handle (nat), NULL set args (opt). */
+         status_nat      = AUDIOLIB_gainSmoothing_get(NULL, &setArgs);
+         status_opt      = AUDIOLIB_gainSmoothing_get(handle, NULL);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_NULL_POINTER) || (status_opt != AUDIOLIB_ERR_NULL_POINTER));
          break;
-      }
 
       case 1010:
-         /* exec_checkParams(): NULL input and output buffers. */
-         currentTestFail = ((AUDIOLIB_gainSmoothing_exec_checkParams(handle, NULL, pOut) != AUDIOLIB_ERR_NULL_POINTER) ||
-                            (AUDIOLIB_gainSmoothing_exec_checkParams(handle, pIn0, NULL) != AUDIOLIB_ERR_NULL_POINTER));
+         /* exec_checkParams(): NULL handle (nat), NULL input (opt), NULL output (init). */
+         status_nat      = AUDIOLIB_gainSmoothing_exec_checkParams(NULL, pIn0, pOut);
+         status_opt      = AUDIOLIB_gainSmoothing_exec_checkParams(handle, NULL, pOut);
+         status_init     = AUDIOLIB_gainSmoothing_exec_checkParams(handle, pIn0, NULL);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_NULL_POINTER) || (status_opt != AUDIOLIB_ERR_NULL_POINTER) ||
+                            (status_init != AUDIOLIB_ERR_NULL_POINTER));
          break;
 
       default:

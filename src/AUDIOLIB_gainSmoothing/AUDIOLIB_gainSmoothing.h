@@ -21,23 +21,24 @@ extern "C" {
  * $$ y[n] = x[n] \cdot G[n] $$
  * where \f$G[n]\f$ moves from `currentGain` toward `targetGain` over `fadeTime`. Ramping
  * the gain rather than stepping it avoids the click that a discontinuous gain change
- * produces. The gains are arbitrary positive floats; this is not restricted to fades to
- * or from silence.
+ * produces. SYMMETRIC needs strictly positive gains; SMOOTH accepts any finite gains,
+ * so it can also fade to or from silence (gain 0).
  *
  * State is carried across calls: \f$G[n]\f$ resumes where the previous frame ended, so a
  * ramp longer than one frame spans frames seamlessly. Once the target is reached the gain
  * stays there until the next @ref AUDIOLIB_gainSmoothing_set.
  *
- * ### fadeType = 0, AUDIOLIB_gainSmoothing_FADE_TYPE_SYMMETRIC - geometric ramp
+ * ### fadeType = 0, AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC - geometric ramp
  * The gain is multiplied by a constant ratio each sample, i.e. it moves at a constant
  * number of dB per sample:
  * $$ r = \left( \frac{G_{\text{target}}}{G_{\text{current}}} \right)^{1/N},
  *    \qquad N = \frac{T_{\text{fade}}}{1000} \cdot f_s $$
- * $$ G[n] = \text{clamp}\left( G[n-1] \cdot r \right) $$
- * \f$G\f$ reaches \f$G_{\text{target}}\f$ exactly at sample \f$N\f$ and is clamped there.
+ * $$ G[n] = \begin{cases} G_{\text{current}} \cdot r^{n} & n < N \\
+ *                          G_{\text{target}} & n \ge N \end{cases} $$
+ * \f$G\f$ reaches \f$G_{\text{target}}\f$ exactly at sample \f$N\f$ and holds there.
  * Both gains must be strictly positive. Here `fadeTime` is the total ramp **duration**.
  *
- * ### fadeType = 1, AUDIOLIB_gainSmoothing_FADE_TYPE_SMOOTH - one-pole approach
+ * ### fadeType = 1, AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH - one-pole approach
  * The gain is filtered by a first-order low-pass toward the target:
  * $$ \alpha = e^{\frac{-1}{f_s \cdot (T_{\text{fade}} / 1000)}} $$
  * $$ G[n] = \alpha \cdot G[n-1] + (1 - \alpha) \cdot G_{\text{target}} $$
@@ -61,10 +62,10 @@ extern "C" {
  */
 typedef enum {
    /** @brief Geometric ramp: constant dB per sample, reaches the target exactly at
-     *        fadeTime. Requires currentGain > 0 and targetGain > 0. */
+    *        fadeTime. Requires currentGain > 0 and targetGain > 0. */
    AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC = 0,
    /** @brief One-pole approach: asymptotic, and fadeTime is a time constant rather than
-     *        a duration. Accepts any finite gain values. */
+    *        a duration. Accepts any finite gain values. */
    AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH = 1,
    /** @brief Highest valid fadeType. Used to range-check @ref AUDIOLIB_gainSmoothing_set. */
    AUDIOLIB_GAINSMOOTHING_FADE_TYPE_MAX = AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH
@@ -78,26 +79,26 @@ typedef struct {
    /** @brief The implementation style to use. See @ref AUDIOLIB_FUNCTION_STYLE for options. */
    int8_t funcStyle;
    /** @brief The audio sampling rate in Hz (e.g., 48000). */
-   float   samplingRate;
+   float samplingRate;
    /** @brief Specifies the data format: 1 for interleaved, 0 for non-interleaved (planar). */
    uint8_t isInterleaved;
 } AUDIOLIB_gainSmoothing_InitArgs;
 
 /**
  * @brief Runtime-settable parameters for configuring the gainSmoothing kernel.
- * @details This structure is used with AUDIOLIB_gainSmoothing_set() to control the muting behavior dynamically.
+ * @details This structure is used with @ref AUDIOLIB_gainSmoothing_set to start a new gain ramp.
  */
 typedef struct {
    /** @brief The gain the ramp starts from. Applied on the first exec() after set();
-     *        later frames continue from the kernel's internal running gain. */
+    *        later frames continue from the kernel's internal running gain. */
    float currentGain;
    /** @brief The gain the ramp moves toward. */
    float targetGain;
    /** @brief SYMMETRIC: total ramp duration in ms. SMOOTH: one-pole time constant in ms.
-     *        A value of 0 disables ramping and applies targetGain directly. Must be >= 0. */
+    *        A value of 0 disables ramping and applies targetGain directly. Must be >= 0. */
    float fadeTime;
    /** @brief The type of fade curve to apply. See @ref AUDIOLIB_gainSmoothing_fadeType. */
-   uint8_t  fadeType;
+   uint8_t fadeType;
 } AUDIOLIB_gainSmoothing_SetArgs;
 
 /**
@@ -113,7 +114,6 @@ typedef struct {
  */
 int32_t AUDIOLIB_gainSmoothing_getHandleSize(AUDIOLIB_gainSmoothing_InitArgs *pKerInitArgs);
 
-
 /**
  *  @brief       This function should be called before the
  *               @ref AUDIOLIB_gainSmoothing_exec function is called. This
@@ -125,7 +125,7 @@ int32_t AUDIOLIB_gainSmoothing_getHandleSize(AUDIOLIB_gainSmoothing_InitArgs *pK
  *  @param [in]  handle        :  Active handle to the kernel
  *  @param [in]  bufParamsIn   :  Pointer to the structure containing dimensional
  *                                information of input buffer
- *  @param [out] bufParamsOut  :  Pointer to the structure containing dimensional
+ *  @param [in]  bufParamsOut  :  Pointer to the structure containing dimensional
  *                                information of output buffer
  *  @param [in]  pKerInitArgs  :  Pointer to the structure holding init
  * parameters
@@ -136,10 +136,10 @@ int32_t AUDIOLIB_gainSmoothing_getHandleSize(AUDIOLIB_gainSmoothing_InitArgs *pK
  *  @remarks     Application is expected to provide a valid handle.
  */
 
-AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_init(AUDIOLIB_kernelHandle            handle,
-                                      AUDIOLIB_bufParams2D_t          *bufParamsIn,
-                                      AUDIOLIB_bufParams2D_t          *bufParamsOut,
-                                      const AUDIOLIB_gainSmoothing_InitArgs *pKerInitArgs);
+AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_init(AUDIOLIB_kernelHandle                  handle,
+                                            AUDIOLIB_bufParams2D_t                *bufParamsIn,
+                                            AUDIOLIB_bufParams2D_t                *bufParamsOut,
+                                            const AUDIOLIB_gainSmoothing_InitArgs *pKerInitArgs);
 
 /**
  *  @brief       This function checks the validity of the parameters passed to
@@ -152,21 +152,24 @@ AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_init(AUDIOLIB_kernelHandle            han
  *  @param [in]  handle        :  Active handle to the kernel
  *  @param [in]  bufParamsIn   :  Pointer to the structure containing dimensional
  *                                information of input buffer
- *  @param [out] bufParamsOut  :  Pointer to the structure containing dimensional
+ *  @param [in]  bufParamsOut  :  Pointer to the structure containing dimensional
  *                                information of output buffer
  *  @param [in]  pKerInitArgs  :  Pointer to the structure holding init
  * parameters
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
- *  @remarks     None
+ *  @retval AUDIOLIB_SUCCESS                 Parameters are valid.
+ *  @retval AUDIOLIB_ERR_NULL_POINTER        handle, bufParamsIn, bufParamsOut or pKerInitArgs is NULL.
+ *  @retval AUDIOLIB_ERR_INVALID_TYPE        Data type is not @ref AUDIOLIB_FLOAT32, or input and
+ *                                           output types differ.
+ *  @retval AUDIOLIB_ERR_INVALID_VALUE       samplingRate <= 0, or isInterleaved is not 0 or 1.
+ *  @retval AUDIOLIB_ERR_INVALID_DIMENSION   dim_x or dim_y is 0, the output shape differs from the
+ *                                           input shape, or stride_y is smaller than one row.
  */
 AUDIOLIB_STATUS
-AUDIOLIB_gainSmoothing_init_checkParams(AUDIOLIB_kernelHandle            handle,
-                                  const AUDIOLIB_bufParams2D_t    *bufParamsIn,
-                                  const AUDIOLIB_bufParams2D_t    *bufParamsOut,
-                                  const AUDIOLIB_gainSmoothing_InitArgs *pKerInitArgs);
+AUDIOLIB_gainSmoothing_init_checkParams(AUDIOLIB_kernelHandle                  handle,
+                                        const AUDIOLIB_bufParams2D_t          *bufParamsIn,
+                                        const AUDIOLIB_bufParams2D_t          *bufParamsOut,
+                                        const AUDIOLIB_gainSmoothing_InitArgs *pKerInitArgs);
 
 /**
  * @brief Sets the runtime parameters for the gainSmoothing kernel.
@@ -187,8 +190,7 @@ AUDIOLIB_gainSmoothing_init_checkParams(AUDIOLIB_kernelHandle            handle,
  *                                    SYMMETRIC only - currentGain <= 0 or targetGain <= 0,
  *                                    which would make the geometric ramp produce inf/NaN.
  */
-AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_set(AUDIOLIB_kernelHandle handle, 
-                                     AUDIOLIB_gainSmoothing_SetArgs *pKerSetArgs);
+AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_set(AUDIOLIB_kernelHandle handle, AUDIOLIB_gainSmoothing_SetArgs *pKerSetArgs);
 
 /**
  * @brief Retrieves the current runtime parameters from the gainSmoothing kernel.
@@ -197,50 +199,50 @@ AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_set(AUDIOLIB_kernelHandle handle,
  * @param [out] pKerSetArgs  Pointer to a structure where the current gainSmoothing parameters will be stored.
  * @return Status code indicating success or failure. See @ref AUDIOLIB_STATUS.
  */
-AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_get(AUDIOLIB_kernelHandle handle, 
-                                     AUDIOLIB_gainSmoothing_SetArgs *pKerSetArgs);
+AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_get(AUDIOLIB_kernelHandle handle, AUDIOLIB_gainSmoothing_SetArgs *pKerSetArgs);
 
-/** * @brief Estimates the performance of the gainSmoothing kernel.
- *  @param [in]  handle        : Active handle to the kernel
- *  @param [out] archCycles      : Pointer to store the estimated architecture cycles
- *  @param [out] estCycles       : Pointer to store the estimated cycles for execution
- * *  @details This function provides an estimation of the performance characteristics
- *           of the gainSmoothing kernel
- * */
-void AUDIOLIB_gainSmoothing_perfEst(AUDIOLIB_kernelHandle         handle,
-                              uint64_t                     *archCycles,
-                              uint64_t                     *estCycles);
-                                       
+/**
+ *  @brief       Estimates the cycles of the next @ref AUDIOLIB_gainSmoothing_exec call.
+ *
+ *  @details     Uses the kernel that the next call will run: the constant-gain kernel once
+ *               the ramp has converged (or when fadeTime is 0), otherwise the fade kernel of
+ *               the buffer layout and fade type.
+ *
+ *  @param [in]  handle      : Active handle to the kernel, configured by
+ *                             @ref AUDIOLIB_gainSmoothing_set
+ *  @param [out] archCycles  : Cycles of the processing loops alone (one vector per cycle)
+ *  @param [out] estCycles   : archCycles plus the per-call overhead (stream setup, loop
+ *                             prolog/epilog and gain bookkeeping)
+ */
+void AUDIOLIB_gainSmoothing_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, uint64_t *estCycles);
+
 /**
  *  @brief       This function checks the validity of the parameters passed to
- *               @ref AUDIOLIB_gainSmoothing_exec function. This function
- *               is called with the same parameters as the
- *               @ref AUDIOLIB_gainSmoothing_init, and this function
- *               must be called before the
- *               @ref AUDIOLIB_gainSmoothing_init is called.
+ *               @ref AUDIOLIB_gainSmoothing_exec. It is called with the same parameters as
+ *               @ref AUDIOLIB_gainSmoothing_exec, before it.
  *
  *  @param [in]  handle    :  Active handle to the kernel
  *  @param [in]  pIn       :  Pointer to the input buffer
- *  @param [out] pout      :  Pointer to the output buffer
+ *  @param [in]  pOut      :  Pointer to the output buffer
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
- *  @remarks     None
- * */
+ *  @retval AUDIOLIB_SUCCESS          Parameters are valid.
+ *  @retval AUDIOLIB_ERR_NULL_POINTER handle, pIn or pOut is NULL.
+ */
 AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_exec_checkParams(AUDIOLIB_kernelHandle handle,
-                                                   const void *restrict pIn,
-                                                   const void *restrict pOut);
+                                                        const void *restrict pIn,
+                                                        const void *restrict pOut);
 
 /**
  *  @brief       This function is the main kernel compute function.
  *
- *  @details     Please refer to details under
- *               @ref AUDIOLIB_gainSmoothing_exec
+ *  @details     Applies one frame of the gain ramp configured by
+ *               @ref AUDIOLIB_gainSmoothing_set (see the @ref AUDIOLIB_gainSmoothing group
+ *               description for the formulas). The running gain is carried to the next call.
+ *               Once the gain has reached the target, the constant-gain kernel is used.
  *
  *  @param [in]  handle     : Active handle to the kernel
  *  @param [in]  pIn        : Pointer to buffer holding the input buffer
- *  @param [in]  pOut       : Pointer to buffer holding the output buffer
+ *  @param [out] pOut       : Pointer to buffer holding the output buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
@@ -254,7 +256,7 @@ AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_exec_checkParams(AUDIOLIB_kernelHandle ha
  *    - the buffer pointers are assumed to be 64-byte aligned
  *
  *  @remarks     Before calling this function, application is expected to call
- *               @ref AUDIOLIB_gainSmoothing_init and
+ *               @ref AUDIOLIB_gainSmoothing_init and @ref AUDIOLIB_gainSmoothing_set.
  *               This ensures resource configuration and error checks are done
  *               only once for several invocations of this function.
  */

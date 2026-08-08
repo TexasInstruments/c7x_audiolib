@@ -6,9 +6,10 @@
 ******************************************************************************
 *  @file     AUDIOLIB_gainSmoothing.cpp
 *
-*  @brief
+*  @brief    Public API of AUDIOLIB_gainSmoothing: parameter checks, init, set/get and
+*            the exec dispatcher.
 *
-*  @version  0.1 - Oct 2022 : Initial Version [AB]
+*  @version  0.1 - Oct 2026 : Initial Version
 *
 *******************************************************************************
 */
@@ -18,7 +19,9 @@
 
 int32_t AUDIOLIB_gainSmoothing_getHandleSize(AUDIOLIB_gainSmoothing_InitArgs *pKerInitArgs)
 {
-   int32_t privBufSize = sizeof(AUDIOLIB_gainSmoothing_PrivArgs);
+   (void) pKerInitArgs; /* The handle size does not depend on the init arguments. */
+
+   int32_t privBufSize = (int32_t) sizeof(AUDIOLIB_gainSmoothing_PrivArgs);
    return privBufSize;
 }
 
@@ -32,14 +35,14 @@ AUDIOLIB_gainSmoothing_init_checkParams(AUDIOLIB_kernelHandle                  h
 
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_gainSmoothing_init_checkParams \n");
 
-   if (handle == NULL) {
+   if ((handle == NULL) || (bufParamsIn == NULL) || (bufParamsOut == NULL) || (pKerInitArgs == NULL)) {
       status = AUDIOLIB_ERR_NULL_POINTER;
    }
 
    if (status == AUDIOLIB_SUCCESS) {
       /* Only single precision is implemented. Accepting FLOAT64 here would let init and
          set succeed while leaving the execute pointer unassigned. */
-      if (bufParamsIn->data_type != AUDIOLIB_FLOAT32) {
+      if (bufParamsIn->data_type != (uint32_t) AUDIOLIB_FLOAT32) {
          status = AUDIOLIB_ERR_INVALID_TYPE;
       }
       else if (bufParamsIn->data_type != bufParamsOut->data_type) {
@@ -50,6 +53,10 @@ AUDIOLIB_gainSmoothing_init_checkParams(AUDIOLIB_kernelHandle                  h
       }
       else if (pKerInitArgs->isInterleaved > 1U) {
          status = AUDIOLIB_ERR_INVALID_VALUE;
+      }
+      else if ((bufParamsIn->dim_x == 0U) || (bufParamsIn->dim_y == 0U) ||
+               (bufParamsOut->dim_x != bufParamsIn->dim_x) || (bufParamsOut->dim_y != bufParamsIn->dim_y)) {
+         status = AUDIOLIB_ERR_INVALID_DIMENSION;
       }
       else {
          /* Nothing to do here */
@@ -67,7 +74,7 @@ AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_exec_checkParams(AUDIOLIB_kernelHandle ha
 
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_gainSmoothing_exec_checkParams \n");
 
-   if ((pIn == NULL) || (pOut == NULL)) {
+   if ((handle == NULL) || (pIn == NULL) || (pOut == NULL)) {
       status = AUDIOLIB_ERR_NULL_POINTER;
    }
    else {
@@ -95,10 +102,6 @@ AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_set(AUDIOLIB_kernelHandle handle, AUDIOLI
    }
    else if ((pKerSetArgs->fadeType == AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC) &&
             ((pKerSetArgs->currentGain <= 0.0f) || (pKerSetArgs->targetGain <= 0.0f))) {
-      /* The geometric ramp evaluates pow(target/current, 1/N). A zero start gain divides
-         by zero and a negative gain makes pow() return NaN, so both are rejected. The
-         one-pole ramp interpolates linearly and is well defined for any finite gain, so
-         it is deliberately not constrained here. */
       status = AUDIOLIB_ERR_INVALID_VALUE;
    }
    else {
@@ -108,122 +111,112 @@ AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_set(AUDIOLIB_kernelHandle handle, AUDIOLI
    if (status == AUDIOLIB_SUCCESS) {
       AUDIOLIB_gainSmoothing_PrivArgs *pKerPrivArgs = (AUDIOLIB_gainSmoothing_PrivArgs *) handle;
 
-      if (pKerPrivArgs->initialized != 1U) {
+      // Copy arguments and set the start/end gains for the fade.
+      memcpy(&pKerPrivArgs->setArgs, pKerSetArgs, sizeof(AUDIOLIB_gainSmoothing_SetArgs));
+      pKerPrivArgs->currentGain = pKerSetArgs->currentGain;
+      pKerPrivArgs->targetGain  = pKerSetArgs->targetGain;
+
+      pFxnAUDIOLIB_gainSmoothing_exec rampFuncCi = NULL;
+
+      const uint32_t nElement = AUDIOLIB_GAINSMOOTHING_LANES_F32;
+
+      // This switch configures the parameters for the chosen fade type
+      switch (pKerSetArgs->fadeType) {
+      case AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC: {
+
+         /* fadeTime < 0 was rejected above, so <= 0 means exactly 0 (no ramp). */
+         const float totalFadeSamples  = (pKerSetArgs->fadeTime * pKerPrivArgs->samplingRate) / 1000.0f;
+         pKerPrivArgs->bypassSmoothing = (uint8_t) ((pKerSetArgs->fadeTime <= 0.0f) || (totalFadeSamples <= 0.0f));
+         pKerPrivArgs->fadeSamplesLeft = totalFadeSamples;
+         if (pKerPrivArgs->bypassSmoothing == 0U) {
+            pKerPrivArgs->gainStep =
+                std::pow((pKerPrivArgs->targetGain / pKerPrivArgs->currentGain), 1.0f / totalFadeSamples);
+
+            if (pKerPrivArgs->isInterleaved == 0U) {
+               pKerPrivArgs->alphaCoeff[0] = pKerPrivArgs->gainStep;
+               for (uint32_t i = 1; i < nElement; i++) {
+                  pKerPrivArgs->alphaCoeff[i] = pKerPrivArgs->alphaCoeff[i - 1] * pKerPrivArgs->gainStep;
+               }
+               pKerPrivArgs->gainStepMultiplier = pKerPrivArgs->alphaCoeff[nElement - 1];
+               pKerPrivArgs->gainStepMultiplierBi =
+                   pKerPrivArgs->gainStepMultiplier * pKerPrivArgs->gainStepMultiplier;
+            }
+            pKerPrivArgs->factorPerBlock =
+                (float) std::pow((double) pKerPrivArgs->gainStep, (double) pKerPrivArgs->inSamples);
+         }
+         else {
+            pKerPrivArgs->gainStep = 1.0f;
+         }
+
+         if (pKerPrivArgs->isInterleaved == 0U) {
+            rampFuncCi = AUDIOLIB_gainSmoothingSymmetricFade_exec_planar_ci<float>;
+         }
+         else {
+            rampFuncCi = AUDIOLIB_gainSmoothingSymmetricFade_exec_lane_ci<float>;
+         }
+         break;
+      }
+
+      case AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH: {
+         pKerPrivArgs->bypassSmoothing = (uint8_t) (pKerSetArgs->fadeTime <= 0.0f);
+         pKerPrivArgs->fadeSamplesLeft = 0.0f; /* SYMMETRIC only; cleared so a type switch leaves no stale count */
+         if (pKerPrivArgs->bypassSmoothing == 0U) {
+            const float timeConstant           = pKerSetArgs->fadeTime / 1000.0f;
+            pKerPrivArgs->smoothingCoefficient = expf(-1.0f / (pKerPrivArgs->samplingRate * timeConstant));
+
+            if (pKerPrivArgs->isInterleaved == 0U) {
+               pKerPrivArgs->alphaCoeff[0] = pKerPrivArgs->smoothingCoefficient;
+               for (uint32_t i = 1; i < nElement; i++) {
+                  pKerPrivArgs->alphaCoeff[i] = pKerPrivArgs->alphaCoeff[i - 1] * pKerPrivArgs->smoothingCoefficient;
+               }
+               pKerPrivArgs->alphaMultiplier   = pKerPrivArgs->alphaCoeff[nElement - 1];
+               pKerPrivArgs->alphaMultiplierBi = pKerPrivArgs->alphaMultiplier * pKerPrivArgs->alphaMultiplier;
+            }
+            pKerPrivArgs->factorPerBlock =
+                (float) std::pow((double) pKerPrivArgs->smoothingCoefficient, (double) pKerPrivArgs->inSamples);
+         }
+         else {
+            pKerPrivArgs->smoothingCoefficient = 0.0f;
+         }
+
+         rampFuncCi = (pKerPrivArgs->isInterleaved == 0U) ? AUDIOLIB_gainSmoothingSmoothFade_exec_planar_ci<float>
+                                                          : AUDIOLIB_gainSmoothingSmoothFade_exec_lane_ci<float>;
+
+         break;
+      }
+
+      default:
          status = AUDIOLIB_ERR_INVALID_VALUE;
       }
 
-      if (status == AUDIOLIB_SUCCESS) {
-         // Copy arguments and set the start/end gains for the fade.
-         memcpy(&pKerPrivArgs->setArgs, pKerSetArgs, sizeof(AUDIOLIB_gainSmoothing_SetArgs));
-         pKerPrivArgs->currentGain = pKerSetArgs->currentGain;
-         pKerPrivArgs->targetGain  = pKerSetArgs->targetGain;
-
-         // Ramp variant for the configured fade type and direction. Direction is baked into
-         // the instantiation so that the exec functions never test it.
-         pFxnAUDIOLIB_gainSmoothing_exec rampFuncCi = NULL;
-
-         uint32_t nElement = AUDIOLIB_GAINSMOOTHING_LANES_F32;
-
-         // This switch configures the parameters for the chosen fade type
+      // Assign the final execute function pointers based on the chosen style.
+      if (pKerPrivArgs->funcStyle == AUDIOLIB_FUNCTION_NATC) {
          switch (pKerSetArgs->fadeType) {
-         case AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC: {
-            float totalFadeSamples        = (pKerSetArgs->fadeTime * pKerPrivArgs->initArgs.samplingRate) / 1000.0f;
-            pKerPrivArgs->bypassSmoothing = (pKerSetArgs->fadeTime == 0.0f || totalFadeSamples <= 0);
-            if (!pKerPrivArgs->bypassSmoothing) {
-               pKerPrivArgs->gainStep =
-                   std::pow((pKerPrivArgs->targetGain / pKerPrivArgs->currentGain), 1 / totalFadeSamples);
-
-               if (pKerPrivArgs->initArgs.isInterleaved) {
-                  for (uint32_t i = 0; i < nElement; i++) {
-                     pKerPrivArgs->alphaCoeff[i] = pKerPrivArgs->gainStep;
-                  }
-               }
-               else {
-                  float temp = 1;
-                  for (uint32_t i = 0; i < nElement; i++) {
-                     pKerPrivArgs->alphaCoeff[i] = pKerPrivArgs->gainStep * temp;
-                     temp                        = pKerPrivArgs->alphaCoeff[i];
-                  }
-               }
-               pKerPrivArgs->gainStepMultiplier = pKerPrivArgs->alphaCoeff[nElement - 1];
-            }
-            else {
-               pKerPrivArgs->gainStep = 1.0f;
-            }
-            /* The ramp direction is fixed for the whole ramp, so bake it into the chosen
-               instantiation rather than testing it inside the exec function. */
-            rampFuncCi = (pKerPrivArgs->targetGain > pKerPrivArgs->currentGain)
-                             ? AUDIOLIB_gainSmoothingSymmetricFade_exec_ci<float, true>
-                             : AUDIOLIB_gainSmoothingSymmetricFade_exec_ci<float, false>;
+         case AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC:
+            pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_RAMP] =
+                AUDIOLIB_gainSmoothingSymmetricFade_exec_cn<float>;
             break;
-         }
 
-         case AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH: {
-            pKerPrivArgs->bypassSmoothing = (pKerSetArgs->fadeTime == 0.0f);
-            if (!pKerPrivArgs->bypassSmoothing) {
-               float timeConstant                 = pKerSetArgs->fadeTime / 1000.0f;
-               pKerPrivArgs->smoothingCoefficient = expf(-1.0f / (pKerPrivArgs->initArgs.samplingRate * timeConstant));
-               for (uint32_t i = 0; i < nElement; i++) {
-                  if (pKerPrivArgs->initArgs.isInterleaved) {
-                     pKerPrivArgs->alphaCoeff[i] = pKerPrivArgs->smoothingCoefficient;
-                  }
-                  else {
-                     pKerPrivArgs->alphaCoeff[i] =
-                         (i == 0) ? pKerPrivArgs->smoothingCoefficient
-                                  : pKerPrivArgs->alphaCoeff[i - 1] * pKerPrivArgs->smoothingCoefficient;
-                  }
-               }
-               pKerPrivArgs->alphaMultiplier = pKerPrivArgs->alphaCoeff[nElement - 1];
-            }
-            else {
-               pKerPrivArgs->smoothingCoefficient = 0;
-            }
-            /* The one-pole ramp interpolates toward the target with no clamp, so it is
-               direction-agnostic and needs only one instantiation. */
-            rampFuncCi = AUDIOLIB_gainSmoothingSmoothFade_exec_ci<float>;
+         case AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH:
+            pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_RAMP] = AUDIOLIB_gainSmoothingSmoothFade_exec_cn<float>;
             break;
-         }
 
          default:
             status = AUDIOLIB_ERR_INVALID_VALUE;
+            break;
          }
-
-         // Assign the final execute function pointers based on the chosen style.
-         if (pKerPrivArgs->initArgs.funcStyle == AUDIOLIB_FUNCTION_NATC) {
-            switch (pKerSetArgs->fadeType) {
-            case AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC:
-               pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_RAMP] =
-                   AUDIOLIB_gainSmoothingSymmetricFade_exec_cn<float>;
-
-               break;
-
-            case AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH:
-               pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_RAMP] =
-                   AUDIOLIB_gainSmoothingSmoothFade_exec_cn<float>;
-
-               break;
-
-            default:
-               status = AUDIOLIB_ERR_INVALID_VALUE;
-            }
-            /* The natural C variants handle the constant-gain case internally, so both table
-               entries are the same function. */
-            pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_CONVERGED] =
-                pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_RAMP];
+         pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_CONVERGED] =
+             pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_RAMP];
+      }
+      else {
+         if (rampFuncCi == NULL) {
+            status = AUDIOLIB_ERR_NOT_IMPLEMENTED;
          }
          else {
-            if (rampFuncCi == NULL) {
-               status = AUDIOLIB_ERR_NOT_IMPLEMENTED;
-            }
-            else {
-               pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_CONVERGED] =
-                   AUDIOLIB_gainSmoothingBypass_exec_ci<float>;
-               /* fadeTime == 0 means there is no ramp at all, and the coefficient array is left
-                  unpopulated in that case, so the ramp variants must never run. */
-               pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_RAMP] =
-                   pKerPrivArgs->bypassSmoothing ? pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_CONVERGED]
-                                                 : rampFuncCi;
-            }
+            pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_CONVERGED] = AUDIOLIB_gainSmoothingBypass_exec_ci<float>;
+            pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_RAMP] =
+                (pKerPrivArgs->bypassSmoothing == 1U) ? pKerPrivArgs->execute[AUDIOLIB_GAINSMOOTHING_EXEC_CONVERGED]
+                                                   : rampFuncCi;
          }
       }
    }
@@ -256,26 +249,30 @@ AUDIOLIB_STATUS AUDIOLIB_gainSmoothing_init(AUDIOLIB_kernelHandle               
 {
    AUDIOLIB_STATUS                  status       = AUDIOLIB_SUCCESS;
    AUDIOLIB_gainSmoothing_PrivArgs *pKerPrivArgs = (AUDIOLIB_gainSmoothing_PrivArgs *) handle;
-   pKerPrivArgs->initialized                     = 0U;
 
    AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_gainSmoothing_init \n");
 
-   memcpy(&pKerPrivArgs->initArgs, pKerInitArgs, sizeof(AUDIOLIB_gainSmoothing_InitArgs));
+   pKerPrivArgs->isInterleaved = pKerInitArgs->isInterleaved;
+   pKerPrivArgs->samplingRate  = pKerInitArgs->samplingRate;
+   pKerPrivArgs->funcStyle     = pKerInitArgs->funcStyle;
 
-   pKerPrivArgs->numCols = bufParamsIn->dim_x;
-   pKerPrivArgs->numRows = bufParamsIn->dim_y;
+   pKerPrivArgs->numCols           = bufParamsIn->dim_x;
+   pKerPrivArgs->numRows           = bufParamsIn->dim_y;
+   pKerPrivArgs->strideInElements  = (uint32_t) (bufParamsIn->stride_y / AUDIOLIB_sizeof(bufParamsIn->data_type));
+   pKerPrivArgs->strideOutElements = (uint32_t) (bufParamsOut->stride_y / AUDIOLIB_sizeof(bufParamsOut->data_type));
 
-   pKerPrivArgs->strideInElements  = bufParamsIn->stride_y / AUDIOLIB_sizeof(bufParamsIn->data_type);
-   pKerPrivArgs->strideOutElements = bufParamsOut->stride_y / AUDIOLIB_sizeof(bufParamsOut->data_type);
+   if (pKerPrivArgs->isInterleaved == 1U) {
+      pKerPrivArgs->inSamples = pKerPrivArgs->numRows;
+   }
+   else {
+      pKerPrivArgs->inSamples = pKerPrivArgs->numCols;
+   }
 
    if (pKerInitArgs->funcStyle == AUDIOLIB_FUNCTION_OPTIMIZED) {
       status = AUDIOLIB_gainSmoothing_init_ci<float>(handle, pKerInitArgs);
    }
    else {
       /*does nothing*/
-   }
-   if (status == AUDIOLIB_SUCCESS) {
-      pKerPrivArgs->initialized = 1U;
    }
 
    return status;
