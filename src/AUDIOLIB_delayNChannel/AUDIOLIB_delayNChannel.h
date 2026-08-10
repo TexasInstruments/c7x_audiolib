@@ -42,7 +42,7 @@ typedef struct {
     *  mode = 0 for Linear Delay
     *  mode = 1 for Circular Delay                                */
    uint32_t mode;
-   uint32_t maxDelay;                    /**< \brief Maximum Delay. */
+   /*! @brief Delay per channel in number of Samples. */
    uint32_t delaySize[MAX_NUM_CHANNELS]; /**< \brief Delay Size for each channel. */
 } AUDIOLIB_delayNChannel_InitArgs;
 
@@ -158,12 +158,12 @@ AUDIOLIB_STATUS AUDIOLIB_delayNChannel_exec_checkParams(AUDIOLIB_kernelHandle ha
  *
  * @par Memory Requirements
  *   (non-interleaved layout: M = channels, N = samples per channel)
- * | Buffer   | dimY | dimX           | Comments |
- * | :--      | :--: | :--:           | :-----|
- * | pIn      | M    | N              | 2D Input Buffer |
- * | pDelay   | M    | maxDelay + N   | 2D per-channel Delay Buffer |
- * | pOut     | M    | N              | 2D Output Buffer |
- * | pScratch | M    | N              | Scratch Buffer to store de-interleaved data |
+ * | Buffer   | dimY | dimX                 | Comments |
+ * | :--      | :--: | :--:                 | :-----|
+ * | pIn      | M    | N                    | 2D Input Buffer |
+ * | pDelay   | M    | max(delaySize[]) + N | 2D per-channel Delay Buffer (sized for the worst-case configured delay) |
+ * | pOut     | M    | N                    | 2D Output Buffer |
+ * | pScratch | M    | N                    | Scratch Buffer to store de-interleaved data |
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.

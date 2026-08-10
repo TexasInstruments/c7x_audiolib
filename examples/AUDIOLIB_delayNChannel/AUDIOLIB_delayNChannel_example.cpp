@@ -60,7 +60,6 @@ int main(void)
    kerInitArgs.funcStyle    = AUDIOLIB_FUNCTION_OPTIMIZED;
    kerInitArgs.mode         = 0;
    kerInitArgs.interleave   = 0;
-   kerInitArgs.maxDelay     = 16;
    kerInitArgs.delaySize[0] = 8;
    kerInitArgs.delaySize[1] = 16;
 

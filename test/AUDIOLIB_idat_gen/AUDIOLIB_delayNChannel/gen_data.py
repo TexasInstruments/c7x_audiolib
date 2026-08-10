@@ -29,7 +29,6 @@ def gen_testCaseParams(testParamsFile, currPrm):
     testId = currPrm["ID"]
     dType = currPrm["dType"]
     mode = currPrm["mode"]
-    maxDelay = currPrm["maxDelay"]
     interleave = currPrm["interleave"]
     numChannels = currPrm["numChannels"]
     numSamples = currPrm["numSamples"]
@@ -67,7 +66,6 @@ def gen_testCaseParams(testParamsFile, currPrm):
 
     idatFile.write("{\n")
     idatFile.write("%s, // Test pattern \n" % ((testType)))
-    idatFile.write("%s, // maxDelay \n" % ((maxDelay)))
     idatFile.write("%s, // precision \n" % ((AUDIOLIB_utils.resolve_dType(dType))))
     idatFile.write("%s, // mode \n" % ((mode)))
     idatFile.write("%s, // Input buffer\n" % ((inputBuff)))
@@ -198,7 +196,6 @@ def gen_test_case_header_file(testCase):
         interleave=interleave,
         numChannels=numChannels,
         numSamples=numSamples,
-        maxDelay=maxDelay,
         numExecReps=numExecReps,
         delaySize=delaySize,
     )
