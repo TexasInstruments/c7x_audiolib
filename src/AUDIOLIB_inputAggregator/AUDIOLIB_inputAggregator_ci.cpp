@@ -215,8 +215,8 @@ AUDIOLIB_STATUS AUDIOLIB_inputAggregator_init_ci(AUDIOLIB_kernelHandle          
          pSa1Params[i].DIMFMT        = __SA_DIMFMT_3D;
       }
    }
-   memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, se0Params, sizeof(se0Params));
-   memcpy((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET, sa1Params, sizeof(sa1Params));
+   memcpy((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET, pSe0Params, sizeof(se0Params));
+   memcpy((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET, pSa1Params, sizeof(sa1Params));
 
    *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
 
