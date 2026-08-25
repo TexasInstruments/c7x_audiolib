@@ -25,7 +25,7 @@ void AUDIOLIB_debugPrintMatrix3D_helper(dataType *matrix, const AUDIOLIB_bufPara
          xPtr = yPtr;
          AUDIOLIB_PRINTF("%p |", xPtr);
          for (x = 0; x < params->dim_x; x++) {
-            AUDIOLIB_PRINTF("%3d ", *(xPtr));
+            AUDIOLIB_PRINTF("%3d ",  static_cast<int>(*xPtr));
             xPtr++;
          }
          AUDIOLIB_PRINTF("%s", "|\n");
@@ -60,7 +60,7 @@ void AUDIOLIB_debugPrintMatrix3D_helperU(dataType *matrix, const AUDIOLIB_bufPar
          xPtr = yPtr;
          AUDIOLIB_PRINTF("%p |", xPtr);
          for (x = 0; x < params->dim_x; x++) {
-            AUDIOLIB_PRINTF("%3u ", *(xPtr));
+            AUDIOLIB_PRINTF("%3u ", static_cast<unsigned int>(*xPtr));
             xPtr++;
          }
          AUDIOLIB_PRINTF("%s", "|\n");
@@ -72,8 +72,8 @@ void AUDIOLIB_debugPrintMatrix3D_helperU(dataType *matrix, const AUDIOLIB_bufPar
    return;
 }
 
-template void AUDIOLIB_debugPrintMatrix3D_helper<uint8_t>(uint8_t *matrix, const AUDIOLIB_bufParams3D_t *params);
-template void AUDIOLIB_debugPrintMatrix3D_helper<uint16_t>(uint16_t *matrix, const AUDIOLIB_bufParams3D_t *params);
+template void AUDIOLIB_debugPrintMatrix3D_helperU<uint8_t>(uint8_t *matrix, const AUDIOLIB_bufParams3D_t *params);
+template void AUDIOLIB_debugPrintMatrix3D_helperU<uint16_t>(uint16_t *matrix, const AUDIOLIB_bufParams3D_t *params);
 
 /******************************************************************************/
 

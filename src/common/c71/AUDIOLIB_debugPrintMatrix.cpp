@@ -22,7 +22,7 @@ void AUDIOLIB_debugPrintMatrix_helper(dataType *matrix, const AUDIOLIB_bufParams
       xPtr = yPtr;
       AUDIOLIB_PRINTF("%p |", xPtr);
       for (x = 0; x < params->dim_x; x++) {
-         AUDIOLIB_PRINTF("%3d ", *(xPtr));
+         AUDIOLIB_PRINTF("%3d ", static_cast<int>(*xPtr));
          xPtr++;
       }
       AUDIOLIB_PRINTF("%s", "|\n");
@@ -33,10 +33,35 @@ void AUDIOLIB_debugPrintMatrix_helper(dataType *matrix, const AUDIOLIB_bufParams
 }
 
 template void AUDIOLIB_debugPrintMatrix_helper<int8_t>(int8_t *matrix, const AUDIOLIB_bufParams2D_t *params);
-template void AUDIOLIB_debugPrintMatrix_helper<uint8_t>(uint8_t *matrix, const AUDIOLIB_bufParams2D_t *params);
 template void AUDIOLIB_debugPrintMatrix_helper<int16_t>(int16_t *matrix, const AUDIOLIB_bufParams2D_t *params);
-template void AUDIOLIB_debugPrintMatrix_helper<uint16_t>(uint16_t *matrix, const AUDIOLIB_bufParams2D_t *params);
 template void AUDIOLIB_debugPrintMatrix_helper<int32_t>(int32_t *matrix, const AUDIOLIB_bufParams2D_t *params);
+
+template <typename dataType>
+void AUDIOLIB_debugPrintMatrix_helperU(dataType *matrix, const AUDIOLIB_bufParams2D_t *params)
+{
+   uint32_t  x, y;
+   dataType *xPtr;
+   dataType *yPtr = matrix;
+
+   // stride_y is stored in bytes, but easier to use in elements
+   uint32_t stride_y_elements = params->stride_y / AUDIOLIB_sizeof(params->data_type);
+
+   for (y = 0; y < params->dim_y; y++) {
+      xPtr = yPtr;
+      AUDIOLIB_PRINTF("%p |", xPtr);
+      for (x = 0; x < params->dim_x; x++) {
+         AUDIOLIB_PRINTF("%3u ", static_cast<unsigned int>(*xPtr));
+         xPtr++;
+      }
+      AUDIOLIB_PRINTF("%s", "|\n");
+      yPtr += stride_y_elements;
+   }
+
+   return;
+}
+
+template void AUDIOLIB_debugPrintMatrix_helperU<uint8_t>(uint8_t *matrix, const AUDIOLIB_bufParams2D_t *params);
+template void AUDIOLIB_debugPrintMatrix_helperU<uint16_t>(uint16_t *matrix, const AUDIOLIB_bufParams2D_t *params);
 
 /******************************************************************************/
 
@@ -64,13 +89,13 @@ void AUDIOLIB_debugPrintMatrix(void *matrix, const AUDIOLIB_bufParams2D_t *param
       AUDIOLIB_debugPrintMatrix_helper<int16_t>((int16_t *) matrix, params);
       break;
    case AUDIOLIB_UINT16:
-      AUDIOLIB_debugPrintMatrix_helper<uint16_t>((uint16_t *) matrix, params);
+      AUDIOLIB_debugPrintMatrix_helperU<uint16_t>((uint16_t *) matrix, params);
       break;
    case AUDIOLIB_INT8:
       AUDIOLIB_debugPrintMatrix_helper<int8_t>((int8_t *) matrix, params);
       break;
    case AUDIOLIB_UINT8:
-      AUDIOLIB_debugPrintMatrix_helper<uint8_t>((uint8_t *) matrix, params);
+      AUDIOLIB_debugPrintMatrix_helperU<uint8_t>((uint8_t *) matrix, params);
       break;
    default:
       AUDIOLIB_PRINTF("\nERROR: Unrecognized data type in %s.\n", __FUNCTION__);
