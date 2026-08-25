@@ -25,9 +25,15 @@ void AUDIOLIB_tableInterpolate_perfEst(AUDIOLIB_kernelHandle                    
    if (data_type == AUDIOLIB_FLOAT32) {
       eleCount = 16;
    }
+   else {
+      eleCount = 8;
+   }
 #else
    if (data_type == AUDIOLIB_FLOAT32) {
       eleCount = 8;
+   }
+   else {
+      eleCount = 4;
    }
 
 #endif
