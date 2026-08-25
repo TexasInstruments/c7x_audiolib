@@ -14,6 +14,7 @@
 #define SE_SA0_FULL_CHANNEL_STATS_PARAM_OFFSET (SE_SE0_FULL_CHANNEL_STATS_PARAM_OFFSET + SE_PARAM_SIZE)
 #define SE_SE1_FULL_CHANNEL_STATS_PARAM_OFFSET (SE_SA0_FULL_CHANNEL_STATS_PARAM_OFFSET + SE_PARAM_SIZE)
 #define SE_SA1_FULL_CHANNEL_STATS_PARAM_OFFSET (SE_SE1_FULL_CHANNEL_STATS_PARAM_OFFSET + SE_PARAM_SIZE)
+#define SE_PER_CHANNEL_PARAM_BLOCKS    (4U)
 
 template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_subBlockStatistics_init_ci(AUDIOLIB_kernelHandle         handle,
@@ -335,15 +336,16 @@ AUDIOLIB_subBlockStatistics_max_exec_ci(AUDIOLIB_kernelHandle handle, void *rest
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
-   __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
-   __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
-   __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
-   __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+   __SE_TEMPLATE_v1 se0Params =
+       *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET + seTemplateOffset);
+   __SE_TEMPLATE_v1 se1Params =
+       *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET + seTemplateOffset);
+   __SA_TEMPLATE_v1 sa0Params =
+       *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET + seTemplateOffset);
+   __SA_TEMPLATE_v1 sa1Params =
+       *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET + seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset  = pKerPrivArgs->pInOffsets[flagIndex];
@@ -423,15 +425,16 @@ AUDIOLIB_subBlockStatistics_min_exec_ci(AUDIOLIB_kernelHandle handle, void *rest
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset  = pKerPrivArgs->pInOffsets[flagIndex];
@@ -513,15 +516,16 @@ AUDIOLIB_subBlockStatistics_maxAbs_exec_ci(AUDIOLIB_kernelHandle handle, void *r
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset  = pKerPrivArgs->pInOffsets[flagIndex];
@@ -604,15 +608,16 @@ AUDIOLIB_subBlockStatistics_add_exec_ci(AUDIOLIB_kernelHandle handle, void *rest
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset  = pKerPrivArgs->pInOffsets[flagIndex];
@@ -690,15 +695,16 @@ AUDIOLIB_subBlockStatistics_sqrAdd_exec_ci(AUDIOLIB_kernelHandle handle, void *r
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset  = pKerPrivArgs->pInOffsets[flagIndex];
@@ -783,15 +789,16 @@ AUDIOLIB_subBlockStatistics_mean_exec_ci(AUDIOLIB_kernelHandle handle, void *res
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset    = pKerPrivArgs->pInOffsets[flagIndex];
@@ -875,15 +882,16 @@ AUDIOLIB_subBlockStatistics_avgEnergy_exec_ci(AUDIOLIB_kernelHandle handle, void
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset    = pKerPrivArgs->pInOffsets[flagIndex];
@@ -972,15 +980,16 @@ AUDIOLIB_subBlockStatistics_rms_exec_ci(AUDIOLIB_kernelHandle handle, void *rest
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset    = pKerPrivArgs->pInOffsets[flagIndex];
@@ -1070,15 +1079,16 @@ AUDIOLIB_subBlockStatistics_stdDev_exec_ci(AUDIOLIB_kernelHandle handle, void *r
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset    = pKerPrivArgs->pInOffsets[flagIndex];
@@ -1188,15 +1198,16 @@ AUDIOLIB_subBlockStatistics_variance_exec_ci(AUDIOLIB_kernelHandle handle, void 
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
+   uint16_t seTemplateOffset = (flagIndex == 1) ? 0 : SE_PER_CHANNEL_PARAM_BLOCKS * SE_PARAM_SIZE;
    // Load parameters from pBlock using flagIndex to adjust offset (1 for per-channel, 0 for full-channel)
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
    __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PER_CHANNEL_STATS_PARAM_OFFSET +
-                                                       (1 - flagIndex) * 4 * SE_PARAM_SIZE);
+                                                       seTemplateOffset);
 
    // Load parameters from pKerPrivArgs using flagPerChanStats as index
    uint32_t pInOffset    = pKerPrivArgs->pInOffsets[flagIndex];
