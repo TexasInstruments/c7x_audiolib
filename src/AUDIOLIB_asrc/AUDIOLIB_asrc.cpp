@@ -347,8 +347,8 @@ AUDIOLIB_STATUS AUDIOLIB_asrc_init(AUDIOLIB_kernelHandle   handle,
 #ifdef C7X
    DSPLIB_STATUS dsplib_status = DSPLIB_SUCCESS;
 #endif
-   AUDIOLIB_asrc_PrivArgs *pKerPrivArgs = (AUDIOLIB_asrc_PrivArgs *) handle;
-   float                   sampleRateRatio;
+   AUDIOLIB_asrc_PrivArgs *pKerPrivArgs    = (AUDIOLIB_asrc_PrivArgs *) handle;
+   float                   sampleRateRatio = 0.0;
 #if AUDIOLIB_DEBUGPRINT
    printf("AUDIOLIB_DEBUGPRINT Enter AUDIOLIB_asrc_init\n");
 #endif
@@ -361,52 +361,105 @@ AUDIOLIB_STATUS AUDIOLIB_asrc_init(AUDIOLIB_kernelHandle   handle,
       pKerPrivArgs->fracOutputsRemaining = 0.0;
       pKerPrivArgs->remBufCount          = 0.0;
 
-      sampleRateRatio = (float) convertSampleRateToInt(pKerInitArgs->outputSampleRate) /
-                        (float) convertSampleRateToInt(pKerInitArgs->inputSampleRate);
-      pKerPrivArgs->maxOutputsPerInputRatio =
-          sampleRateRatio + ((float) AUDIOLIB_ASRC_MAX_MODULO_FACTOR - (float) pKerInitArgs->frameModuloFactor) /
-                                pKerInitArgs->maxSampleCountPerBlock;
-      pKerPrivArgs->outBufferDimX = bufParamsOut->dim_x;
-
-      if (pKerInitArgs->dataFormat == AUDIOLIB_DATA_FORMAT_INTERLEAVED) {
-         if (pKerInitArgs->maxSampleCountPerBlock >= AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS) {
-            pKerPrivArgs->inBufferTotalDimX =
-                pKerPrivArgs->initArgs.maxSampleCountPerBlock * AUDIOLIB_ASRC_DOUBLE_BUFFERING_FACTOR;
-         }
-         else {
-            pKerPrivArgs->inBufferTotalDimX =
-                AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS * AUDIOLIB_ASRC_DOUBLE_BUFFERING_FACTOR;
-         }
-
-         pKerPrivArgs->bufParamsFilterRembuf.data_type = AUDIOLIB_FLOAT32;
-         pKerPrivArgs->bufParamsFilterRembuf.dim_x     = (uint32_t) pKerPrivArgs->initArgs.numChannels;
-         pKerPrivArgs->bufParamsFilterRembuf.dim_y     = (uint32_t) (pKerInitArgs->frameModuloFactor - 1);
-         pKerPrivArgs->bufParamsFilterRembuf.stride_y =
-             (uint32_t) pKerPrivArgs->initArgs.numChannels * (uint32_t) ele_size;
+      uint32_t inputSampleRateInt = convertSampleRateToInt(pKerInitArgs->inputSampleRate);
+      if (inputSampleRateInt == 0) {
+         status = AUDIOLIB_ERR_INVALID_VALUE;
       }
       else {
-         if (pKerInitArgs->maxSampleCountPerBlock >= AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS) {
-            pKerPrivArgs->inBufferTotalDimX =
-                pKerPrivArgs->initArgs.maxSampleCountPerBlock * AUDIOLIB_ASRC_QUADRUPLE_BUFFERING_FACTOR;
+         sampleRateRatio = (float) convertSampleRateToInt(pKerInitArgs->outputSampleRate) / (float) inputSampleRateInt;
+         pKerPrivArgs->maxOutputsPerInputRatio =
+             sampleRateRatio + ((float) AUDIOLIB_ASRC_MAX_MODULO_FACTOR - (float) pKerInitArgs->frameModuloFactor) /
+                                   pKerInitArgs->maxSampleCountPerBlock;
+         pKerPrivArgs->outBufferDimX = bufParamsOut->dim_x;
+
+         if (pKerInitArgs->dataFormat == AUDIOLIB_DATA_FORMAT_INTERLEAVED) {
+            if (pKerInitArgs->maxSampleCountPerBlock >= AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS) {
+               pKerPrivArgs->inBufferTotalDimX =
+                   pKerPrivArgs->initArgs.maxSampleCountPerBlock * AUDIOLIB_ASRC_DOUBLE_BUFFERING_FACTOR;
+            }
+            else {
+               pKerPrivArgs->inBufferTotalDimX =
+                   AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS * AUDIOLIB_ASRC_DOUBLE_BUFFERING_FACTOR;
+            }
+
+            pKerPrivArgs->bufParamsFilterRembuf.data_type = AUDIOLIB_FLOAT32;
+            pKerPrivArgs->bufParamsFilterRembuf.dim_x     = (uint32_t) pKerPrivArgs->initArgs.numChannels;
+            pKerPrivArgs->bufParamsFilterRembuf.dim_y     = (uint32_t) (pKerInitArgs->frameModuloFactor - 1);
+            pKerPrivArgs->bufParamsFilterRembuf.stride_y =
+                (uint32_t) pKerPrivArgs->initArgs.numChannels * (uint32_t) ele_size;
          }
          else {
-            pKerPrivArgs->inBufferTotalDimX =
-                AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS * AUDIOLIB_ASRC_DOUBLE_BUFFERING_FACTOR;
+            if (pKerInitArgs->maxSampleCountPerBlock >= AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS) {
+               pKerPrivArgs->inBufferTotalDimX =
+                   pKerPrivArgs->initArgs.maxSampleCountPerBlock * AUDIOLIB_ASRC_QUADRUPLE_BUFFERING_FACTOR;
+            }
+            else {
+               pKerPrivArgs->inBufferTotalDimX =
+                   AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS * AUDIOLIB_ASRC_DOUBLE_BUFFERING_FACTOR;
+            }
+
+            pKerPrivArgs->bufParamsFilterRembuf.data_type = AUDIOLIB_FLOAT32;
+            pKerPrivArgs->bufParamsFilterRembuf.dim_x     = (uint32_t) (pKerInitArgs->frameModuloFactor - 1);
+            pKerPrivArgs->bufParamsFilterRembuf.dim_y     = (uint32_t) pKerPrivArgs->initArgs.numChannels;
+            pKerPrivArgs->bufParamsFilterRembuf.stride_y =
+                (uint32_t) (pKerInitArgs->frameModuloFactor - 1) * (uint32_t) ele_size;
          }
+         pKerPrivArgs->inBufferTotalStrideY = pKerPrivArgs->inBufferTotalDimX * ele_size;
+         pKerPrivArgs->cirBuffStartIndex =
+             (int32_t) pKerPrivArgs->inBufferTotalDimX - (int32_t) (AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS - 1);
 
-         pKerPrivArgs->bufParamsFilterRembuf.data_type = AUDIOLIB_FLOAT32;
-         pKerPrivArgs->bufParamsFilterRembuf.dim_x     = (uint32_t) (pKerInitArgs->frameModuloFactor - 1);
-         pKerPrivArgs->bufParamsFilterRembuf.dim_y     = (uint32_t) pKerPrivArgs->initArgs.numChannels;
-         pKerPrivArgs->bufParamsFilterRembuf.stride_y =
-             (uint32_t) (pKerInitArgs->frameModuloFactor - 1) * (uint32_t) ele_size;
-      }
-      pKerPrivArgs->inBufferTotalStrideY = pKerPrivArgs->inBufferTotalDimX * ele_size;
-      pKerPrivArgs->cirBuffStartIndex =
-          (int32_t) pKerPrivArgs->inBufferTotalDimX - (int32_t) (AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS - 1);
+         if (pKerInitArgs->funcStyle == AUDIOLIB_FUNCTION_NATC) {
+            status = AUDIOLIB_asrc_init_cn(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
+            if (status == AUDIOLIB_SUCCESS) {
+               if (pKerInitArgs->dataFormat == AUDIOLIB_DATA_FORMAT_INTERLEAVED) {
+#ifdef C7X
+                  // Create DSPLIB_bufParams2D_t structures
+                  DSPLIB_bufParams2D_t dsplibBufParamsIn;
+                  DSPLIB_bufParams2D_t dsplibNonInterleavedData;
 
-      if (pKerInitArgs->funcStyle == AUDIOLIB_FUNCTION_NATC) {
-         status = AUDIOLIB_asrc_init_cn(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
-         if (status == AUDIOLIB_SUCCESS) {
+                  // Copy values from AUDIOLIB to DSPLIB structure
+                  dsplibBufParamsIn.data_type = DSPLIB_FLOAT32;
+                  dsplibBufParamsIn.dim_x     = bufParamsIn->dim_x;
+                  dsplibBufParamsIn.dim_y     = bufParamsIn->dim_y;
+                  dsplibBufParamsIn.stride_y  = bufParamsIn->stride_y;
+
+                  dsplibNonInterleavedData.data_type = DSPLIB_FLOAT32;
+                  dsplibNonInterleavedData.dim_x     = pKerPrivArgs->initArgs.maxSampleCountPerBlock;
+                  dsplibNonInterleavedData.dim_y     = (uint32_t) pKerPrivArgs->initArgs.numChannels;
+                  dsplibNonInterleavedData.stride_y  = pKerPrivArgs->inBufferTotalStrideY;
+
+                  pKerPrivArgs->matTransKerInitArgs.funcStyle = DSPLIB_FUNCTION_NATC;
+
+                  dsplib_status =
+                      DSPLIB_matTrans_init_checkParams(pKerPrivArgs->initArgs.matTransHandle, &dsplibBufParamsIn,
+                                                       &dsplibNonInterleavedData, &pKerPrivArgs->matTransKerInitArgs);
+
+                  // Map DSPLIB_STATUS to AUDIOLIB_STATUS
+                  if (dsplib_status == DSPLIB_SUCCESS) {
+                     dsplib_status =
+                         DSPLIB_matTrans_init(pKerPrivArgs->initArgs.matTransHandle, &dsplibBufParamsIn,
+                                              &dsplibNonInterleavedData, &pKerPrivArgs->matTransKerInitArgs);
+                     pKerPrivArgs->execute = AUDIOLIB_asrc_exec_cn_interleaved<float>;
+                  }
+                  else {
+                     status = AUDIOLIB_ERR_FAILURE; // Default to generic failure
+                  }
+#endif
+#ifdef ARM_A53
+                  pKerPrivArgs->widthInNonInterleavedData   = bufParamsIn->dim_x;
+                  pKerPrivArgs->heightInNonInterleavedData  = bufParamsIn->dim_y;
+                  pKerPrivArgs->strideInNonInterleavedData  = bufParamsIn->stride_y;
+                  pKerPrivArgs->strideOutNonInterleavedData = pKerPrivArgs->inBufferTotalStrideY;
+
+                  pKerPrivArgs->execute = AUDIOLIB_asrc_exec_cn_interleaved<float>;
+#endif
+               }
+               else {
+                  pKerPrivArgs->execute = AUDIOLIB_asrc_exec_cn_non_interleaved<float>;
+               }
+            }
+         }
+         else {
             if (pKerInitArgs->dataFormat == AUDIOLIB_DATA_FORMAT_INTERLEAVED) {
 #ifdef C7X
                // Create DSPLIB_bufParams2D_t structures
@@ -424,17 +477,17 @@ AUDIOLIB_STATUS AUDIOLIB_asrc_init(AUDIOLIB_kernelHandle   handle,
                dsplibNonInterleavedData.dim_y     = (uint32_t) pKerPrivArgs->initArgs.numChannels;
                dsplibNonInterleavedData.stride_y  = pKerPrivArgs->inBufferTotalStrideY;
 
-               pKerPrivArgs->matTransKerInitArgs.funcStyle = DSPLIB_FUNCTION_NATC;
+               pKerPrivArgs->matTransKerInitArgs.funcStyle = DSPLIB_FUNCTION_OPTIMIZED;
 
                dsplib_status =
                    DSPLIB_matTrans_init_checkParams(pKerPrivArgs->initArgs.matTransHandle, &dsplibBufParamsIn,
                                                     &dsplibNonInterleavedData, &pKerPrivArgs->matTransKerInitArgs);
-
                // Map DSPLIB_STATUS to AUDIOLIB_STATUS
                if (dsplib_status == DSPLIB_SUCCESS) {
                   dsplib_status = DSPLIB_matTrans_init(pKerPrivArgs->initArgs.matTransHandle, &dsplibBufParamsIn,
                                                        &dsplibNonInterleavedData, &pKerPrivArgs->matTransKerInitArgs);
-                  pKerPrivArgs->execute = AUDIOLIB_asrc_exec_cn_interleaved<float>;
+                  status = AUDIOLIB_asrc_init_ci_interleaved<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
+                  pKerPrivArgs->execute = AUDIOLIB_asrc_exec_ci_interleaved<float>;
                }
                else {
                   status = AUDIOLIB_ERR_FAILURE; // Default to generic failure
@@ -445,66 +498,19 @@ AUDIOLIB_STATUS AUDIOLIB_asrc_init(AUDIOLIB_kernelHandle   handle,
                pKerPrivArgs->heightInNonInterleavedData  = bufParamsIn->dim_y;
                pKerPrivArgs->strideInNonInterleavedData  = bufParamsIn->stride_y;
                pKerPrivArgs->strideOutNonInterleavedData = pKerPrivArgs->inBufferTotalStrideY;
+               pKerPrivArgs->history_length              = AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS - 1;
 
-               pKerPrivArgs->execute = AUDIOLIB_asrc_exec_cn_interleaved<float>;
-#endif
-            }
-            else {
-               pKerPrivArgs->execute = AUDIOLIB_asrc_exec_cn_non_interleaved<float>;
-            }
-         }
-      }
-      else {
-         if (pKerInitArgs->dataFormat == AUDIOLIB_DATA_FORMAT_INTERLEAVED) {
-#ifdef C7X
-            // Create DSPLIB_bufParams2D_t structures
-            DSPLIB_bufParams2D_t dsplibBufParamsIn;
-            DSPLIB_bufParams2D_t dsplibNonInterleavedData;
-
-            // Copy values from AUDIOLIB to DSPLIB structure
-            dsplibBufParamsIn.data_type = DSPLIB_FLOAT32;
-            dsplibBufParamsIn.dim_x     = bufParamsIn->dim_x;
-            dsplibBufParamsIn.dim_y     = bufParamsIn->dim_y;
-            dsplibBufParamsIn.stride_y  = bufParamsIn->stride_y;
-
-            dsplibNonInterleavedData.data_type = DSPLIB_FLOAT32;
-            dsplibNonInterleavedData.dim_x     = pKerPrivArgs->initArgs.maxSampleCountPerBlock;
-            dsplibNonInterleavedData.dim_y     = (uint32_t) pKerPrivArgs->initArgs.numChannels;
-            dsplibNonInterleavedData.stride_y  = pKerPrivArgs->inBufferTotalStrideY;
-
-            pKerPrivArgs->matTransKerInitArgs.funcStyle = DSPLIB_FUNCTION_OPTIMIZED;
-
-            dsplib_status =
-                DSPLIB_matTrans_init_checkParams(pKerPrivArgs->initArgs.matTransHandle, &dsplibBufParamsIn,
-                                                 &dsplibNonInterleavedData, &pKerPrivArgs->matTransKerInitArgs);
-            // Map DSPLIB_STATUS to AUDIOLIB_STATUS
-            if (dsplib_status == DSPLIB_SUCCESS) {
-               dsplib_status = DSPLIB_matTrans_init(pKerPrivArgs->initArgs.matTransHandle, &dsplibBufParamsIn,
-                                                    &dsplibNonInterleavedData, &pKerPrivArgs->matTransKerInitArgs);
                status = AUDIOLIB_asrc_init_ci_interleaved<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
                pKerPrivArgs->execute = AUDIOLIB_asrc_exec_ci_interleaved<float>;
+#endif
             }
             else {
-               status = AUDIOLIB_ERR_FAILURE; // Default to generic failure
+#ifdef ARM_A53
+               pKerPrivArgs->history_length = AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS - 1;
+#endif
+               status = AUDIOLIB_asrc_init_ci_non_interleaved<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
+               pKerPrivArgs->execute = AUDIOLIB_asrc_exec_ci_non_interleaved<float>;
             }
-#endif
-#ifdef ARM_A53
-            pKerPrivArgs->widthInNonInterleavedData   = bufParamsIn->dim_x;
-            pKerPrivArgs->heightInNonInterleavedData  = bufParamsIn->dim_y;
-            pKerPrivArgs->strideInNonInterleavedData  = bufParamsIn->stride_y;
-            pKerPrivArgs->strideOutNonInterleavedData = pKerPrivArgs->inBufferTotalStrideY;
-            pKerPrivArgs->history_length              = AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS - 1;
-
-            status = AUDIOLIB_asrc_init_ci_interleaved<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
-            pKerPrivArgs->execute = AUDIOLIB_asrc_exec_ci_interleaved<float>;
-#endif
-         }
-         else {
-#ifdef ARM_A53
-            pKerPrivArgs->history_length = AUDIOLIB_ASRC_NUMBER_OF_SUB_FILTER_TAPS - 1;
-#endif
-            status = AUDIOLIB_asrc_init_ci_non_interleaved<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
-            pKerPrivArgs->execute = AUDIOLIB_asrc_exec_ci_non_interleaved<float>;
          }
       }
    }

@@ -36,7 +36,7 @@ void AUDIOLIB_delay_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, 
    if (dataType == AUDIOLIB_FLOAT32) {
       vecLen = 8;
    }
-   else if (dataType == AUDIOLIB_FLOAT64) {
+   else {
       vecLen = 4;
    }
 

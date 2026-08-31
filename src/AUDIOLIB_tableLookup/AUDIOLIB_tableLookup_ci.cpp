@@ -25,9 +25,15 @@ void AUDIOLIB_tableLookup_perfEst(AUDIOLIB_kernelHandle                handle,
    if (data_type == AUDIOLIB_FLOAT32) {
       eleCount = 16;
    }
+   else {
+      eleCount = 8;
+   }
 #else
    if (data_type == AUDIOLIB_FLOAT32) {
       eleCount = 8;
+   }
+   else {
+      eleCount = 4;
    }
 
 #endif
