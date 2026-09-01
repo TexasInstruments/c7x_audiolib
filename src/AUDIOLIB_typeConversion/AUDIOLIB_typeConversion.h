@@ -50,7 +50,7 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
    int8_t  funcStyle;
-   uint8_t testQ31;
+   uint8_t testQ31; /**< Test flag: 1 to enable Q31 fixed-point test mode, 0 for normal operation. */
 
 } AUDIOLIB_typeConversion_InitArgs;
 
@@ -185,9 +185,6 @@ AUDIOLIB_typeConversion_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, v
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
  *  @param [in]  inDataType     :  Input data type
  *  @param [in]  outDataType    :  Output data type
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
  *
  *  @remarks     None
  */

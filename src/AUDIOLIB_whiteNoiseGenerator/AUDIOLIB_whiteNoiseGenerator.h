@@ -19,7 +19,7 @@ extern "C" {
  * This kernel generates a frame of pseudo-random white noise using a 32-bit
  * **Linear Congruential Generator (LCG)**. The LCG generates the next integer
  * state \f$X_{n+1}\f$ from the current state \f$X_n\f$ using the formula:
- * $$ X_{n+1} = (a \cdot X_n + c) \pmod{m} $$
+ * \f[ X_{n+1} = (a \cdot X_n + c) \pmod{m} \f]
  *
  * The kernel uses the following standard constants:
  * - \f$ a = 1664525 \f$ (multiplier)
@@ -28,10 +28,10 @@ extern "C" {
  *
  * Each 32-bit integer \f$X_n\f$ is normalized to a floating-point value in
  * the range `[0.0, 1.0)`:
- * $$ \text{normalized} = \frac{X_n}{2^{32}} $$
+ * \f[ \text{normalized} = \frac{X_n}{2^{32}} \f]
  *
  * This value is then scaled to the desired output range `[-range, +range]`:
- * $$ y[n] = (\text{normalized} \cdot 2 \cdot \text{range}) - \text{range} $$
+ * \f[ y[n] = (\text{normalized} \cdot 2 \cdot \text{range}) - \text{range} \f]
  *
  * ### State Continuity
  * The kernel is stateful and maintains the LCG state across calls. When `exec`

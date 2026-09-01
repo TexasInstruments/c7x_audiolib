@@ -142,7 +142,7 @@ AUDIOLIB_gain_init_checkParams(AUDIOLIB_kernelHandle         handle,
  *  @param [in]  handle    :  Active handle to the kernel
  *  @param [in]  pIn       :  Pointer to the structure input buffer
  *  @param [in]  pGain     :  Pointer to the structure input gain
- *  @param [out] pout      :  Pointer to the output buffer
+ *  @param [out] pOut      :  Pointer to the output buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
@@ -198,11 +198,9 @@ AUDIOLIB_gain_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restr
  *                estimate cycles of the loop used in the execution kernel.
  *
  *  @param [in]  handle         :  Active handle to the kernel
- *  @param [in]  dataType       :  Datatype of purticular test case
  *  @param [in]  archCycles     :  Arch cycles used in that purticluar kernel
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
  *
- *  @return      Void.
  *
  *  @remarks     None
  */

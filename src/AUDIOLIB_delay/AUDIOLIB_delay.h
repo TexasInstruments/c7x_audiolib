@@ -39,8 +39,7 @@ typedef struct {
     *  mode = 0 for Linear Delay
     *  mode = 1 for Circular Delay                                */
    uint32_t mode;
-   /*! @brief Delay in number of Samples. */
-   uint32_t delaySize; 
+   uint32_t delaySize; /**< Delay buffer size in samples per channel. */
 } AUDIOLIB_delay_InitArgs;
 
 /**
@@ -124,7 +123,7 @@ AUDIOLIB_delay_init_checkParams(AUDIOLIB_kernelHandle          handle,
  *  @param [in]  handle      :  Active handle to the kernel
  *  @param [in]  pIn         :  Pointer to the structure input buffer
  *  @param [in]  pDelay      :  Pointer to the structure input delay buffer
- *  @param [out] pout        :  Pointer to the output buffer
+ *  @param [out] pOut        :  Pointer to the output buffer
  *  @param [in]  pScratch    :  Pointer to the scratch buffer to store
  *                              intermediate output in de-interleave format
  *
@@ -190,13 +189,10 @@ AUDIOLIB_delay_exec(AUDIOLIB_kernelHandle handle,
  *                estimate cycles of the loop used in the execution kernel.
  *
  *  @param [in]  handle        :  Active handle to the kernel
- *  @param [in]  dataType      :  Datatype of purticular test case
  *  @param [in]  archCycles    :  Arch compute cycles obtained from asm
  *  @param [in]  estCycles     :  Cycles estimated for that particular kernel
- *  @param [in]  dataType      :  Cycles estimated for that particular kernel
+ *  @param [in]  dataType      :  Datatype of particular test case
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * DSPLIB_STATUS.
  *
  *  @remarks     None
  */

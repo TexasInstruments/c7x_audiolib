@@ -304,11 +304,9 @@ AUDIOLIB_dB20_init_checkParams(AUDIOLIB_kernelHandle         handle,
  *                estimate cycles of the loop used in the execution kernel.
  *
  *  @param [in]  handle         :  Active handle to the kernel
- *  @param [in]  dataType       :  Datatype of purticular test case
  *  @param [in]  archCycles     :  Arch cycles used in that purticluar kernel
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
  *
- *  @return      Void.
  *
  *  @remarks     None
  */
@@ -325,7 +323,7 @@ void AUDIOLIB_dB20_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, u
  *
  *  @param [in]  handle       :  Active handle to the kernel
  *  @param [in]  pIn  :  Pointer to the structure input buffer
- *  @param [out] pout :  Pointer to the output buffer
+ *  @param [out] pOut :  Pointer to the output buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
@@ -362,6 +360,8 @@ AUDIOLIB_dB20_exec_checkParams(AUDIOLIB_kernelHandle handle, const void *restric
 
 AUDIOLIB_STATUS
 AUDIOLIB_dB20_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+/**@}*/
 
 #ifdef __cplusplus
 }

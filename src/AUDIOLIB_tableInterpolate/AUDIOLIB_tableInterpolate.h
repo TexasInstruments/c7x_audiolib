@@ -29,21 +29,16 @@ extern "C" {
  * \textbf{Given:} \quad
  * & \mathbf{x} = [x_0, x_1, \dots, x_{N-1}] && \text{(source samples, float only)} \\
  * & \mathbf{T} = [T_0, T_1, \dots, T_{M-1}] && \text{(lookup table with allocation } M = \text{tableSamples}+1) \\[6pt]
- * %
  * \textbf{Parameters:} \quad
  * & \text{minVal} = \min(\mathbf{x}), \quad
  *   \text{maxVal} = \max(\mathbf{x}), \quad
  *   \text{tableSamples} = M \\[8pt]
- * %
  * \textbf{Divisor:} \quad
  * & \text{divisor} = \frac{M - 1}{\text{maxVal} - \text{minVal}} \\[8pt]
- * %
  * \textbf{Normalized index:} \quad
  * & s_n = (x_n - \text{minVal}) \cdot \text{divisor} \\[8pt]
- * %
  * \textbf{Index decomposition:} \quad
  * & i_n = \lfloor s_n \rfloor, \quad f_n = s_n - i_n \\[8pt]
- * %
  * \textbf{Piecewise-linear interpolation:} \quad
  * y_n =
  * \begin{cases}
@@ -125,9 +120,9 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
    int8_t   funcStyle;
-   float    minVal;
-   float    maxVal;
-   uint32_t tableInterpolateSize;
+   float    minVal;               /**< Minimum input value corresponding to the first table entry. */
+   float    maxVal;               /**< Maximum input value corresponding to the last table entry. */
+   uint32_t tableInterpolateSize; /**< Number of entries in the interpolation table. */
 
 } AUDIOLIB_tableInterpolate_InitArgs;
 
@@ -224,6 +219,10 @@ AUDIOLIB_STATUS AUDIOLIB_tableInterpolate_exec_checkParams(AUDIOLIB_kernelHandle
                                                            const void *restrict pIn1,
                                                            const void *restrict pOut);
 
+/** @brief Set the interpolation table pointer for the C-intrinsic variant.
+ *  @param [in] handle Active handle to the kernel.
+ *  @param [in] pIn1   Pointer to the interpolation table buffer.
+ */
 void AUDIOLIB_tableInterpolate_set_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn1);
 
 /**

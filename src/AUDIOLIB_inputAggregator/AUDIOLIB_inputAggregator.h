@@ -226,12 +226,9 @@ AUDIOLIB_inputAggregator_exec(AUDIOLIB_kernelHandle handle, void **restrict pIn,
  *                estimate cycles of the loop used in the execution kernel.
  *
  *  @param [in]  handle         :  Active handle to the kernel
- *  @param [in]  dataType       :  Datatype of purticular test case
  *  @param [in]  archCycles     :  Arch compute cycles obtained from asm
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
  *
  *  @remarks     None
  */

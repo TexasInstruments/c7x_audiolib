@@ -27,38 +27,38 @@ extern "C" {
  * @brief Table of supported statistics
  *
  * @details
- * Let $$x_i$$ represent the i-th sample in a block of size $$N$$. The mean, $$ \mu $$, is used in the variance and
+ * Let \f$x_i\f$ represent the i-th sample in a block of size \f$N\f$. The mean, \f$\mu\f$, is used in the variance and
  * standard deviation calculations.
  *
  * - **Maximum** (`AUDIOLIB_STAT_BLOCK_MAX`)
- * $$ \max(x_1, x_2, ..., x_N) $$
+ * \f[ \max(x_1, x_2, ..., x_N) \f]
  *
  * - **Minimum** (`AUDIOLIB_STAT_BLOCK_MIN`)
- * $$ \min(x_1, x_2, ..., x_N) $$
+ * \f[ \min(x_1, x_2, ..., x_N) \f]
  *
  * - **Maximum Absolute** (`AUDIOLIB_STAT_BLOCK_MAX_ABS`)
- * $$ \max(|x_1|, |x_2|, ..., |x_N|) $$
+ * \f[ \max(|x_1|, |x_2|, ..., |x_N|) \f]
  *
  * - **Mean** (`AUDIOLIB_STAT_BLOCK_MEAN`)
- * $$ \mu = \frac{1}{N} \sum_{i=1}^{N} x_i $$
+ * \f[ \mu = \frac{1}{N} \sum_{i=1}^{N} x_i \f]
  *
  * - **Root Mean Square (RMS)** (`AUDIOLIB_STAT_BLOCK_RMS`)
- * $$ \sqrt{\frac{1}{N} \sum_{i=1}^{N} x_i^2} $$
+ * \f[ \sqrt{\frac{1}{N} \sum_{i=1}^{N} x_i^2} \f]
  *
  * - **Standard Deviation** (`AUDIOLIB_STAT_BLOCK_STDDEV`)
- * $$ \sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2} $$
+ * \f[ \sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2} \f]
  *
  * - **Variance** (`AUDIOLIB_STAT_BLOCK_VARIANCE`)
- * $$ \sigma^2 = \frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2 $$
+ * \f[ \sigma^2 = \frac{1}{N} \sum_{i=1}^{N} (x_i - \mu)^2 \f]
  *
  * - **Average Energy** (`AUDIOLIB_STAT_BLOCK_AVG_ENERGY`)
- * $$ \frac{1}{N} \sum_{i=1}^{N} x_i^2 $$
+ * \f[ \frac{1}{N} \sum_{i=1}^{N} x_i^2 \f]
  *
  * - **Sum** (`AUDIOLIB_STAT_BLOCK_SUM`)
- * $$ \sum_{i=1}^{N} x_i $$
+ * \f[ \sum_{i=1}^{N} x_i \f]
  *
  * - **Sum of Squares** (`AUDIOLIB_STAT_BLOCK_SUM_SQUARES`)
- * $$ \sum_{i=1}^{N} x_i^2 $$
+ * \f[ \sum_{i=1}^{N} x_i^2 \f]
  *
  */
 /**
@@ -94,8 +94,7 @@ typedef struct {
    uint8_t statisticsType; /**< Selects the statistic to compute for each subblock:
                                  0=max, 1=min, 2=max_abs, 3=mean, 4=rms, 5=std,6=variance, 7=avg_energy, 8=sum,
                               9=sum_squares. */
-                           /*< Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
-   int8_t funcStyle;
+   int8_t funcStyle; /**< Variant of the function. Refer to @ref AUDIOLIB_FUNCTION_STYLE. */
 } AUDIOLIB_blockStatistics_SetArgs;
 
 /**
@@ -223,8 +222,6 @@ AUDIOLIB_STATUS AUDIOLIB_blockStatistics_exec_checkParams(AUDIOLIB_kernelHandle 
  *  @param [in]  handle         :  Active handle to the kernel
  *  @param [in]  archCycles     :  Arch cycles used in that particular kernel
  *  @param [in]  estCycles      :  Cycles estimated for that particular kernel
- *
- *  @return      Void.
  *
  *  @remarks     None
  */

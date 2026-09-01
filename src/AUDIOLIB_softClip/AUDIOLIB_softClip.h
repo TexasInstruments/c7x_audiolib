@@ -24,14 +24,14 @@ extern "C" {
  * `y` be the output sample, `T` be the `threshold`, and `E` be the `endKnee`.
  *
  * The output `y` is calculated as:
- * $$
+ * \f[
  * y(x) =
  * \begin{cases}
  * x & \text{if } |x| < T ;\\
  * \\
  * \text{sgn} \left( (E - T) \frac{|x| - T}{|x| - 2T + E} + T \right) & \text{if } |x| \ge T
  * \end{cases}
- * $$
+ * \f]
  *
  * ### Parameter Behavior
  *
@@ -43,26 +43,27 @@ extern "C" {
  * ---
  * ### Implementation Details
  *
- * For input signals where $$|x| \ge T$$, the calculation is performed in two steps to match the source code
+ * For input signals where \f$|x| \ge T\f$, the calculation is performed in two steps to match the source code
  * implementation:
  *
- * 1.  First, an intermediate positive output value, let's call it $$y_{mag}$$, is calculated based on the absolute
- * value of the input, $$|x|$$. This corresponds to the `out` variable in the C code.
- * $$ y_{mag} = (E - T) \left( \frac{|x| - T}{|x| - 2T + E} \right) + T $$
+ * 1.  First, an intermediate positive output value, let's call it \f$y_{mag}\f$, is calculated based on the absolute
+ * value of the input, \f$|x|\f$. This corresponds to the `out` variable in the C code.
+ * \f[ y_{mag} = (E - T) \left( \frac{|x| - T}{|x| - 2T + E} \right) + T \f]
  *
  * 2.  Then, the original sign of the input is reapplied to this intermediate value to get the final output, which
  * directly mirrors the `if/else` logic in the code:
- * $$
+ * \f[
  * y =
  * \begin{cases}
  * -y_{mag} & \text{if } x < 0 \\
  * \\
  * y_{mag} & \text{if } x \ge 0
  * \end{cases}
- * $$
+ * \f]
  *
  * @ingroup  AUDIOLIB
  */
+/**@{*/
 /**
  * @brief Structure containing the parameters to initialize the kernel
  */
@@ -246,11 +247,11 @@ AUDIOLIB_softClip_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *r
  *  @param [in]  archCycles     :  Arch cycles used in that purticluar kernel
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
  *
- *  @return      Void.
- *
  *  @remarks     None
  */
 void AUDIOLIB_softClip_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, uint64_t *estCycles);
+
+/** @} */
 
 #ifdef __cplusplus
 }

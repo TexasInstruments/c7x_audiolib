@@ -34,46 +34,46 @@ extern "C" {
  * Both balance and fader controls use a constant-power panning law.
  *
  * - **Balance Components** (Left/Right):
- * $$ \theta_b = \frac{\pi}{4}(b+1) $$
- * $$ G_L = \cos(\theta_b) \quad | \quad G_R = \sin(\theta_b) $$
+ * \f[ \theta_b = \frac{\pi}{4}(b+1) \f]
+ * \f[ G_L = \cos(\theta_b) \quad | \quad G_R = \sin(\theta_b) \f]
  *
  * - **Fader Components** (Front/Rear):
- * $$ \theta_f = \frac{\pi}{4}(f+1) $$
- * $$ G_{front} = \sin(\theta_f) \quad | \quad G_{rear} = \cos(\theta_f) $$
+ * \f[ \theta_f = \frac{\pi}{4}(f+1) \f]
+ * \f[ G_{front} = \sin(\theta_f) \quad | \quad G_{rear} = \cos(\theta_f) \f]
  *
  * #### 2. Derived Gain Components
  * Gains for specific speaker locations are derived from the fundamental components.
  *
  * - **Side Speaker Gain** controlled by `sideGainFactor`:
- * - If fading to rear (f < 0): $$ G_{side} = g_{side} \cdot G_{rear} + (1 - g_{side}) \cdot G_{front} $$
- * - If fading to front (f >= 0): $$ G_{side} = G_{rear} $$
+ * - If fading to rear (f < 0): \f[ G_{side} = g_{side} \cdot G_{rear} + (1 - g_{side}) \cdot G_{front} \f]
+ * - If fading to front (f >= 0): \f[ G_{side} = G_{rear} \f]
  *
  * - **Top Middle Speaker Gain**:
- * $$ G_{top\_middle} = 0.5 \cdot (G_{front} + G_{rear}) $$
+ * \f[ G_{top\_middle} = 0.5 \cdot (G_{front} + G_{rear}) \f]
  *
  * #### 3. Per-Channel Final Gain
  * The final gain for a standard channel is the product of its balance and fader components.
  * For example:
- * - **Front Left Gain:** $$ \text{Gain}_{FL} = G_L \cdot G_{front} $$
- * - **Rear Right Gain:** $$ \text{Gain}_{RR} = G_R \cdot G_{rear} $$
- * - **Side Left Gain:** $$ \text{Gain}_{SL} = G_L \cdot G_{side} $$
+ * - **Front Left Gain:** \f[ \text{Gain}_{FL} = G_L \cdot G_{front} \f]
+ * - **Rear Right Gain:** \f[ \text{Gain}_{RR} = G_R \cdot G_{rear} \f]
+ * - **Side Left Gain:** \f[ \text{Gain}_{SL} = G_L \cdot G_{side} \f]
  *
  * #### 4. LFE (Subwoofer) Channel Gain
- * The LFE gain is calculated as: $$ \text{G}_{LFE} = G_{LFE,b} \cdot G_{LFE,f} $$ which are determined by the
+ * The LFE gain is calculated as: \f$\text{G}_{LFE} = G_{LFE,b} \cdot G_{LFE,f}\f$ which are determined by the
  * `lfeBalanceMode` and `lfeFaderMode` enums.
  *
  * - **LFE Balance Component:**
- * - `UNAFFECTED`: $$ G_{LFE,b} = 1.0 $$
- * - `PARTIAL`: $$ G_{LFE,b} = g_{b,lfe} + (1 - g_{b,lfe}) \cdot \cos(2\theta_b) $$
- * - `FULL`: $$ G_{LFE,b} = 0.5 \cdot (G_L + G_R) $$
+ * - `UNAFFECTED`: \f[ G_{LFE,b} = 1.0 \f]
+ * - `PARTIAL`: \f[ G_{LFE,b} = g_{b,lfe} + (1 - g_{b,lfe}) \cdot \cos(2\theta_b) \f]
+ * - `FULL`: \f[ G_{LFE,b} = 0.5 \cdot (G_L + G_R) \f]
  *
  * - **LFE Fader Component:**
- * - `UNAFFECTED`: $$ G_{LFE,f} = 1.0 $$
- * - `AVERAGE`: $$ G_{LFE,f} = 0.5 \cdot (G_{front} + G_{rear}) $$
- * - `POSITION_BASED`: $$ G_{LFE,f} = (1 - g_{f,lfe}) \cdot G_{front} + g_{f,lfe} \cdot G_{rear} $$
- * - `FULL`: $$ G_{LFE,f} = G_{rear} $$
+ * - `UNAFFECTED`: \f[ G_{LFE,f} = 1.0 \f]
+ * - `AVERAGE`: \f[ G_{LFE,f} = 0.5 \cdot (G_{front} + G_{rear}) \f]
+ * - `POSITION_BASED`: \f[ G_{LFE,f} = (1 - g_{f,lfe}) \cdot G_{front} + g_{f,lfe} \cdot G_{rear} \f]
+ * - `FULL`: \f[ G_{LFE,f} = G_{rear} \f]
  *
- * The final LFE gain is: $$ G_{LFE} = G_{LFE,b} \cdot G_{LFE,f} $$
+ * The final LFE gain is: \f[ G_{LFE} = G_{LFE,b} \cdot G_{LFE,f} \f]
  *
  * @ingroup  AUDIOLIB
  */
@@ -225,6 +225,8 @@ AUDIOLIB_STATUS AUDIOLIB_balanceFader_get(AUDIOLIB_kernelHandle handle, AUDIOLIB
  *  @param [in]  pIn        : Pointer to buffer holding the  input buffer
  *  @param [in]  pGain      : Pointer to buffer holding the Gain buffer
  *  @param [in]  pOut       : Pointer to buffer holding the  output buffer
+ *
+ *  @return      Status value indicating success or failure. Refer to @ref AUDIOLIB_STATUS.
  * */
 
 AUDIOLIB_STATUS AUDIOLIB_balanceFader_exec_checkParams(AUDIOLIB_kernelHandle handle,
@@ -270,9 +272,6 @@ AUDIOLIB_balanceFader_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, voi
  *  @param [in]  handle         :  Active handle to the kernel
  *  @param [in]  archCycles     :  Arch compute cycles obtained from asm
  *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
  *
  *  @remarks     None
  */

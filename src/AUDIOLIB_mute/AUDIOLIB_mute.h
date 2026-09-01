@@ -23,30 +23,30 @@ extern "C" {
  *
  * ### 1. Hard Mute (`fadeType = 2` or `fadeTime = 0`)
  * The gain changes instantly to its target value.
- * $$ G[n] = G_{\text{target}} $$
+ * \f[ G[n] = G_{\text{target}} \f]
  * where \f$G_{\text{target}}\f$ is either 0.0 or 1.0.
  *
  * ### 2. Linear Fade (`fadeType = 0`)
  * The gain changes linearly at a constant rate over the specified `fadeTime`.
  * The per-sample gain step, \f$G_{\text{step}}\f$, is calculated based on the
  * total number of samples in the fade duration:
- * $$ G_{\text{step}} = \frac{G_{\text{target}} - G_{\text{current}}}{ (T_{\text{fade}} / 1000) \cdot f_s } $$
+ * \f[ G_{\text{step}} = \frac{G_{\text{target}} - G_{\text{current}}}{ (T_{\text{fade}} / 1000) \cdot f_s } \f]
  * The gain at each sample, \f$G[n]\f$, is then updated as:
- * $$ G[n] = G[n-1] + G_{\text{step}} $$
+ * \f[ G[n] = G[n-1] + G_{\text{step}} \f]
  * where \f$T_{\text{fade}}\f$ is the fade time in milliseconds and \f$f_s\f$ is the sampling rate.
  *
  * ### 3. Smooth Fade (`fadeType = 1`)
  * The gain follows an exponential curve, which provides a more natural-sounding fade.
  * This is implemented using a first-order low-pass filter where the gain
  * smoothly approaches the target. The update equation is:
- * $$ G[n] = \alpha \cdot G[n-1] + (1 - \alpha) \cdot G_{\text{target}} $$
+ * \f[ G[n] = \alpha \cdot G[n-1] + (1 - \alpha) \cdot G_{\text{target}} \f]
  * The smoothing coefficient, \f$\alpha\f$, is derived from the `fadeTime` (acting as the
  * time constant \f$\tau\f$) and the sampling rate \f$f_s\f$:
- * $$ \alpha = e^{\frac{-1}{f_s \cdot (\text{T}_{\text{fade}} / 1000)}} $$
+ * \f[ \alpha = e^{\frac{-1}{f_s \cdot (\text{T}_{\text{fade}} / 1000)}} \f]
  *
  * The final output signal, \f$y[n]\f$, is computed by applying the current gain
  * \f$G[n]\f$ to the input signal, \f$x[n]\f$:
- * $$ y[n] = x[n] \cdot G[n] $$
+ * \f[ y[n] = x[n] \cdot G[n] \f]
  *
  * @ingroup  AUDIOLIB
  */
@@ -75,7 +75,7 @@ typedef struct {
    /** @brief The duration of the fade-in or fade-out ramp in milliseconds. A value of 0 results in a hard (instant)
     * mute. */
    float fadeTime;
-   /** @brief The type of fade curve to apply. See @ref FadeType for options. */
+   /** @brief The type of fade curve to apply. See @c fadeType for options. */
    uint32_t fadeType;
 } AUDIOLIB_mute_SetArgs;
 
@@ -185,7 +185,7 @@ void AUDIOLIB_mute_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, u
  *
  *  @param [in]  handle    :  Active handle to the kernel
  *  @param [in]  pIn       :  Pointer to the input buffer
- *  @param [out] pout      :  Pointer to the output buffer
+ *  @param [out] pOut      :  Pointer to the output buffer
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
