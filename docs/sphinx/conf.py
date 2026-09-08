@@ -212,6 +212,7 @@ _API_GROUP_ORDER = [
     ]),
     ("Routing & Mixing", [
         "AUDIOLIB_router",
+        "AUDIOLIB_panning",
         "AUDIOLIB_inputAggregator",
         "AUDIOLIB_concat",
         "AUDIOLIB_split",

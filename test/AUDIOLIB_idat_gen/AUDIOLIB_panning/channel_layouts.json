@@ -1,0 +1,80 @@
+{
+  "layouts": {
+    "stereo": {
+      "numChannels": 2,
+      "speakers": [
+        "FRONT_LEFT",
+        "FRONT_RIGHT"
+      ]
+    },
+
+    "3.0_standard": {
+      "numChannels": 3,
+      "speakers": [
+        "FRONT_LEFT_TREBBLE",
+        "FRONT_CENTER",
+        "FRONT_RIGHT_TREBBLE"
+      ]
+    },
+
+    "4.0_standard": {
+      "numChannels": 4,
+      "speakers": [
+        "FRONT_LEFT",
+        "FRONT_RIGHT",
+        "REAR_LEFT",
+        "REAR_RIGHT"
+      ]
+    },
+
+    "5.0_standard": {
+      "numChannels": 5,
+      "speakers": [
+        "FRONT_LEFT",
+        "FRONT_RIGHT",
+        "FRONT_CENTER",
+        "REAR_LEFT",
+        "REAR_RIGHT"
+      ]
+    },
+
+    "5.1_standard": {
+      "numChannels": 6,
+      "speakers": [
+        "FRONT_LEFT",
+        "FRONT_RIGHT",
+        "FRONT_CENTER",
+        "LOW_FREQUENCY_EFFECTS",
+        "REAR_LEFT",
+        "REAR_RIGHT"
+      ]
+    },
+
+    "7.0_standard": {
+      "numChannels": 7,
+      "speakers": [
+        "FRONT_LEFT",
+        "FRONT_RIGHT",
+        "FRONT_CENTER",
+        "SIDE_LEFT",
+        "SIDE_RIGHT",
+        "REAR_LEFT",
+        "REAR_RIGHT"
+      ]
+    },
+
+    "7.1_standard": {
+      "numChannels": 8,
+      "speakers": [
+        "FRONT_LEFT",
+        "FRONT_RIGHT",
+        "FRONT_CENTER",
+        "LOW_FREQUENCY_EFFECTS",
+        "SIDE_LEFT",
+        "SIDE_RIGHT",
+        "REAR_LEFT",
+        "REAR_RIGHT"
+      ]
+    }
+  }
+}
