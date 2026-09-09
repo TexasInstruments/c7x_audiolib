@@ -33,6 +33,7 @@
 #include "AUDIOLIB_muteNCh/AUDIOLIB_muteNCh.h"
 #include "AUDIOLIB_nlms/AUDIOLIB_nlms.h"
 #include "AUDIOLIB_rmsSmoothed/AUDIOLIB_rmsSmoothed.h"
+#include "AUDIOLIB_round/AUDIOLIB_round.h"
 #include "AUDIOLIB_router/AUDIOLIB_router.h"
 #include "AUDIOLIB_sinusoidGenerator/AUDIOLIB_sinusoidGenerator.h"
 #include "AUDIOLIB_softClip/AUDIOLIB_softClip.h"
