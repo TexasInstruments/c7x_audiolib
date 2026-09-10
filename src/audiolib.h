@@ -9,6 +9,7 @@
 #include "AUDIOLIB_balance/AUDIOLIB_balance.h"
 #include "AUDIOLIB_balanceFader/AUDIOLIB_balanceFader.h"
 #include "AUDIOLIB_blockStatistics/AUDIOLIB_blockStatistics.h"
+#include "AUDIOLIB_ceil/AUDIOLIB_ceil.h"
 #include "AUDIOLIB_concat/AUDIOLIB_concat.h"
 #include "AUDIOLIB_crossfade/AUDIOLIB_crossfade.h"
 #include "AUDIOLIB_dB10/AUDIOLIB_dB10.h"
