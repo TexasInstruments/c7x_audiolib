@@ -15,6 +15,7 @@
 #include "AUDIOLIB_dB20/AUDIOLIB_dB20.h"
 #include "AUDIOLIB_delay/AUDIOLIB_delay.h"
 #include "AUDIOLIB_delayNChannel/AUDIOLIB_delayNChannel.h"
+#include "AUDIOLIB_floor/AUDIOLIB_floor.h"
 #include "AUDIOLIB_gain/AUDIOLIB_gain.h"
 #include "AUDIOLIB_gainNCh/AUDIOLIB_gainNCh.h"
 #include "AUDIOLIB_gainNChTrim/AUDIOLIB_gainNChTrim.h"
