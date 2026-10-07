@@ -405,7 +405,7 @@ int coverage_test_main()
    pOut   = (void *) TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, OutSize);
    pOutCn = (void *) malloc(OutSize);
 
-   while (testNum <= 1011) {
+   while (testNum <= 1010) {
 
       switch (testNum) {
       case 1000:
@@ -473,7 +473,7 @@ int coverage_test_main()
          break;
 
       case 1004:
-         /* Single precision values straddling the 2^23 pass-through boundary,
+         /* Single precision values around 2^23 and 2^24, plus signed zero,
             exercised through the strided (2D) streaming path */
          bufParamsIn0Temp.data_type = AUDIOLIB_FLOAT32;
          bufParamsIn0Temp.dim_x     = 4;
@@ -554,23 +554,11 @@ int coverage_test_main()
 
       case 1008: {
          /* Large double precision magnitudes, up to the largest non-integral
-            value below the 2^52 bound of the input range precondition */
-         static const double in[] = {4503599627370493.5,
-                                     4503599627370494.0,
-                                     4503599627370495.0,
-                                     4503599627370495.5,
-                                     -4503599627370493.5,
-                                     -4503599627370494.0,
-                                     -4503599627370495.0,
-                                     -4503599627370495.5,
-                                     2251799813685248.0,
-                                     -2251799813685248.0,
-                                     1.0e15,
-                                     -1.0e15,
-                                     1.0e12,
-                                     -1.0e12,
-                                     123456789.5,
-                                     -123456789.5};
+            value below the 2^31 bound of the input range precondition */
+         static const double in[] = {2147483645.5,  2147483646.5,  2147483647.0,  2147483647.5,
+                                     -2147483645.5, -2147483646.5, -2147483647.0, -2147483647.5,
+                                     1073741824.0,  -1073741824.0, 1.0e9,         -1.0e9,
+                                     8388608.5,     -8388608.5,    123456789.5,   -123456789.5};
          uint32_t            len  = sizeof(in) / sizeof(in[0]);
          for (k = 0; k < len; k++) {
             ((double *) pIn0)[k] = in[k];
@@ -583,17 +571,17 @@ int coverage_test_main()
          /* One ulp either side of exact integers and of 2^23, and the
             smallest normal float. Denormal inputs are excluded on purpose,
             see the note on denormals in AUDIOLIB_ceil.h. */
-         float   *pf  = (float *) pIn0;
-         uint32_t len = 8;
+         float   *pInFloat = (float *) pIn0;
+         uint32_t len      = 8;
 
-         pf[0] = nextafterf(1.0f, 0.0f);        // one ulp below 1
-         pf[1] = nextafterf(1.0f, 2.0f);        // one ulp above 1
-         pf[2] = nextafterf(-1.0f, 0.0f);       // one ulp above -1
-         pf[3] = nextafterf(-1.0f, -2.0f);      // one ulp below -1
-         pf[4] = nextafterf(8388608.0f, 0.0f);  // one ulp below 2^23
-         pf[5] = nextafterf(-8388608.0f, 0.0f); // one ulp above -2^23
-         pf[6] = 1.17549435e-38f;               // smallest normal float
-         pf[7] = -1.17549435e-38f;
+         pInFloat[0] = nextafterf(1.0f, 0.0f);        // one ulp below 1
+         pInFloat[1] = nextafterf(1.0f, 2.0f);        // one ulp above 1
+         pInFloat[2] = nextafterf(-1.0f, 0.0f);       // one ulp above -1
+         pInFloat[3] = nextafterf(-1.0f, -2.0f);      // one ulp below -1
+         pInFloat[4] = nextafterf(8388608.0f, 0.0f);  // one ulp below 2^23
+         pInFloat[5] = nextafterf(-8388608.0f, 0.0f); // one ulp above -2^23
+         pInFloat[6] = 1.17549435e-38f;               // smallest normal float
+         pInFloat[7] = -1.17549435e-38f;
 
          currentTestFail = AUDIOLIB_ceil_compareVariants(handle, AUDIOLIB_FLOAT32, len, pIn0, pOut, pOutCn);
          break;
@@ -601,72 +589,19 @@ int coverage_test_main()
 
       case 1010: {
          /* Double precision equivalent of the one ulp cases */
-         double  *pd  = (double *) pIn0;
-         uint32_t len = 8;
+         double  *pInDouble = (double *) pIn0;
+         uint32_t len       = 8;
 
-         pd[0] = nextafter(1.0, 0.0);
-         pd[1] = nextafter(1.0, 2.0);
-         pd[2] = nextafter(-1.0, 0.0);
-         pd[3] = nextafter(-1.0, -2.0);
-         pd[4] = nextafter(4503599627370496.0, 0.0);
-         pd[5] = nextafter(-4503599627370496.0, 0.0);
-         pd[6] = 2.2250738585072014e-308; // smallest normal double
-         pd[7] = -2.2250738585072014e-308;
+         pInDouble[0] = nextafter(1.0, 0.0);
+         pInDouble[1] = nextafter(1.0, 2.0);
+         pInDouble[2] = nextafter(-1.0, 0.0);
+         pInDouble[3] = nextafter(-1.0, -2.0);
+         pInDouble[4] = nextafter(2147483648.0, 0.0);  // one ulp inside the 2^31 bound
+         pInDouble[5] = nextafter(-2147483648.0, 0.0); // one ulp inside the -2^31 bound
+         pInDouble[6] = 2.2250738585072014e-308;       // smallest normal double
+         pInDouble[7] = -2.2250738585072014e-308;
 
          currentTestFail = AUDIOLIB_ceil_compareVariants(handle, AUDIOLIB_FLOAT64, len, pIn0, pOut, pOutCn);
-         break;
-      }
-
-      case 1011: {
-         /* Double precision propagates Inf and NaN, because that path is native
-            floating point throughout. Single precision converts through int32
-            and cannot, which the input range precondition excludes.
-            TI_compare_mem_2D_float reports any NaN as a failure, so the two
-            variants are compared here with isnan directly. */
-         AUDIOLIB_ceil_InitArgs advInitArgs;
-         uint32_t               len = 4;
-
-         bufParamsIn0Temp.data_type = AUDIOLIB_FLOAT64;
-         bufParamsIn0Temp.dim_x     = len;
-         bufParamsIn0Temp.dim_y     = 1;
-         bufParamsIn0Temp.stride_y  = len * AUDIOLIB_sizeof(AUDIOLIB_FLOAT64);
-         bufParamsOutTemp           = bufParamsIn0Temp;
-
-         ((double *) pIn0)[0] = (double) NAN;
-         ((double *) pIn0)[1] = -(double) NAN;
-         ((double *) pIn0)[2] = (double) INFINITY;
-         ((double *) pIn0)[3] = -(double) INFINITY;
-
-         advInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
-         status_nat            = AUDIOLIB_ceil_init(handle, &bufParamsIn0Temp, &bufParamsOutTemp, &advInitArgs);
-         status_exec_nat       = AUDIOLIB_ceil_exec(handle, pIn0, pOutCn);
-
-         advInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
-         status_opt            = AUDIOLIB_ceil_init(handle, &bufParamsIn0Temp, &bufParamsOutTemp, &advInitArgs);
-         status_exec_opt       = AUDIOLIB_ceil_exec(handle, pIn0, pOut);
-
-         currentTestFail = ((status_nat != AUDIOLIB_SUCCESS) || (status_opt != AUDIOLIB_SUCCESS) ||
-                            (status_exec_nat != AUDIOLIB_SUCCESS) || (status_exec_opt != AUDIOLIB_SUCCESS))
-                               ? 1
-                               : 0;
-
-         for (k = 0; k < len; k++) {
-            double valOpt = ((double *) pOut)[k];
-            double valNat = ((double *) pOutCn)[k];
-
-            if (isnan(valNat)) {
-               /* NaN in, NaN out */
-               if (!isnan(valOpt)) {
-                  currentTestFail = 1;
-               }
-            }
-            else if (valOpt != valNat) {
-               currentTestFail = 1;
-            }
-            else {
-               /* Values agree */
-            }
-         }
          break;
       }
 

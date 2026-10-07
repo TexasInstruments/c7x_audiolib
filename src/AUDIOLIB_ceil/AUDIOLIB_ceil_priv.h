@@ -8,148 +8,71 @@
 #include "../common/AUDIOLIB_utility.h"
 #include "AUDIOLIB_ceil.h"
 
-/**
- * @brief Macro to define the size of bufPblock array of
- *        @ref AUDIOLIB_ceil_PrivArgs structure.
- *
- */
-
+/** @brief Size of bufPblock in @ref AUDIOLIB_ceil_PrivArgs: one SE and one SA template. */
 #define AUDIOLIB_CEIL_IXX_IXX_OXX_PBLOCK_SIZE (2 * SE_PARAM_SIZE)
 
 /**
- * @brief Rounding bias for double, equal to 2^52 where 52 is the number of
- *        mantissa bits. This is also the smallest double magnitude at or above
- *        which every representable value is already an integer, and therefore
- *        the upper bound, exclusive, on the magnitude of double precision
- *        input: at or above it the bias can shift the value into a coarser
- *        binade instead of leaving it alone. Inf and NaN are exempt, since the
- *        double precision path is entirely native floating point and propagates
- *        them. See the precondition documented on @ref AUDIOLIB_ceil_exec.
- *
+ * @brief Cycle model, used by @ref AUDIOLIB_ceil_init to pick the variant and by
+ *        @ref AUDIOLIB_ceil_perfEst. x2 and x8 are the loops unrolled by two and by
+ *        eight. Pipeline and ii terms are from the compiled .asm, identical on C7504
+ *        and C7524, except the three fill-and-drain terms marked "measured", where
+ *        Loki shows one cycle more than the compiler. The call overhead (call, both
+ *        stream opens, address generator, return) is fitted to Loki over all 64 test
+ *        cases: exact on C7504 for six or more vectors, up to three cycles high for
+ *        one or two vectors, one cycle high on C7524. Re-measure it if work moves
+ *        into or out of the loop.
  */
+#define AUDIOLIB_CEIL_SP_PIPE_UP_CYCLES (11)         // Fill and drain, float, x2.
+#define AUDIOLIB_CEIL_SP_CYCLES_PER_VEC_PAIR (3)     // ii, float, x2.
+#define AUDIOLIB_CEIL_DP_PIPE_UP_CYCLES (13)         // Fill and drain, double, x2. Measured; compiler 12.
+#define AUDIOLIB_CEIL_DP_CYCLES_PER_VEC_PAIR (3)     // ii, double, x2.
+#define AUDIOLIB_CEIL_SP_UNROLL8_PIPE_UP_CYCLES (12) // Fill and drain, float, x8. Measured; compiler 11.
+#define AUDIOLIB_CEIL_DP_UNROLL8_PIPE_UP_CYCLES (14) // Fill and drain, double, x8. Measured; compiler 13.
+#define AUDIOLIB_CEIL_UNROLL8_CYCLES_PER_8_VECS (11) // ii, both types, x8.
+#define AUDIOLIB_CEIL_CALL_OVERHEAD_CYCLES (44)      // Cycles outside the loop, fitted to Loki.
 
-#define AUDIOLIB_CEIL_ROUND_BIAS_DOUBLE (4503599627370496.0)
+/** @brief Modelled loop cycles of @ref AUDIOLIB_ceil_exec_ci for @p nVecs vectors. */
+static inline uint64_t AUDIOLIB_ceil_unroll2LoopCycles(uint32_t dataType, uint32_t nVecs)
+{
+   uint64_t nPairs = AUDIOLIB_ceilingDiv(nVecs, 2U);
+   uint64_t cycles = 0U;
+
+   if (dataType == AUDIOLIB_FLOAT64) {
+      cycles = AUDIOLIB_CEIL_DP_PIPE_UP_CYCLES + nPairs * AUDIOLIB_CEIL_DP_CYCLES_PER_VEC_PAIR;
+   }
+   else {
+      cycles = AUDIOLIB_CEIL_SP_PIPE_UP_CYCLES + nPairs * AUDIOLIB_CEIL_SP_CYCLES_PER_VEC_PAIR;
+   }
+
+   return cycles;
+}
 
 /**
- * @brief Cycles spent filling and draining the software pipeline of the single
- *        precision execution loop, as reported by the compiler.
- *
+ * @brief Modelled loop cycles of @ref AUDIOLIB_ceil_unroll8_exec_ci for @p nVecs
+ *        vectors, including the masked surplus up to a multiple of eight.
  */
+static inline uint64_t AUDIOLIB_ceil_unroll8LoopCycles(uint32_t dataType, uint32_t nVecs)
+{
+   uint64_t nEightVecGroups = AUDIOLIB_ceilingDiv(nVecs, 8U);
+   uint64_t pipeUpCycles    = (dataType == AUDIOLIB_FLOAT64) ? AUDIOLIB_CEIL_DP_UNROLL8_PIPE_UP_CYCLES
+                                                             : AUDIOLIB_CEIL_SP_UNROLL8_PIPE_UP_CYCLES;
 
-#define AUDIOLIB_CEIL_SP_PIPE_UP_CYCLES (9)
+   return pipeUpCycles + nEightVecGroups * AUDIOLIB_CEIL_UNROLL8_CYCLES_PER_8_VECS;
+}
 
-/**
- * @brief Initiation interval of the single precision execution loop, i.e.
- *        cycles per pair of sample vectors processed.
- *
- */
-
-#define AUDIOLIB_CEIL_SP_CYCLES_PER_VEC_PAIR (4)
-
-/**
- * @brief Cycles spent filling and draining the software pipeline of the single
- *        precision execution loop unrolled by four, as reported by the
- *        compiler.
- *
- */
-
-#define AUDIOLIB_CEIL_SP_UNROLL4_PIPE_UP_CYCLES (13)
-
-/**
- * @brief Initiation interval of the single precision execution loop unrolled by
- *        four, i.e. cycles per group of four sample vectors processed.
- *
- */
-
-#define AUDIOLIB_CEIL_SP_UNROLL4_CYCLES_PER_VEC_QUAD (6)
-
-/**
- * @brief Smallest vector count for which the single precision variant unrolled
- *        by four is chosen over the one unrolled by two.
- *
- *        The unrolled by four variant is faster per vector (1.5 cycles against
- *        2.0) but drains a longer pipeline (13 cycles against 9), so it only
- *        wins once the buffer is long enough to amortise that. The two are
- *        equal at eight vectors, which is where the threshold is set.
- *
- */
-
-#define AUDIOLIB_CEIL_SP_UNROLL4_MIN_VECS (8)
-
-/**
- * @brief Cycles spent filling and draining the software pipeline of the double
- *        precision execution loop, as reported by the compiler.
- *
- */
-
-#define AUDIOLIB_CEIL_DP_PIPE_UP_CYCLES (12)
-
-/**
- * @brief Initiation interval of the double precision execution loop, i.e.
- *        cycles per pair of sample vectors processed.
- *
- */
-
-#define AUDIOLIB_CEIL_DP_CYCLES_PER_VEC_PAIR (4)
-
-/**
- * @brief Cycles the execution function spends outside its loop, which the loop
- *        model above does not account for. This covers the call itself,
- *        reloading the streaming engine and address generator templates from
- *        the parameter block, opening both, closing both, and the return. The
- *        opens dominate, because opening a stream drains pending stores and
- *        performs the initial fill before the first read is available.
- *
- *        The value is measured rather than derived. Subtracting the modelled
- *        loop cycles from the Loki cycle count leaves exactly 44 on C7504 and
- *        exactly 43 on C7524, identically for every one of the 56 test cases in
- *        both data types, so the overhead is a constant and not a function of
- *        buffer size. 44 is used for both devices, which leaves the C7524
- *        estimate one cycle high.
- *
- *        Re-measure this if the execution function gains or loses work outside
- *        the loop; the loop itself is modelled by the SP and DP macros above.
- *
- */
-
-#define AUDIOLIB_CEIL_CALL_OVERHEAD_CYCLES (44)
-
-/**
- *  @brief This is a function pointer type that conforms to the
- *         declaration of @ref AUDIOLIB_ceil_exec_ci
- *         and @ref AUDIOLIB_ceil_exec_cn.
- */
+/** @brief Signature shared by the execution variants, see @ref AUDIOLIB_ceil_exec. */
 typedef AUDIOLIB_STATUS (*pFxnAUDIOLIB_ceil_exec)(AUDIOLIB_kernelHandle handle,
                                                   void *restrict pIn,
                                                   void *restrict pOut);
 
 /**
- *  @brief This function is the initialization function for the C7x
- *         implementation of the kernel. The function declaration conforms
- *         to the declaration of @ref AUDIOLIB_ceil_init.
- *
- * @details This function determines the configuration for the streaming engine
- *          hardware resources based on the function call parameters, and the
- *          configuration is saved in bufPBlock array. In the kernel call
- *          sequence, @ref AUDIOLIB_ceil_exec_ci would be called later
- *          independently by the application. When
- *          @ref AUDIOLIB_ceil_exec_ci runs, it merely retrieves the
- *          configuration from the bufPBlock and uses it to set up the hardware
- *          resources. This arrangement is so that
- *          @ref AUDIOLIB_ceil_exec_ci does not lose cycles to determine the
- *          hardware configuration.
- *
- *  @param [in]  handle       :  Active handle to the kernel
- *  @param [in]  bufParamsIn  :  Pointer to the structure containing dimensional
- *                               information of input buffer
- *  @param [out] bufParamsOut :  Pointer to the structure containing dimensional
- *                               information of ouput buffer
- *  @param [in]  pKerInitArgs :  Pointer to the structure holding init
- * parameters
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
+ * @brief  C7x part of @ref AUDIOLIB_ceil_init: builds the SE and SA templates and
+ *         stores them, with the vector count, in the handle.
+ * @param [in] handle       : Active handle to the kernel
+ * @param [in] bufParamsIn  : Dimensions and type of the input buffer
+ * @param [in] bufParamsOut : Dimensions and type of the output buffer
+ * @param [in] pKerInitArgs : Pointer to the init parameters
+ * @return Status value, see @ref AUDIOLIB_STATUS
  */
 template <typename dataType>
 extern AUDIOLIB_STATUS AUDIOLIB_ceil_init_ci(AUDIOLIB_kernelHandle         handle,
@@ -158,78 +81,44 @@ extern AUDIOLIB_STATUS AUDIOLIB_ceil_init_ci(AUDIOLIB_kernelHandle         handl
                                              const AUDIOLIB_ceil_InitArgs *pKerInitArgs);
 
 /**
- *  @brief This function is the main execution function for the C7x
- *         implementation of the kernel. The function declaration conforms
- *         to the declaration of @ref AUDIOLIB_ceil_exec.
- *
- * @details The input buffer is read through one streaming engine and the result
- *          is written back through a stream address generator, whose predicate
- *          masks the partial last vector. The compute body is branch free. The
- *          loop is unrolled by two; @ref AUDIOLIB_ceil_exec_ci_unroll4 is the
- *          wider single precision variant used for longer buffers.
- *
- *  @param [in]  handle      : Active handle to the kernel
- *  @param [in]  pIn         : Pointer to buffer holding the input data
- *  @param [out] pOut        : Pointer to buffer holding the output data
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
- *  @par Performance Considerations:
- *    For best performance,
- *    - the input and output data buffers are expected to be in L2 memory
- *    - the buffer pointers are assumed to be 64-byte aligned
- *
+ * @brief  C7x execution, unrolled by two. Reads the input through both streaming
+ *         engines and writes through SA0, whose predicate masks the partial last
+ *         vector.
+ * @param [in]  handle : Active handle to the kernel
+ * @param [in]  pIn    : Input buffer
+ * @param [out] pOut   : Output buffer
+ * @return Status value, see @ref AUDIOLIB_STATUS
  */
 template <typename dataType>
 extern AUDIOLIB_STATUS AUDIOLIB_ceil_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
 /**
- *  @brief Execution variant of @ref AUDIOLIB_ceil_exec_ci unrolled by four,
- *         instantiated for single precision only. Selected by
- *         @ref AUDIOLIB_ceil_init when the buffer holds at least
- *         @ref AUDIOLIB_CEIL_SP_UNROLL4_MIN_VECS vectors.
- *
- *  @param [in]  handle      : Active handle to the kernel
- *  @param [in]  pIn         : Pointer to buffer holding the input data
- *  @param [out] pOut        : Pointer to buffer holding the output data
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
+ * @brief  @ref AUDIOLIB_ceil_exec_ci unrolled by eight, selected by
+ *         @ref AUDIOLIB_ceil_init where the cycle model makes it faster.
+ * @param [in]  handle : Active handle to the kernel
+ * @param [in]  pIn    : Input buffer
+ * @param [out] pOut   : Output buffer
+ * @return Status value, see @ref AUDIOLIB_STATUS
  */
 template <typename dataType>
 extern AUDIOLIB_STATUS
-AUDIOLIB_ceil_exec_ci_unroll4(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+AUDIOLIB_ceil_unroll8_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
 /**
- *  @brief This function is the main execution function for the natural
- *         C implementation of the kernel. The function declaration conforms
- *         to the declaration of @ref AUDIOLIB_ceil_exec.
- *
- * @details
- *
- *  @param [in]  handle      : Active handle to the kernel
- *  @param [in]  pIn         : Pointer to buffer holding the input data
- *  @param [out] pOut        : Pointer to buffer holding the output data
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
+ * @brief  Natural C execution, used as the reference.
+ * @param [in]  handle : Active handle to the kernel
+ * @param [in]  pIn    : Input buffer
+ * @param [out] pOut   : Output buffer
+ * @return Status value, see @ref AUDIOLIB_STATUS
  */
 template <typename dataType>
 extern AUDIOLIB_STATUS AUDIOLIB_ceil_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
-/**
- * @brief Structure that is reserved for internal use by the kernel
- */
+/** @brief Kernel state kept in the handle, for internal use only. */
 typedef struct {
-   /** @brief Function pointer to point to the right execution variant between
-    *         @ref AUDIOLIB_ceil_exec_cn and
-    *         @ref AUDIOLIB_ceil_exec_ci.                        */
-   pFxnAUDIOLIB_ceil_exec execute;
+   pFxnAUDIOLIB_ceil_exec execute; /**< \brief Execution variant chosen by @ref AUDIOLIB_ceil_init */
 
-   uint32_t nVecs;     /**< \brief Number of vector to be processed for the given input buffer */
+   uint32_t nVecs;     /**< \brief Number of vectors in the buffer */
    uint32_t dim_x;     /**< \brief Width of buffer in X dimension in elements. */
    uint32_t dim_y;     /**< \brief Height of buffer in Y dimension in elements. */
    int32_t  inStride;  /**< \brief Stride of input buffer in elements. */

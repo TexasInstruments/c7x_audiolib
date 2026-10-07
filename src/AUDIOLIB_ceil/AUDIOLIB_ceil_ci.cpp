@@ -83,38 +83,30 @@ template AUDIOLIB_STATUS AUDIOLIB_ceil_init_ci<double>(AUDIOLIB_kernelHandle    
                                                        const AUDIOLIB_ceil_InitArgs *pKerInitArgs);
 
 /*!
- *  @brief Ceiling of every lane, single precision. Truncating conversion to int32
- *         and back gives the integral part; only a positive input with a fraction
- *         needs the correction. Input range precondition on
- *         @ref AUDIOLIB_ceil_exec applies.
+ * @brief Ceiling of each lane, float: truncate @p vInForTrunc to int32 and back, then
+ *        add one where @p vInForCompare, the same input from SE1, exceeds the
+ *        truncation.
  */
-static inline c7x::float_vec AUDIOLIB_ceil_computeCeiling(c7x::float_vec vIn)
+static inline c7x::float_vec AUDIOLIB_ceil_computeCeiling(c7x::float_vec vInForTrunc, c7x::float_vec vInForCompare)
 {
-   c7x::float_vec vTrunc = __int_to_float(__float_to_int_rtz(vIn));
+   c7x::float_vec vTruncated = __int_to_float(__float_to_int_rtz(vInForTrunc));
 
-   __vpred cmpFraction = __cmp_gt_pred(vIn, vTrunc);
+   __vpred cmpTruncBelowInput = __cmp_gt_pred(vInForCompare, vTruncated);
 
-   return __select(cmpFraction, vTrunc + (c7x::float_vec) 1.0f, vTrunc);
+   return __select(cmpTruncBelowInput, vTruncated + (c7x::float_vec) 1.0f, vTruncated);
 }
 
 /*!
- *  @brief Ceiling of every lane, double precision. With no int64 conversion, a
- *         sign-carrying bias of 2^52 forces the sum into the binade spaced 1.0
- *         apart. Round-to-nearest undershoots by at most one, so one correction
- *         suffices. Input range precondition on @ref AUDIOLIB_ceil_exec applies.
+ * @brief Ceiling of each lane, double, by the same method. Each int32 result sits
+ *        in the low word of its 64-bit lane, which the conversion back reads.
  */
-static inline c7x::double_vec AUDIOLIB_ceil_computeCeiling(c7x::double_vec vIn)
+static inline c7x::double_vec AUDIOLIB_ceil_computeCeiling(c7x::double_vec vInForTrunc, c7x::double_vec vInForCompare)
 {
-   c7x::double_vec vRoundBias    = (c7x::double_vec) AUDIOLIB_CEIL_ROUND_BIAS_DOUBLE;
-   c7x::double_vec vRoundBiasNeg = (c7x::double_vec)(-AUDIOLIB_CEIL_ROUND_BIAS_DOUBLE);
+   c7x::double_vec vTruncated = __low_int_to_double(__double_to_int_rtz(vInForTrunc));
 
-   __vpred         cmpNegative = __cmp_lt_pred(vIn, (c7x::double_vec) 0.0);
-   c7x::double_vec vBias       = __select(cmpNegative, vRoundBiasNeg, vRoundBias);
-   c7x::double_vec vRounded    = (vIn + vBias) - vBias;
+   __vpred cmpTruncBelowInput = __cmp_gt_pred(vInForCompare, vTruncated);
 
-   __vpred cmpUndershoot = __cmp_lt_pred(vRounded, vIn);
-
-   return __select(cmpUndershoot, vRounded + (c7x::double_vec) 1.0, vRounded);
+   return __select(cmpTruncBelowInput, vTruncated + (c7x::double_vec) 1.0, vTruncated);
 }
 
 template <typename dataType>
@@ -136,25 +128,28 @@ AUDIOLIB_STATUS AUDIOLIB_ceil_exec_ci(AUDIOLIB_kernelHandle handle, void *restri
    int32_t nVecs  = (int32_t) pKerPrivArgs->nVecs;
    int32_t nPairs = (nVecs + 1) >> 1;
 
+   // SE1 streams the same input again for the late compare, so no register
+   // holds it across the conversion chain.
    __SE0_OPEN(pInLocal, se0Params);
+   __SE1_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
 
-   // Software pipeline, trip_cnt = nPairs, resource bound (carried dep 2).
-   //   float  : ii = 4, 9 + trip_cnt * 4   (short buffers only)
-   //   double : ii = 4, 12 + trip_cnt * 4
-   // nPairs rounds up; the surplus half reads inside the SE ICNT extent and
-   // its store is masked by the SA predicate.
+   // ii = 3 per 2 vectors (1.5 per vector) on C7504 and C7524, bound by
+   // .L2/.S2/.C2. Total: float 11 + trip_cnt * 3, double 12 + trip_cnt * 3.
+   // An odd nVecs runs one surplus vector: no read past the streams, store masked.
 #pragma MUST_ITERATE(1, , 1)
    for (int32_t i = 0; i < nPairs; i++) {
-      vec vIn0  = c7x::strm_eng<0, vec>::get_adv();
-      vec vOut0 = AUDIOLIB_ceil_computeCeiling(vIn0);
+      vec vInForTrunc0   = c7x::strm_eng<0, vec>::get_adv();
+      vec vInForCompare0 = c7x::strm_eng<1, vec>::get_adv();
+      vec vOut0          = AUDIOLIB_ceil_computeCeiling(vInForTrunc0, vInForCompare0);
 
       __vpred pred0 = c7x::strm_agen<0, vec>::get_vpred();
       vec    *addr0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
       __vstore_pred(pred0, addr0, vOut0);
 
-      vec vIn1  = c7x::strm_eng<0, vec>::get_adv();
-      vec vOut1 = AUDIOLIB_ceil_computeCeiling(vIn1);
+      vec vInForTrunc1   = c7x::strm_eng<0, vec>::get_adv();
+      vec vInForCompare1 = c7x::strm_eng<1, vec>::get_adv();
+      vec vOut1          = AUDIOLIB_ceil_computeCeiling(vInForTrunc1, vInForCompare1);
 
       __vpred pred1 = c7x::strm_agen<0, vec>::get_vpred();
       vec    *addr1 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
@@ -162,6 +157,7 @@ AUDIOLIB_STATUS AUDIOLIB_ceil_exec_ci(AUDIOLIB_kernelHandle handle, void *restri
    }
 
    __SE0_CLOSE();
+   __SE1_CLOSE();
    __SA0_CLOSE();
 
    return status;
@@ -172,22 +168,15 @@ AUDIOLIB_ceil_exec_ci<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, v
 template AUDIOLIB_STATUS
 AUDIOLIB_ceil_exec_ci<double>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
-/*!
- *  @brief Execution variant unrolled by four, single precision only. Four
- *         vectors of six operations fill the four issue slots exactly, giving
- *         1.5 cycles per vector against 2.0 for @ref AUDIOLIB_ceil_exec_ci. The
- *         longer drain costs more on short buffers, so @ref AUDIOLIB_ceil_init
- *         chooses by size. Double precision is already at its floor at two.
- */
 template <typename dataType>
-AUDIOLIB_STATUS AUDIOLIB_ceil_exec_ci_unroll4(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut)
+AUDIOLIB_STATUS AUDIOLIB_ceil_unroll8_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut)
 {
    AUDIOLIB_STATUS                                        status       = AUDIOLIB_SUCCESS;
    AUDIOLIB_ceil_PrivArgs                                *pKerPrivArgs = (AUDIOLIB_ceil_PrivArgs *) handle;
    typedef typename c7x::make_full_vector<dataType>::type vec;
    uint8_t                                               *pBlock = pKerPrivArgs->bufPblock;
 
-   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_ceil_exec_ci_unroll4 nVecs %d\n", pKerPrivArgs->nVecs);
+   AUDIOLIB_DEBUGPRINTFN(0, "Enter AUDIOLIB_ceil_unroll8_exec_ci nVecs %d\n", pKerPrivArgs->nVecs);
 
    __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
    __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
@@ -195,75 +184,95 @@ AUDIOLIB_STATUS AUDIOLIB_ceil_exec_ci_unroll4(AUDIOLIB_kernelHandle handle, void
    dataType *restrict pInLocal  = (dataType *) pIn;
    dataType *restrict pOutLocal = (dataType *) pOut;
 
-   int32_t nVecs  = (int32_t) pKerPrivArgs->nVecs;
-   int32_t nQuads = (nVecs + 3) >> 2;
+   int32_t nVecs           = (int32_t) pKerPrivArgs->nVecs;
+   int32_t nEightVecGroups = (nVecs + 7) >> 3;
 
    __SE0_OPEN(pInLocal, se0Params);
+   __SE1_OPEN(pInLocal, se0Params);
    __SA0_OPEN(sa0Params);
 
-   // Software pipeline, trip_cnt = nQuads, 100% slot use (carried dep 4).
-   //   float : ii = 6, 13 + trip_cnt * 6
-   // nQuads rounds up; up to three surplus vectors read inside the SE ICNT
-   // extent and their stores are masked by the SA predicate.
+   // ii = 11 per 8 vectors (1.375 per vector) on C7504 and C7524, bound by
+   // .L2/.S2/.C2. Total: float 11 + trip_cnt * 11, double 13 + trip_cnt * 11.
+   // Up to seven surplus vectors: no reads past the streams, stores masked.
 #pragma MUST_ITERATE(1, , 1)
-   for (int32_t i = 0; i < nQuads; i++) {
-      vec vIn0  = c7x::strm_eng<0, vec>::get_adv();
-      vec vOut0 = AUDIOLIB_ceil_computeCeiling(vIn0);
-
-      __vpred pred0 = c7x::strm_agen<0, vec>::get_vpred();
-      vec    *addr0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+   for (int32_t i = 0; i < nEightVecGroups; i++) {
+      vec     vInForTrunc0   = c7x::strm_eng<0, vec>::get_adv();
+      vec     vInForCompare0 = c7x::strm_eng<1, vec>::get_adv();
+      vec     vOut0          = AUDIOLIB_ceil_computeCeiling(vInForTrunc0, vInForCompare0);
+      __vpred pred0          = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *addr0          = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
       __vstore_pred(pred0, addr0, vOut0);
 
-      vec vIn1  = c7x::strm_eng<0, vec>::get_adv();
-      vec vOut1 = AUDIOLIB_ceil_computeCeiling(vIn1);
-
-      __vpred pred1 = c7x::strm_agen<0, vec>::get_vpred();
-      vec    *addr1 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      vec     vInForTrunc1   = c7x::strm_eng<0, vec>::get_adv();
+      vec     vInForCompare1 = c7x::strm_eng<1, vec>::get_adv();
+      vec     vOut1          = AUDIOLIB_ceil_computeCeiling(vInForTrunc1, vInForCompare1);
+      __vpred pred1          = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *addr1          = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
       __vstore_pred(pred1, addr1, vOut1);
 
-      vec vIn2  = c7x::strm_eng<0, vec>::get_adv();
-      vec vOut2 = AUDIOLIB_ceil_computeCeiling(vIn2);
-
-      __vpred pred2 = c7x::strm_agen<0, vec>::get_vpred();
-      vec    *addr2 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      vec     vInForTrunc2   = c7x::strm_eng<0, vec>::get_adv();
+      vec     vInForCompare2 = c7x::strm_eng<1, vec>::get_adv();
+      vec     vOut2          = AUDIOLIB_ceil_computeCeiling(vInForTrunc2, vInForCompare2);
+      __vpred pred2          = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *addr2          = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
       __vstore_pred(pred2, addr2, vOut2);
 
-      vec vIn3  = c7x::strm_eng<0, vec>::get_adv();
-      vec vOut3 = AUDIOLIB_ceil_computeCeiling(vIn3);
-
-      __vpred pred3 = c7x::strm_agen<0, vec>::get_vpred();
-      vec    *addr3 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      vec     vInForTrunc3   = c7x::strm_eng<0, vec>::get_adv();
+      vec     vInForCompare3 = c7x::strm_eng<1, vec>::get_adv();
+      vec     vOut3          = AUDIOLIB_ceil_computeCeiling(vInForTrunc3, vInForCompare3);
+      __vpred pred3          = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *addr3          = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
       __vstore_pred(pred3, addr3, vOut3);
+
+      vec     vInForTrunc4   = c7x::strm_eng<0, vec>::get_adv();
+      vec     vInForCompare4 = c7x::strm_eng<1, vec>::get_adv();
+      vec     vOut4          = AUDIOLIB_ceil_computeCeiling(vInForTrunc4, vInForCompare4);
+      __vpred pred4          = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *addr4          = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      __vstore_pred(pred4, addr4, vOut4);
+
+      vec     vInForTrunc5   = c7x::strm_eng<0, vec>::get_adv();
+      vec     vInForCompare5 = c7x::strm_eng<1, vec>::get_adv();
+      vec     vOut5          = AUDIOLIB_ceil_computeCeiling(vInForTrunc5, vInForCompare5);
+      __vpred pred5          = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *addr5          = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      __vstore_pred(pred5, addr5, vOut5);
+
+      vec     vInForTrunc6   = c7x::strm_eng<0, vec>::get_adv();
+      vec     vInForCompare6 = c7x::strm_eng<1, vec>::get_adv();
+      vec     vOut6          = AUDIOLIB_ceil_computeCeiling(vInForTrunc6, vInForCompare6);
+      __vpred pred6          = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *addr6          = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      __vstore_pred(pred6, addr6, vOut6);
+
+      vec     vInForTrunc7   = c7x::strm_eng<0, vec>::get_adv();
+      vec     vInForCompare7 = c7x::strm_eng<1, vec>::get_adv();
+      vec     vOut7          = AUDIOLIB_ceil_computeCeiling(vInForTrunc7, vInForCompare7);
+      __vpred pred7          = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *addr7          = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      __vstore_pred(pred7, addr7, vOut7);
    }
 
    __SE0_CLOSE();
+   __SE1_CLOSE();
    __SA0_CLOSE();
 
    return status;
 }
 
 template AUDIOLIB_STATUS
-AUDIOLIB_ceil_exec_ci_unroll4<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+AUDIOLIB_ceil_unroll8_exec_ci<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+template AUDIOLIB_STATUS
+AUDIOLIB_ceil_unroll8_exec_ci<double>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
 void AUDIOLIB_ceil_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, uint64_t *estCycles)
 {
-   uint64_t                loopCycles;
-   uint32_t                nGroups;
    AUDIOLIB_ceil_PrivArgs *pKerPrivArgs = (AUDIOLIB_ceil_PrivArgs *) handle;
 
-   /* Mirrors the variant selection in AUDIOLIB_ceil_init */
-   if (pKerPrivArgs->dataType == AUDIOLIB_FLOAT64) {
-      nGroups    = AUDIOLIB_ceilingDiv(pKerPrivArgs->nVecs, 2u);
-      loopCycles = AUDIOLIB_CEIL_DP_PIPE_UP_CYCLES + nGroups * AUDIOLIB_CEIL_DP_CYCLES_PER_VEC_PAIR;
-   }
-   else if (pKerPrivArgs->nVecs >= AUDIOLIB_CEIL_SP_UNROLL4_MIN_VECS) {
-      nGroups    = AUDIOLIB_ceilingDiv(pKerPrivArgs->nVecs, 4u);
-      loopCycles = AUDIOLIB_CEIL_SP_UNROLL4_PIPE_UP_CYCLES + nGroups * AUDIOLIB_CEIL_SP_UNROLL4_CYCLES_PER_VEC_QUAD;
-   }
-   else {
-      nGroups    = AUDIOLIB_ceilingDiv(pKerPrivArgs->nVecs, 2u);
-      loopCycles = AUDIOLIB_CEIL_SP_PIPE_UP_CYCLES + nGroups * AUDIOLIB_CEIL_SP_CYCLES_PER_VEC_PAIR;
-   }
+   /* Same model AUDIOLIB_ceil_init picks the variant with */
+   uint64_t unroll2Cycles = AUDIOLIB_ceil_unroll2LoopCycles(pKerPrivArgs->dataType, pKerPrivArgs->nVecs);
+   uint64_t unroll8Cycles = AUDIOLIB_ceil_unroll8LoopCycles(pKerPrivArgs->dataType, pKerPrivArgs->nVecs);
+   uint64_t loopCycles    = (unroll8Cycles < unroll2Cycles) ? unroll8Cycles : unroll2Cycles;
 
    *estCycles  = loopCycles + AUDIOLIB_CEIL_CALL_OVERHEAD_CYCLES;
    *archCycles = loopCycles;

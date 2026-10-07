@@ -87,21 +87,22 @@ AUDIOLIB_STATUS AUDIOLIB_ceil_init(AUDIOLIB_kernelHandle         handle,
       }
    }
    else {
+      /* init_ci computes nVecs, which the variant choice below depends on */
       if (bufParamsIn->data_type == AUDIOLIB_FLOAT32) {
-         /* init_ci computes nVecs, which selects the unroll factor, so it has
-            to run before the execution variant is chosen */
-         status = AUDIOLIB_ceil_init_ci<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
-
-         if (pKerPrivArgs->nVecs >= AUDIOLIB_CEIL_SP_UNROLL4_MIN_VECS) {
-            pKerPrivArgs->execute = AUDIOLIB_ceil_exec_ci_unroll4<float>;
-         }
-         else {
-            pKerPrivArgs->execute = AUDIOLIB_ceil_exec_ci<float>;
+         status                = AUDIOLIB_ceil_init_ci<float>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
+         pKerPrivArgs->execute = AUDIOLIB_ceil_exec_ci<float>;
+         if (AUDIOLIB_ceil_unroll8LoopCycles(AUDIOLIB_FLOAT32, pKerPrivArgs->nVecs) <
+             AUDIOLIB_ceil_unroll2LoopCycles(AUDIOLIB_FLOAT32, pKerPrivArgs->nVecs)) {
+            pKerPrivArgs->execute = AUDIOLIB_ceil_unroll8_exec_ci<float>;
          }
       }
       else if (bufParamsIn->data_type == AUDIOLIB_FLOAT64) {
          status                = AUDIOLIB_ceil_init_ci<double>(handle, bufParamsIn, bufParamsOut, pKerInitArgs);
          pKerPrivArgs->execute = AUDIOLIB_ceil_exec_ci<double>;
+         if (AUDIOLIB_ceil_unroll8LoopCycles(AUDIOLIB_FLOAT64, pKerPrivArgs->nVecs) <
+             AUDIOLIB_ceil_unroll2LoopCycles(AUDIOLIB_FLOAT64, pKerPrivArgs->nVecs)) {
+            pKerPrivArgs->execute = AUDIOLIB_ceil_unroll8_exec_ci<double>;
+         }
       }
       else {
          status = AUDIOLIB_ERR_INVALID_TYPE;
