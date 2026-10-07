@@ -204,7 +204,7 @@ def gen_test_case_header_file(testCase):
 # CSV file with paratmeters for all test cases
 testCasesCsvFile = "test_cases_list.csv"
 testIdList = []  # list of test IDs that we want to generate test data
-testIdList += range(1, 60)
+testIdList += range(1, 65)
 # testIdList = [10]
 
 myArgs = AUDIOLIB_utils.getCmdLineArgs()

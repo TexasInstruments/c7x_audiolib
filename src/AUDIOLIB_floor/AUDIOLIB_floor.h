@@ -13,72 +13,41 @@ extern "C" {
 
 /**
  * @defgroup AUDIOLIB_floor AUDIOLIB_floor
- * @brief  Kernel for computing the elementwise floor of an input vector.
+ * @brief  Kernel for computing the elementwise floor of an input buffer.
  * @details
- * The following datatype combinations are supported
+ * Supported data types (input and output types match):
  *
- *  | Case    | Input   | Output  |
- *  |  ----:  | :----:  | :----   |
- *  |    1    | float   | float   |
- *  |    2    | double  | double  |
+ *  | Case | Input  | Output |
+ *  | :--: | :----: | :----: |
+ *  |  1   | float  | float  |
+ *  |  2   | double | double |
  *
  * @par Method
  * \f[
  * floor(x) = \max \{ n \in \mathbb{Z} \mid n \leq x \}
  * \f]
- *
- * The result is the largest integral value that is not greater than the input,
- * returned in the input data type. The sign of a zero input is preserved by the
- * natural C variant; the optimized variant may return @c +0.0 for a @c -0.0
- * input, which compares equal numerically.
+ * For a @c -0.0 input the optimized variant may return @c +0.0; the two compare
+ * equal.
  *
  * ### Implementation Details
- *
- * The optimized C7x variant is branch free. The two data types take different
- * routes, because the device has a truncating conversion to signed 32 bit
- * integer but none to 64 bit.
- *
- * **Single precision.** The integral part is obtained by converting to signed
- * 32 bit integer with truncation and back. Truncation is toward zero, so it
- * already equals the floor for positive input and needs one correction when
- * a negative input had a fractional part:
+ * The optimized variant is branch free. It truncates to int32 and converts back,
+ * then corrects negative inputs that had a fraction:
  * \f[
  * t = \mathrm{trunc}(x) \qquad
  * y = \begin{cases} t - 1 & \text{if } x < t \\ t & \text{otherwise} \end{cases}
  * \f]
+ * The input is streamed through both streaming engines, so the comparison reads
+ * its own copy and nothing is held in registers across the conversion. The loop
+ * exists unrolled by two and by eight (1.5 and 1.375 cycles per vector), and
+ * @ref AUDIOLIB_floor_init picks whichever is faster for the buffer size.
  *
- * **Double precision.** No such conversion exists, so a round-to-nearest
- * integral value is produced by adding and then subtracting
- * \f$ M = 2^{52} \f$, carrying the sign of the input so that the intermediate
- * sum always lands in the binade whose spacing is exactly 1.0. Rounding to
- * nearest overshoots by at most one, so a single predicated correction
- * produces the floor:
- * \f[
- * m = \begin{cases} -M & \text{if } x < 0 \\ +M & \text{otherwise} \end{cases}
- * \qquad r = (x + m) - m \qquad
- * y = \begin{cases} r - 1 & \text{if } r > x \\ r & \text{otherwise} \end{cases}
- * \f]
+ * @par Preconditions
+ * - Every sample must satisfy \f$ |x| < 2^{31} \f$ in both data types, 256 times
+ *   24 bit PCM full scale. Larger values saturate the int32 conversion.
+ * - Inf and NaN are not supported.
  *
- * @par Precondition on the input range
- * The optimized variant does not range check its input. The caller must keep
- * the magnitude of every sample below the bound for its data type:
- *
- *  | Data type | Bound on magnitude | Inf and NaN          |
- *  | :----     | :----              | :----                |
- *  | float     | \f$ 2^{31} \f$     | not supported        |
- *  | double    | \f$ 2^{52} \f$     | propagated unchanged |
- *
- * At or above the bound the result is meaningless rather than merely
- * imprecise: the single precision conversion saturates, and the double
- * precision bias can shift an already integral value into a coarser binade.
- * Single precision additionally cannot carry Inf or NaN through the integer
- * conversion, so those inputs return a finite garbage value, whereas double
- * precision is native floating point throughout and propagates both. The
- * natural C variant calls the C library and is correct over the whole range in
- * both types, so the two variants disagree outside these bounds by design.
- *
- * Both bounds sit far outside audio sample data; \f$ 2^{31} \f$ is 256 times
- * full scale for 24 bit PCM.
+ * The optimized variant does not check either; outside them its output is
+ * meaningless and differs from the natural C variant, which calls the C library.
  *
  * @ingroup  AUDIOLIB
  */
@@ -86,47 +55,36 @@ extern "C" {
 /**@{*/
 
 /**
- * @brief Structure containing the parameters to initialize the kernel
+ * @brief Parameters to initialize the kernel
  */
 typedef struct {
-   /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
+   /** @brief Variant to run, see @ref AUDIOLIB_FUNCTION_STYLE */
    int8_t funcStyle;
 
 } AUDIOLIB_floor_InitArgs;
 
 /**
- *  @brief        This is a query function to calculate the size of internal
- *                handle
- *  @param [in]   pKerInitArgs  : Pointer to structure holding init parameters
- *  @return       Size of the buffer in bytes
- *  @remarks      Application is expected to allocate buffer of the requested
- *                size and provide it as input to other functions requiring it.
+ * @brief  Returns the size in bytes of the handle the application must allocate.
+ * @param [in] pKerInitArgs : Pointer to the init parameters
+ * @return Handle size in bytes
  */
-
 int32_t AUDIOLIB_floor_getHandleSize(AUDIOLIB_floor_InitArgs *pKerInitArgs);
 
 /**
- *  @brief       This function checks the validity of the parameters passed to
- *               @ref AUDIOLIB_floor_init function. This function
- *               is called with the same parameters as the
- *               @ref AUDIOLIB_floor_init, and this function
- *               must be called before the
- *               @ref AUDIOLIB_floor_init is called.
- *
- *  @param [in]  handle       :  Active handle to the kernel
- *  @param [in]  bufParamsIn  :  Pointer to the structure containing dimensional
- *                               information of input buffer
- *  @param [out] bufParamsOut :  Pointer to the structure containing dimensional
- *                               information of output buffer
- *  @param [in]  pKerInitArgs :  Pointer to the structure holding init
- * parameters
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
- *  @remarks     None
+ * @brief  Checks the parameters of @ref AUDIOLIB_floor_init. Call it with the same
+ *         arguments, before @ref AUDIOLIB_floor_init.
+ * @param [in] handle       : Active handle to the kernel
+ * @param [in] bufParamsIn  : Dimensions and type of the input buffer
+ * @param [in] bufParamsOut : Dimensions and type of the output buffer
+ * @param [in] pKerInitArgs : Pointer to the init parameters
+ * @return @c AUDIOLIB_SUCCESS, or
+ *         - @c AUDIOLIB_ERR_NULL_POINTER if @p handle, @p bufParamsIn or
+ *           @p bufParamsOut is NULL
+ *         - @c AUDIOLIB_ERR_INVALID_TYPE if the type is not float or double, or the
+ *           input and output types differ
+ *         - @c AUDIOLIB_ERR_INVALID_DIMENSION if the input and output dimensions
+ *           differ
  */
-
 AUDIOLIB_STATUS
 AUDIOLIB_floor_init_checkParams(AUDIOLIB_kernelHandle          handle,
                                 const AUDIOLIB_bufParams2D_t  *bufParamsIn,
@@ -134,100 +92,59 @@ AUDIOLIB_floor_init_checkParams(AUDIOLIB_kernelHandle          handle,
                                 const AUDIOLIB_floor_InitArgs *pKerInitArgs);
 
 /**
- *  @brief       This function should be called before the
- *               @ref AUDIOLIB_floor_exec function is called. This
- *               function takes care of any one-time operations such as setting
- *               up the configuration of required hardware resources such as
- *               the streaming engine.  The results of these
- *               operations are stored in the handle.
- *
- *  @param [in]  handle       :  Active handle to the kernel
- *  @param [in]  bufParamsIn  :  Pointer to the structure containing dimensional
- *                               information of input buffer
- *  @param [out] bufParamsOut :  Pointer to the structure containing dimensional
- *                               information of ouput buffer
- *  @param [in]  pKerInitArgs :  Pointer to the structure holding init
- * parameters
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
- *  @remarks     Application is expected to provide a valid handle.
+ * @brief  One-time setup before @ref AUDIOLIB_floor_exec: selects the execution
+ *         variant and stores the streaming configuration in the handle.
+ * @param [in] handle       : Active handle to the kernel
+ * @param [in] bufParamsIn  : Dimensions and type of the input buffer
+ * @param [in] bufParamsOut : Dimensions and type of the output buffer
+ * @param [in] pKerInitArgs : Pointer to the init parameters
+ * @return Status value, see @ref AUDIOLIB_STATUS
  */
-
 AUDIOLIB_STATUS AUDIOLIB_floor_init(AUDIOLIB_kernelHandle          handle,
                                     AUDIOLIB_bufParams2D_t        *bufParamsIn,
                                     AUDIOLIB_bufParams2D_t        *bufParamsOut,
                                     const AUDIOLIB_floor_InitArgs *pKerInitArgs);
 
 /**
- *  @brief        This funtion is called to calculate the arch cycles and
- *                estimate cycles of the loop used in the execution kernel.
- *
- *  @param [in]  handle         :  Active handle to the kernel
- *  @param [in]  archCycles     :  Arch cycles used in that purticluar kernel
- *  @param [in]  estCycles      :  Cycles estimated for that purticular kenel
- *
- *  @return      Void.
- *
- *  @remarks     None
+ * @brief  Estimates the cycles of @ref AUDIOLIB_floor_exec for the configuration in
+ *         @p handle.
+ * @param [in]  handle     : Active handle, after @ref AUDIOLIB_floor_init
+ * @param [out] archCycles : Cycles of the compute loop
+ * @param [out] estCycles  : @p archCycles plus the fixed call overhead
  */
-
 void AUDIOLIB_floor_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, uint64_t *estCycles);
 
 /**
- *  @brief       This function checks the validity of the parameters passed to
- *               @ref AUDIOLIB_floor_exec function. This function
- *               is called with the same parameters as the
- *               @ref AUDIOLIB_floor_exec, and this function
- *               must be called before the
- *               @ref AUDIOLIB_floor_exec is called.
- *
- *  @param [in]  handle    :  Active handle to the kernel
- *  @param [in]  pIn       :  Pointer to the input buffer
- *  @param [out] pOut      :  Pointer to the output buffer
- *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
- *
- *  @remarks     None
+ * @brief  Checks the parameters of @ref AUDIOLIB_floor_exec. Call it with the same
+ *         arguments, before @ref AUDIOLIB_floor_exec.
+ * @param [in] handle : Active handle to the kernel
+ * @param [in] pIn    : Input buffer
+ * @param [in] pOut   : Output buffer
+ * @return @c AUDIOLIB_SUCCESS, or @c AUDIOLIB_ERR_NULL_POINTER if any argument is
+ *         NULL
  */
 AUDIOLIB_STATUS
 AUDIOLIB_floor_exec_checkParams(AUDIOLIB_kernelHandle handle, const void *restrict pIn, const void *restrict pOut);
 
 /**
- *  @brief       This function is the main kernel compute function.
- *
- *  @details     Please refer to details under
- *               @ref AUDIOLIB_floor
- *
- *  @param [in]  handle      : Active handle to the kernel
- *  @param [in]  pIn         : Pointer to buffer holding the input data
- *  @param [out] pOut        : Pointer to buffer holding the output data
+ * @brief  Computes the elementwise floor of @p pIn into @p pOut, see
+ *         @ref AUDIOLIB_floor. Call @ref AUDIOLIB_floor_init first; the input must meet
+ *         the preconditions listed there.
+ * @param [in]  handle : Active handle to the kernel
+ * @param [in]  pIn    : Input buffer
+ * @param [out] pOut   : Output buffer
  *
  * @par Memory Requirements
- * | Buffer | dimY | dimX |  Comments     |
- * | :----: | :--: | :--: | :--------:    |
- * | pIn    | M    | N    | Input Buffer  |
- * | pOut   | M    | N    | Output Buffer |
+ * | Buffer | dimY | dimX | Comments      |
+ * | :----: | :--: | :--: | :-----------: |
+ * | pIn    | M    | N    | Input buffer  |
+ * | pOut   | M    | N    | Output buffer |
  *
- *  @return      Status value indicating success or failure. Refer to @ref
- * AUDIOLIB_STATUS.
+ * @par Performance Considerations
+ * Best with both buffers in L2 and 64-byte aligned.
  *
- *  @par Assumptions:
- *    - None
- *
- *  @par Performance Considerations:
- *    For best performance,
- *    - the input and output data buffers are expected to be in L2 memory
- *    - the buffer pointers are assumed to be 64-byte aligned
- *
- *  @remarks     Before calling this function, application is expected to call
- *               @ref AUDIOLIB_floor_init. This ensures resource configuration
- *               and error checks are done only once for several invocations of
- *               this function.
+ * @return Status value, see @ref AUDIOLIB_STATUS
  */
-
 AUDIOLIB_STATUS
 AUDIOLIB_floor_exec(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
