@@ -176,6 +176,7 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_gain",
         "AUDIOLIB_gainNCh",
         "AUDIOLIB_gainNChTrim",
+        "AUDIOLIB_gainNChTrimSmoothing",
         "AUDIOLIB_balance",
         "AUDIOLIB_balanceFader",
         "AUDIOLIB_mute",
@@ -191,12 +192,17 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_blockStatistics",
         "AUDIOLIB_subBlockStatistics",
     ]),
+    ("Math & Rounding", [
+        "AUDIOLIB_ceil",
+        "AUDIOLIB_floor",
+    ]),
     ("Effects & Processing", [
         "AUDIOLIB_delay",
         "AUDIOLIB_delayNChannel",
         "AUDIOLIB_crossfade",
         "AUDIOLIB_softClip",
         "AUDIOLIB_nlms",
+        "AUDIOLIB_preEmphasis",
     ]),
     ("Routing & Mixing", [
         "AUDIOLIB_router",

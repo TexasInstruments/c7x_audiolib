@@ -22,6 +22,7 @@
 #include "AUDIOLIB_gain/AUDIOLIB_gain.h"
 #include "AUDIOLIB_gainNCh/AUDIOLIB_gainNCh.h"
 #include "AUDIOLIB_gainNChTrim/AUDIOLIB_gainNChTrim.h"
+#include "AUDIOLIB_gainNChTrimSmoothing/AUDIOLIB_gainNChTrimSmoothing.h"
 #include "AUDIOLIB_inputAggregator/AUDIOLIB_inputAggregator.h"
 #include "AUDIOLIB_mute/AUDIOLIB_mute.h"
 #include "AUDIOLIB_muteNCh/AUDIOLIB_muteNCh.h"
