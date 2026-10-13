@@ -56,11 +56,54 @@ template AUDIOLIB_STATUS AUDIOLIB_tableLookup_unroll_init_ci<float>(AUDIOLIB_ker
                                                                     const AUDIOLIB_bufParams1D_t        *bufParamsOut,
                                                                     const AUDIOLIB_tableLookup_InitArgs *pKerInitArgs);
 
-template AUDIOLIB_STATUS AUDIOLIB_tableLookup_unroll_init_ci<double>(AUDIOLIB_kernelHandle                handle,
-                                                                     const AUDIOLIB_bufParams1D_t        *bufParamsIn0,
-                                                                     const AUDIOLIB_bufParams1D_t        *bufParamsIn1,
-                                                                     const AUDIOLIB_bufParams1D_t        *bufParamsOut,
-                                                                     const AUDIOLIB_tableLookup_InitArgs *pKerInitArgs);
+template <typename dataTypeIndex, typename dataTypeSample>
+AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_unroll_init_ci(AUDIOLIB_kernelHandle                handle,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsIn0,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsIn1,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsOut,
+                                                       const AUDIOLIB_tableLookup_InitArgs *pKerInitArgs)
+{
+   typedef typename c7x::make_full_vector<dataTypeIndex>::type vec;
+
+   AUDIOLIB_STATUS                status       = AUDIOLIB_SUCCESS;
+   AUDIOLIB_tableLookup_PrivArgs *pKerPrivArgs = (AUDIOLIB_tableLookup_PrivArgs *) handle;
+   uint8_t                       *pBlock       = pKerPrivArgs->bufPblock;
+
+   uint32_t eleCount = c7x::element_count_of<vec>::value;
+
+   __SE_TEMPLATE_v1 se0Params = __gen_SE_TEMPLATE_v1();
+   __SA_TEMPLATE_v1 sa0Params = __gen_SA_TEMPLATE_v1();
+
+   se0Params.ICNT0   = pKerPrivArgs->srcSamples;
+   se0Params.ELETYPE = c7x::se_eletype<vec>::value;
+   se0Params.VECLEN  = c7x::se_veclen<vec>::value;
+   se0Params.DIMFMT  = __SE_DIMFMT_1D;
+
+   sa0Params.ICNT0  = pKerPrivArgs->srcSamples;
+   sa0Params.VECLEN = c7x::sa_veclen<vec>::value;
+   sa0Params.DIMFMT = __SA_DIMFMT_1D;
+
+   pKerPrivArgs->nVecs = AUDIOLIB_ceilingDiv(pKerPrivArgs->srcSamples, eleCount);
+
+   *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET) = se0Params;
+   *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET) = sa0Params;
+
+   return status;
+}
+
+template AUDIOLIB_STATUS
+AUDIOLIB_tableLookupInt_unroll_init_ci<int32_t, float>(AUDIOLIB_kernelHandle                handle,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsIn0,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsIn1,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsOut,
+                                                       const AUDIOLIB_tableLookup_InitArgs *pKerInitArgs);
+
+template AUDIOLIB_STATUS
+AUDIOLIB_tableLookupInt_unroll_init_ci<int32_t, int32_t>(AUDIOLIB_kernelHandle                handle,
+                                                         const AUDIOLIB_bufParams1D_t        *bufParamsIn0,
+                                                         const AUDIOLIB_bufParams1D_t        *bufParamsIn1,
+                                                         const AUDIOLIB_bufParams1D_t        *bufParamsOut,
+                                                         const AUDIOLIB_tableLookup_InitArgs *pKerInitArgs);
 
 // /*******************************************************************************
 //  *
@@ -198,3 +241,77 @@ template AUDIOLIB_STATUS AUDIOLIB_tableLookup_unroll_exec_ci<float>(AUDIOLIB_ker
                                                                     void *restrict pIn0,
                                                                     void *restrict pIn1,
                                                                     void *restrict pOut);
+
+template <typename dataTypeIndex, typename dataTypeSample>
+AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_unroll_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                       void *restrict pIn0,
+                                                       void *restrict pIn1,
+                                                       void *restrict pOut)
+{
+   typedef typename c7x::make_full_vector<dataTypeIndex>::type  vec;
+   typedef typename c7x::make_full_vector<dataTypeSample>::type vecOut;
+
+   AUDIOLIB_STATUS                status       = AUDIOLIB_SUCCESS;
+   AUDIOLIB_tableLookup_PrivArgs *pKerPrivArgs = (AUDIOLIB_tableLookup_PrivArgs *) handle;
+   uint8_t                       *pBlock       = pKerPrivArgs->bufPblock;
+   uint32_t                       tableSamples = pKerPrivArgs->tableSamples;
+   int32_t                        nVecs        = pKerPrivArgs->nVecs;
+   int32_t                        roundIdx     = (int32_t) tableSamples - 1;
+
+   dataTypeIndex *restrict pInLocalSrc    = (dataTypeIndex *) pIn0;
+   dataTypeSample *restrict pInLocalTable = (dataTypeSample *) pIn1;
+   dataTypeSample *restrict pOutLocalOut  = (dataTypeSample *) pOut;
+
+   vec zeroVec  = (vec) 0;
+   vec roundVec = (vec) roundIdx;
+
+   __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
+
+   __SE0_OPEN(pInLocalSrc, se0Params);
+   __SA0_OPEN(sa0Params);
+
+   /* 25 + trip_cnt * 6 */
+   for (int32_t i = 0; i < nVecs; i++) {
+      vec srcVec = c7x::strm_eng<0, vec>::get_adv();
+
+      vec index = __min(__max(srcVec, zeroVec), roundVec);
+
+      c7x::long_vec indexPairs = c7x::as_long_vec(index);
+
+      int64_t pair0 = __get_vector_element(indexPairs, 0);
+      int64_t pair1 = __get_vector_element(indexPairs, 1);
+      int64_t pair2 = __get_vector_element(indexPairs, 2);
+      int64_t pair3 = __get_vector_element(indexPairs, 3);
+
+      dataTypeSample data0 = pInLocalTable[(int32_t) pair0];
+      dataTypeSample data1 = pInLocalTable[(int32_t) (pair0 >> 32)];
+      dataTypeSample data2 = pInLocalTable[(int32_t) pair1];
+      dataTypeSample data3 = pInLocalTable[(int32_t) (pair1 >> 32)];
+      dataTypeSample data4 = pInLocalTable[(int32_t) pair2];
+      dataTypeSample data5 = pInLocalTable[(int32_t) (pair2 >> 32)];
+      dataTypeSample data6 = pInLocalTable[(int32_t) pair3];
+      dataTypeSample data7 = pInLocalTable[(int32_t) (pair3 >> 32)];
+
+      vecOut outValues = vecOut(data0, data1, data2, data3, data4, data5, data6, data7);
+
+      __vpred outPred = c7x::strm_agen<0, vecOut>::get_vpred();
+      vecOut *outPtr  = c7x::strm_agen<0, vecOut>::get_adv(pOutLocalOut);
+      __vstore_pred(outPred, outPtr, outValues);
+   }
+
+   __SE0_CLOSE();
+   __SA0_CLOSE();
+
+   return status;
+}
+
+template AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_unroll_exec_ci<int32_t, float>(AUDIOLIB_kernelHandle handle,
+                                                                                void *restrict pIn0,
+                                                                                void *restrict pIn1,
+                                                                                void *restrict pOut);
+
+template AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_unroll_exec_ci<int32_t, int32_t>(AUDIOLIB_kernelHandle handle,
+                                                                                  void *restrict pIn0,
+                                                                                  void *restrict pIn1,
+                                                                                  void *restrict pOut);

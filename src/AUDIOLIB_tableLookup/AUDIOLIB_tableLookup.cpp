@@ -28,12 +28,12 @@ AUDIOLIB_tableLookup_init_checkParams(AUDIOLIB_kernelHandle                handl
    }
 
    if (status == AUDIOLIB_SUCCESS) {
-      if ((bufParamsIn0->data_type != AUDIOLIB_FLOAT32 || bufParamsIn1->data_type != AUDIOLIB_FLOAT32)) {
+      if ((bufParamsIn0->data_type != AUDIOLIB_FLOAT32 && bufParamsIn0->data_type != AUDIOLIB_INT32) ||
+          (bufParamsIn1->data_type != AUDIOLIB_FLOAT32 && bufParamsIn1->data_type != AUDIOLIB_INT32)) {
          status = AUDIOLIB_ERR_INVALID_TYPE;
       }
-      else if (bufParamsIn0->data_type != bufParamsOut->data_type ||
-               bufParamsIn1->data_type != bufParamsOut->data_type ||
-               bufParamsIn0->data_type != bufParamsIn1->data_type) {
+      else if (bufParamsIn1->data_type != bufParamsOut->data_type ||
+               (bufParamsIn0->data_type == AUDIOLIB_FLOAT32 && bufParamsIn1->data_type != AUDIOLIB_FLOAT32)) {
          status = AUDIOLIB_ERR_INVALID_TYPE;
       }
       else {
@@ -81,8 +81,14 @@ AUDIOLIB_STATUS AUDIOLIB_tableLookup_init(AUDIOLIB_kernelHandle                h
    pKerPrivArgs->divisor      = (pKerPrivArgs->tableSamples - 1) / (pKerPrivArgs->maxVal - pKerPrivArgs->minVal + 1e-9);
 
    if (pKerInitArgs->funcStyle == AUDIOLIB_FUNCTION_NATC) {
-      if (bufParamsIn0->data_type == AUDIOLIB_FLOAT32) {
+      if ((bufParamsIn0->data_type == AUDIOLIB_FLOAT32) && (bufParamsIn1->data_type == AUDIOLIB_FLOAT32)) {
          pKerPrivArgs->execute = AUDIOLIB_tableLookup_exec_cn<float>;
+      }
+      else if ((bufParamsIn0->data_type == AUDIOLIB_INT32) && (bufParamsIn1->data_type == AUDIOLIB_FLOAT32)) {
+         pKerPrivArgs->execute = AUDIOLIB_tableLookupInt_exec_cn<int32_t, float>;
+      }
+      else if ((bufParamsIn0->data_type == AUDIOLIB_INT32) && (bufParamsIn1->data_type == AUDIOLIB_INT32)) {
+         pKerPrivArgs->execute = AUDIOLIB_tableLookupInt_exec_cn<int32_t, int32_t>;
       }
       else {
          status = AUDIOLIB_ERR_INVALID_TYPE;
@@ -91,35 +97,64 @@ AUDIOLIB_STATUS AUDIOLIB_tableLookup_init(AUDIOLIB_kernelHandle                h
    else {
 #if defined(__C7524__)
       if (pKerPrivArgs->tableSamples > pKerInitArgs->tableLookupSize) {
-         if (bufParamsIn0->data_type == AUDIOLIB_FLOAT32) {
+         if ((bufParamsIn0->data_type == AUDIOLIB_FLOAT32) && (bufParamsIn1->data_type == AUDIOLIB_FLOAT32)) {
             status = AUDIOLIB_tableLookup_unroll_init_ci<float>(handle, bufParamsIn0, bufParamsIn1, bufParamsOut,
                                                                 pKerInitArgs);
             pKerPrivArgs->execute = AUDIOLIB_tableLookup_unroll_exec_ci<float>;
+         }
+         else if ((bufParamsIn0->data_type == AUDIOLIB_INT32) && (bufParamsIn1->data_type == AUDIOLIB_FLOAT32)) {
+            status = AUDIOLIB_tableLookupInt_unroll_init_ci<int32_t, float>(handle, bufParamsIn0, bufParamsIn1,
+                                                                            bufParamsOut, pKerInitArgs);
+            pKerPrivArgs->execute = AUDIOLIB_tableLookupInt_unroll_exec_ci<int32_t, float>;
+         }
+         else if ((bufParamsIn0->data_type == AUDIOLIB_INT32) && (bufParamsIn1->data_type == AUDIOLIB_INT32)) {
+            status = AUDIOLIB_tableLookupInt_unroll_init_ci<int32_t, int32_t>(handle, bufParamsIn0, bufParamsIn1,
+                                                                              bufParamsOut, pKerInitArgs);
+            pKerPrivArgs->execute = AUDIOLIB_tableLookupInt_unroll_exec_ci<int32_t, int32_t>;
          }
          else {
             status = AUDIOLIB_ERR_INVALID_TYPE;
          }
       }
       else {
-         if (bufParamsIn0->data_type == AUDIOLIB_FLOAT32) {
+         if ((bufParamsIn0->data_type == AUDIOLIB_FLOAT32) && (bufParamsIn1->data_type == AUDIOLIB_FLOAT32)) {
             status =
                 AUDIOLIB_tableLookup_init_ci<float>(handle, bufParamsIn0, bufParamsIn1, bufParamsOut, pKerInitArgs);
             pKerPrivArgs->execute = AUDIOLIB_tableLookup_exec_ci<float>;
+         }
+         else if ((bufParamsIn0->data_type == AUDIOLIB_INT32) && (bufParamsIn1->data_type == AUDIOLIB_FLOAT32)) {
+            status = AUDIOLIB_tableLookupInt_init_ci<int32_t, float>(handle, bufParamsIn0, bufParamsIn1, bufParamsOut,
+                                                                     pKerInitArgs);
+            pKerPrivArgs->execute = AUDIOLIB_tableLookupInt_exec_ci<int32_t, float>;
+         }
+         else if ((bufParamsIn0->data_type == AUDIOLIB_INT32) && (bufParamsIn1->data_type == AUDIOLIB_INT32)) {
+            status = AUDIOLIB_tableLookupInt_init_ci<int32_t, int32_t>(handle, bufParamsIn0, bufParamsIn1, bufParamsOut,
+                                                                       pKerInitArgs);
+            pKerPrivArgs->execute = AUDIOLIB_tableLookupInt_exec_ci<int32_t, int32_t>;
          }
          else {
             status = AUDIOLIB_ERR_INVALID_TYPE;
          }
       }
 #else
-      if (bufParamsIn0->data_type == AUDIOLIB_FLOAT32) {
+      if ((bufParamsIn0->data_type == AUDIOLIB_FLOAT32) && (bufParamsIn1->data_type == AUDIOLIB_FLOAT32)) {
          status =
              AUDIOLIB_tableLookup_unroll_init_ci<float>(handle, bufParamsIn0, bufParamsIn1, bufParamsOut, pKerInitArgs);
          pKerPrivArgs->execute = AUDIOLIB_tableLookup_unroll_exec_ci<float>;
       }
+      else if ((bufParamsIn0->data_type == AUDIOLIB_INT32) && (bufParamsIn1->data_type == AUDIOLIB_FLOAT32)) {
+         status = AUDIOLIB_tableLookupInt_unroll_init_ci<int32_t, float>(handle, bufParamsIn0, bufParamsIn1,
+                                                                         bufParamsOut, pKerInitArgs);
+         pKerPrivArgs->execute = AUDIOLIB_tableLookupInt_unroll_exec_ci<int32_t, float>;
+      }
+      else if ((bufParamsIn0->data_type == AUDIOLIB_INT32) && (bufParamsIn1->data_type == AUDIOLIB_INT32)) {
+         status = AUDIOLIB_tableLookupInt_unroll_init_ci<int32_t, int32_t>(handle, bufParamsIn0, bufParamsIn1,
+                                                                           bufParamsOut, pKerInitArgs);
+         pKerPrivArgs->execute = AUDIOLIB_tableLookupInt_unroll_exec_ci<int32_t, int32_t>;
+      }
       else {
          status = AUDIOLIB_ERR_INVALID_TYPE;
       }
-
 #endif
    }
 

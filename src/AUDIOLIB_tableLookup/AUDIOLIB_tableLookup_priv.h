@@ -197,6 +197,64 @@ extern AUDIOLIB_STATUS AUDIOLIB_tableLookup_exec_cn(AUDIOLIB_kernelHandle handle
                                                     void *restrict pOut);
 
 /*!
+ *  @brief Initialization function for the C7x implementation of the int32_t index
+ *         mode using the hardware lookup table. The function declaration conforms
+ *         to the declaration of @ref AUDIOLIB_tableLookup_init.
+ */
+template <typename dataTypeIndex, typename dataTypeSample>
+AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_init_ci(AUDIOLIB_kernelHandle                handle,
+                                                const AUDIOLIB_bufParams1D_t        *bufParamsIn0,
+                                                const AUDIOLIB_bufParams1D_t        *bufParamsIn1,
+                                                const AUDIOLIB_bufParams1D_t        *bufParamsOut,
+                                                const AUDIOLIB_tableLookup_InitArgs *pKerInitArgs);
+
+/*!
+ *  @brief Execution function for the C7x implementation of the int32_t index mode
+ *         using the hardware lookup table. The function declaration conforms to
+ *         the declaration of @ref AUDIOLIB_tableLookup_exec.
+ */
+template <typename dataTypeIndex, typename dataTypeSample>
+AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                void *restrict pIn0,
+                                                void *restrict pIn1,
+                                                void *restrict pOut);
+
+/*!
+ *  @brief Initialization function for the C7x implementation of the int32_t index
+ *         mode for tables larger than the hardware lookup table. The function
+ *         declaration conforms to the declaration of @ref AUDIOLIB_tableLookup_init.
+ */
+template <typename dataTypeIndex, typename dataTypeSample>
+AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_unroll_init_ci(AUDIOLIB_kernelHandle                handle,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsIn0,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsIn1,
+                                                       const AUDIOLIB_bufParams1D_t        *bufParamsOut,
+                                                       const AUDIOLIB_tableLookup_InitArgs *pKerInitArgs);
+
+/*!
+ *  @brief Execution function for the C7x implementation of the int32_t index mode
+ *         for tables larger than the hardware lookup table. Each clamped index
+ *         loads one value from the table in memory. The function declaration
+ *         conforms to the declaration of @ref AUDIOLIB_tableLookup_exec.
+ */
+template <typename dataTypeIndex, typename dataTypeSample>
+AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_unroll_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                       void *restrict pIn0,
+                                                       void *restrict pIn1,
+                                                       void *restrict pOut);
+
+/*!
+ *  @brief Execution function for the NATC implementation of the int32_t index mode.
+ *         The function declaration conforms to the declaration of
+ *         @ref AUDIOLIB_tableLookup_exec.
+ */
+template <typename dataTypeIndex, typename dataTypeSample>
+extern AUDIOLIB_STATUS AUDIOLIB_tableLookupInt_exec_cn(AUDIOLIB_kernelHandle handle,
+                                                       void *restrict pIn0,
+                                                       void *restrict pIn1,
+                                                       void *restrict pOut);
+
+/*!
  * @brief Structure that is reserved for internal use by the kernel
  */
 typedef struct {
