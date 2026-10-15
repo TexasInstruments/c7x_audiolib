@@ -18,6 +18,7 @@
 #include "AUDIOLIB_delay/AUDIOLIB_delay.h"
 #include "AUDIOLIB_preEmphasis/AUDIOLIB_preEmphasis.h"
 #include "AUDIOLIB_delayNChannel/AUDIOLIB_delayNChannel.h"
+#include "AUDIOLIB_envelopeDetector/AUDIOLIB_envelopeDetector.h"
 #include "AUDIOLIB_floor/AUDIOLIB_floor.h"
 #include "AUDIOLIB_gain/AUDIOLIB_gain.h"
 #include "AUDIOLIB_gainNCh/AUDIOLIB_gainNCh.h"

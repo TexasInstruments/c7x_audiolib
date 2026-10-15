@@ -181,6 +181,7 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_mute",
         "AUDIOLIB_muteNCh",
         "AUDIOLIB_agc",
+        "AUDIOLIB_envelopeDetector",
     ]),
     ("Conversion & Measurement", [
         "AUDIOLIB_dB10",
