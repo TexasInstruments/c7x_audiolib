@@ -180,6 +180,7 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_balanceFader",
         "AUDIOLIB_mute",
         "AUDIOLIB_muteNCh",
+        "AUDIOLIB_agc",
     ]),
     ("Conversion & Measurement", [
         "AUDIOLIB_dB10",

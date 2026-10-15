@@ -5,6 +5,7 @@
 #ifndef _AUDIOLIB_H_
 #define _AUDIOLIB_H_
 
+#include "AUDIOLIB_agc/AUDIOLIB_agc.h"
 #include "AUDIOLIB_asrc/AUDIOLIB_asrc.h"
 #include "AUDIOLIB_balance/AUDIOLIB_balance.h"
 #include "AUDIOLIB_balanceFader/AUDIOLIB_balanceFader.h"
