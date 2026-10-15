@@ -37,6 +37,21 @@ int main(void)
 
    float out[M] = {0};
 
+   // int32_t index; values outside [0, K-1] are clamped to the table ends
+   int32_t in0I[M];
+   int32_t in1I[K];
+
+   for(uint32_t i=0;i<M;i++)
+   {
+      in0I[i]=(int32_t)(i*2)-3;
+   }
+   for(uint32_t i=0;i<K;i++)
+   {
+      in1I[i]=(int32_t)(i*10);
+   }
+
+   int32_t outI[M] = {0};
+
    // handles and struct for call to kernel
    AUDIOLIB_STATUS               status;
    AUDIOLIB_tableLookup_InitArgs kerInitArgs;
@@ -87,12 +102,100 @@ int main(void)
    if (status == AUDIOLIB_SUCCESS)
       status = AUDIOLIB_tableLookup_exec(handle, in0, in1, out);
 
-   printf("\n RESULT \n");
+   printf("\n FLOAT INDEX, FLOAT TABLE \n");
 
    // print results
 
    for (size_t j = 0; j < M; j++) {
          printf("%f, ", out[j]);
+      }
+   printf("\n\n");
+
+   // int32_t index, float table; minVal and maxVal are not used for an int32_t index
+   bufParamsIn0.data_type = AUDIOLIB_INT32;
+   bufParamsIn0.dim_x     = M;
+
+   bufParamsIn1.data_type = AUDIOLIB_FLOAT32;
+   bufParamsIn1.dim_x     = K;
+
+   bufParamsOut.data_type = AUDIOLIB_FLOAT32;
+   bufParamsOut.dim_x     = M;
+
+   status = AUDIOLIB_SUCCESS;
+
+   // init checkparams
+   if (status == AUDIOLIB_SUCCESS)
+      status = AUDIOLIB_tableLookup_init_checkParams(handle, &bufParamsIn0,&bufParamsIn1, &bufParamsOut, &kerInitArgs);
+
+   // init
+   if (status == AUDIOLIB_SUCCESS)
+      status = AUDIOLIB_tableLookup_init(handle, &bufParamsIn0,&bufParamsIn1, &bufParamsOut, &kerInitArgs);
+
+#if defined(__C7524__)
+   if (kerInitArgs.tableLookupSize >= K) {
+      if (status == AUDIOLIB_SUCCESS) {
+         AUDIOLIB_tableLookup_set_ci(handle, in1);
+      }
+   }
+#endif
+
+   // exec checkparams
+   if (status == AUDIOLIB_SUCCESS)
+      AUDIOLIB_tableLookup_exec_checkParams(handle, in0I, in1, out);
+
+   // exec
+   if (status == AUDIOLIB_SUCCESS)
+      status = AUDIOLIB_tableLookup_exec(handle, in0I, in1, out);
+
+   printf("\n INT32 INDEX, FLOAT TABLE \n");
+
+   // print results
+   for (size_t j = 0; j < M; j++) {
+         printf("%f, ", out[j]);
+      }
+   printf("\n\n");
+
+   // int32_t index, int32_t table
+   bufParamsIn0.data_type = AUDIOLIB_INT32;
+   bufParamsIn0.dim_x     = M;
+
+   bufParamsIn1.data_type = AUDIOLIB_INT32;
+   bufParamsIn1.dim_x     = K;
+
+   bufParamsOut.data_type = AUDIOLIB_INT32;
+   bufParamsOut.dim_x     = M;
+
+   status = AUDIOLIB_SUCCESS;
+
+   // init checkparams
+   if (status == AUDIOLIB_SUCCESS)
+      status = AUDIOLIB_tableLookup_init_checkParams(handle, &bufParamsIn0,&bufParamsIn1, &bufParamsOut, &kerInitArgs);
+
+   // init
+   if (status == AUDIOLIB_SUCCESS)
+      status = AUDIOLIB_tableLookup_init(handle, &bufParamsIn0,&bufParamsIn1, &bufParamsOut, &kerInitArgs);
+
+#if defined(__C7524__)
+   if (kerInitArgs.tableLookupSize >= K) {
+      if (status == AUDIOLIB_SUCCESS) {
+         AUDIOLIB_tableLookup_set_ci(handle, in1I);
+      }
+   }
+#endif
+
+   // exec checkparams
+   if (status == AUDIOLIB_SUCCESS)
+      AUDIOLIB_tableLookup_exec_checkParams(handle, in0I, in1I, outI);
+
+   // exec
+   if (status == AUDIOLIB_SUCCESS)
+      status = AUDIOLIB_tableLookup_exec(handle, in0I, in1I, outI);
+
+   printf("\n INT32 INDEX, INT32 TABLE \n");
+
+   // print results
+   for (size_t j = 0; j < M; j++) {
+         printf("%d, ", outI[j]);
       }
    printf("\n\n");
 

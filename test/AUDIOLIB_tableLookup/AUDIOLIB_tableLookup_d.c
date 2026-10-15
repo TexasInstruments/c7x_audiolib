@@ -92,17 +92,17 @@ int AUDIOLIB_tableLookup_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
          bufParamsIn0.data_type = currPrm.sampleDataType;
          bufParamsIn0.dim_x     = currPrm.srcSamples;
 
-         bufParamsIn1.data_type = currPrm.sampleDataType;
+         bufParamsIn1.data_type = currPrm.tableDataType;
          bufParamsIn1.dim_x     = currPrm.tableSamples;
 
-         bufParamsOut.data_type = currPrm.sampleDataType;
+         bufParamsOut.data_type = currPrm.tableDataType;
          bufParamsOut.dim_x     = currPrm.srcSamples;
 
          uint64_t inp0SizeBytes, inp1SizeBytes, outSizeBytes;
 
          inp0SizeBytes = bufParamsIn0.dim_x * AUDIOLIB_sizeof(bufParamsIn0.data_type);
          inp1SizeBytes = bufParamsIn1.dim_x * AUDIOLIB_sizeof(bufParamsIn1.data_type);
-         outSizeBytes  = bufParamsOut.dim_x * AUDIOLIB_sizeof(bufParamsIn0.data_type);
+         outSizeBytes  = bufParamsOut.dim_x * AUDIOLIB_sizeof(bufParamsOut.data_type);
 
          void *pIn0 = (void *) TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, inp0SizeBytes);
          void *pIn1 = (void *) TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, inp1SizeBytes);
@@ -134,15 +134,21 @@ int AUDIOLIB_tableLookup_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
          if (pIn0 && pIn1 && pOut && pOutCn) {
 
             if (currPrm.sampleDataType == AUDIOLIB_FLOAT32 || currPrm.sampleDataType == AUDIOLIB_FLOAT64) {
-
                TI_fillBuffer_float(prm[tpi].testPattern, 0, pIn0, prm[tpi].staticIn0, currPrm.srcSamples, 1, 0,
-                                   AUDIOLIB_sizeof(currPrm.sampleDataType), testPatternString);
-
-               TI_fillBuffer_float(prm[tpi].testPattern, 0, pIn1, prm[tpi].staticIn1, currPrm.tableSamples, 1, 0,
                                    AUDIOLIB_sizeof(currPrm.sampleDataType), testPatternString);
             }
             else {
-               // TBD for other precisions
+               TI_fillBuffer(prm[tpi].testPattern, (uint8_t) 255, pIn0, prm[tpi].staticIn0, currPrm.srcSamples, 1, 0,
+                             AUDIOLIB_sizeof(currPrm.sampleDataType), testPatternString);
+            }
+
+            if (currPrm.tableDataType == AUDIOLIB_FLOAT32 || currPrm.tableDataType == AUDIOLIB_FLOAT64) {
+               TI_fillBuffer_float(prm[tpi].testPattern, 0, pIn1, prm[tpi].staticIn1, currPrm.tableSamples, 1, 0,
+                                   AUDIOLIB_sizeof(currPrm.tableDataType), testPatternString);
+            }
+            else {
+               TI_fillBuffer(prm[tpi].testPattern, (uint8_t) 255, pIn1, prm[tpi].staticIn1, currPrm.tableSamples, 1, 0,
+                             AUDIOLIB_sizeof(currPrm.tableDataType), testPatternString);
             }
 
             AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_tableLookup_d CP 0\n");
@@ -242,13 +248,14 @@ int AUDIOLIB_tableLookup_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             printf("AUDIOLIB_DEBUGPRINT  AUDIOLIB_tableLookup_d CP 6 status_nat %d\n", status_nat);
 #endif
 
-            if (currPrm.sampleDataType == AUDIOLIB_FLOAT32 || currPrm.sampleDataType == AUDIOLIB_FLOAT64) {
+            if (currPrm.tableDataType == AUDIOLIB_FLOAT32 || currPrm.tableDataType == AUDIOLIB_FLOAT64) {
                status_nat_vs_opt =
                    TI_compare_mem_2D_float((void *) pOut, (void *) pOutCn, 0, (double) powf(2, -10), bufParamsOut.dim_x,
-                                           1, 0, AUDIOLIB_sizeof(currPrm.sampleDataType));
+                                           1, 0, AUDIOLIB_sizeof(currPrm.tableDataType));
             }
             else {
-               // TBD
+               status_nat_vs_opt = TI_compare_mem_2D((void *) pOut, (void *) pOutCn, 0, 0, bufParamsOut.dim_x, 1, 0,
+                                                     AUDIOLIB_sizeof(currPrm.tableDataType));
             }
 
             comparisonDone = 1;
@@ -258,14 +265,18 @@ int AUDIOLIB_tableLookup_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                 comparisonDone, status_nat_vs_opt);
             if (currPrm.staticOut != NULL) {
 
-               if (currPrm.sampleDataType == AUDIOLIB_FLOAT32 || currPrm.sampleDataType == AUDIOLIB_FLOAT64) {
+               if (currPrm.tableDataType == AUDIOLIB_FLOAT32 || currPrm.tableDataType == AUDIOLIB_FLOAT64) {
 
                   status_ref_vs_opt = TI_compare_mem_2DDualStride_float(
                       (void *) pOut, (void *) currPrm.staticOut, 0, (double) powf(2, -10), bufParamsOut.dim_x, 1, 0,
-                      bufParamsOut.dim_x * AUDIOLIB_sizeof(currPrm.sampleDataType),
-                      AUDIOLIB_sizeof(currPrm.sampleDataType));
+                      bufParamsOut.dim_x * AUDIOLIB_sizeof(currPrm.tableDataType),
+                      AUDIOLIB_sizeof(currPrm.tableDataType));
                }
                else {
+                  status_ref_vs_opt =
+                      TI_compare_mem_2DDualStride((void *) pOut, (void *) currPrm.staticOut, 0, 0, bufParamsOut.dim_x,
+                                                  1, 0, bufParamsOut.dim_x * AUDIOLIB_sizeof(currPrm.tableDataType),
+                                                  AUDIOLIB_sizeof(currPrm.tableDataType));
                }
 
                comparisonDone = 1;
@@ -409,7 +420,7 @@ int coverage_test_main()
    pIn1 = (void *) malloc(In1Size);
    pOut = (void *) malloc(OutSize);
 
-   while (testNum <= 1003) {
+   while (testNum <= 1005) {
 
       switch (testNum) {
       case 1000:
@@ -493,6 +504,42 @@ int coverage_test_main()
          kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
          status_opt            = AUDIOLIB_tableLookup_exec_checkParams(handle, NULL, pIn1, pOut);
          currentTestFail       = ((status_opt != AUDIOLIB_ERR_NULL_POINTER));
+         break;
+
+      case 1004:
+         bufParamsIn0Temp.data_type = AUDIOLIB_INT32;
+         bufParamsIn1Temp.data_type = AUDIOLIB_INT32;
+         bufParamsOutTemp.data_type = AUDIOLIB_FLOAT32;
+
+         bufParamsIn0Temp.dim_x = bufParamsIn0.dim_x;
+         bufParamsIn1Temp.dim_x = bufParamsIn1.dim_x;
+         bufParamsOutTemp.dim_x = bufParamsOut.dim_x;
+
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
+         status_nat            = AUDIOLIB_tableLookup_init_checkParams(handle, &bufParamsIn0Temp, &bufParamsIn1Temp,
+                                                                       &bufParamsOutTemp, &kerInitArgs);
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
+         status_opt            = AUDIOLIB_tableLookup_init_checkParams(handle, &bufParamsIn0Temp, &bufParamsIn1Temp,
+                                                                       &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
+         break;
+
+      case 1005:
+         bufParamsIn0Temp.data_type = AUDIOLIB_FLOAT32;
+         bufParamsIn1Temp.data_type = AUDIOLIB_INT32;
+         bufParamsOutTemp.data_type = AUDIOLIB_INT32;
+
+         bufParamsIn0Temp.dim_x = bufParamsIn0.dim_x;
+         bufParamsIn1Temp.dim_x = bufParamsIn1.dim_x;
+         bufParamsOutTemp.dim_x = bufParamsOut.dim_x;
+
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
+         status_nat            = AUDIOLIB_tableLookup_init_checkParams(handle, &bufParamsIn0Temp, &bufParamsIn1Temp,
+                                                                       &bufParamsOutTemp, &kerInitArgs);
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
+         status_opt            = AUDIOLIB_tableLookup_init_checkParams(handle, &bufParamsIn0Temp, &bufParamsIn1Temp,
+                                                                       &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
          break;
 
       default:

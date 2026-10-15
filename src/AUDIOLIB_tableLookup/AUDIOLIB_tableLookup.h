@@ -52,6 +52,14 @@ extern "C" {
  * \f]
  *
  * ---
+ * **Integer Index Mode**
+ * - When the source buffer is `int32_t`, each sample is used directly as the table index,
+ *   clamped to \f$[0, M-1]\f$; `minVal` and `maxVal` are not used:
+ *   \f$ y_n = T_{\min(\max(x_n, 0), M-1)} \f$
+ * - In this mode the table and output can be `int32_t` or `float`, and must have the same type.
+ * - The AM275 hardware lookup table holds 256 entries.
+ *
+ * ---
  * **Parameter Roles**
  * - `minVal`: Minimum value found in the source data. Samples ≤ `minVal` map to `T_0`.
  * - `maxVal`: Maximum value found in the source data. Samples ≥ `maxVal` map to `T_{M-1}`.
@@ -90,7 +98,13 @@ extern "C" {
  * - The `+0.5` term in scaling implements rounding to the nearest index.
  * - Values outside the input range are clamped to the nearest valid table entry.
  * - The kernel supports multi-channel (vectorized) lookup operations using a shared table.
- * - The kernel supports only FLOAT dataType.
+ * - The following datatype combinations are supported
+ *
+ *  | Case    | Source    | Table     | Output    |
+ *  |  ----:  | :----:    | :----:    | :----     |
+ *  |    1    | float     | float     | float     |
+ *  |    2    | int32_t   | float     | float     |
+ *  |    3    | int32_t   | int32_t   | int32_t   |
  *
  * @ingroup AUDIOLIB
  */
@@ -102,8 +116,8 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
    int8_t   funcStyle;
-   float    minVal;          /**< Minimum input value corresponding to the first table entry. */
-   float    maxVal;          /**< Maximum input value corresponding to the last table entry. */
+   float    minVal;          /**< Input value mapped to the first table entry; not used for int32_t source. */
+   float    maxVal;          /**< Input value mapped to the last table entry; not used for int32_t source. */
    uint32_t tableLookupSize; /**< Number of entries in the lookup table. */
 
 } AUDIOLIB_tableLookup_InitArgs;
