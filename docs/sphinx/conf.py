@@ -193,6 +193,7 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_subBlockStatistics",
     ]),
     ("Effects & Processing", [
+        "AUDIOLIB_deEmphasis",
         "AUDIOLIB_delay",
         "AUDIOLIB_delayNChannel",
         "AUDIOLIB_crossfade",
