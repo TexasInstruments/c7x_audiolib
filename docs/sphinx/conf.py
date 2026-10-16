@@ -191,6 +191,7 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_typeConversion",
         "AUDIOLIB_blockStatistics",
         "AUDIOLIB_subBlockStatistics",
+        "AUDIOLIB_rmsSmoothed",
     ]),
     ("Effects & Processing", [
         "AUDIOLIB_deEmphasis",

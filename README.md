@@ -64,6 +64,7 @@ reference implementation under `test/AUDIOLIB_idat_gen/AUDIOLIB_<kernel>/` for t
 | `AUDIOLIB_typeConversion` | Convert between audio sample data types |
 | `AUDIOLIB_blockStatistics` | Compute statistics (min, max, RMS) over a block |
 | `AUDIOLIB_subBlockStatistics` | Compute statistics over sub-blocks |
+| `AUDIOLIB_rmsSmoothed` | Smoothed RMS of a multichannel block |
 
 ### Effects & Processing
 | Kernel | Description |
