@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="900" viewBox="0 0 1100 900">
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+<path d="M0,0 L9,3 L0,6 Z" fill="#4b5563"/>
+</marker>
+<style>
+text{font-family:Arial,sans-serif;fill:#1f2937}
+.title{font-size:28px;font-weight:bold}
+.sub{font-size:15px}
+.head{font-size:18px;font-weight:bold}
+.small{font-size:14px}
+.box{fill:#eef6ff;stroke:#2563eb;stroke-width:2;rx:10}
+.line{stroke:#4b5563;stroke-width:2;fill:none;marker-end:url(#arrow)}
+.axis{stroke:#333;stroke-width:2}
+.grid{stroke:#d1d5db;stroke-width:1}
+.target{stroke:#888;stroke-width:2;stroke-dasharray:8 5}
+.sym{fill:none;stroke:#2563eb;stroke-width:4}
+.smooth{fill:none;stroke:#16a34a;stroke-width:4}
+</style>
+</defs>
+
+<text x="550" y="45" text-anchor="middle" class="title">AUDIOLIB_gainSmoothing</text>
+<text x="550" y="70" text-anchor="middle" class="sub">
+Smoothly transitions the current gain to the target gain to avoid clicks and abrupt level changes.
+</text>
+
+<rect class="box" x="60" y="120" width="170" height="55"/>
+<text class="head" x="145" y="153" text-anchor="middle">Current Gain</text>
+
+<rect class="box" x="60" y="200" width="170" height="55"/>
+<text class="head" x="145" y="233" text-anchor="middle">Target Gain</text>
+
+<rect class="box" x="300" y="145" width="270" height="90"/>
+<text class="head" x="435" y="175" text-anchor="middle">AUDIOLIB_gainSmoothing</text>
+<text class="small" x="435" y="198" text-anchor="middle">Computes the smoothed gain</text>
+<text class="small" x="435" y="218" text-anchor="middle">using the selected fade type</text>
+
+<rect class="box" x="660" y="145" width="170" height="55"/>
+<text class="head" x="745" y="178" text-anchor="middle">Smoothed Gain</text>
+
+<rect class="box" x="60" y="300" width="170" height="55"/>
+<text class="head" x="145" y="333" text-anchor="middle">Input Signal</text>
+
+<rect class="box" x="660" y="300" width="170" height="55"/>
+<text class="head" x="745" y="333" text-anchor="middle">Output Signal</text>
+
+<line class="line" x1="230" y1="147" x2="300" y2="170"/>
+<line class="line" x1="230" y1="227" x2="300" y2="210"/>
+<line class="line" x1="570" y1="190" x2="660" y2="172"/>
+<line class="line" x1="145" y1="300" x2="145" y2="260"/>
+<line class="line" x1="745" y1="200" x2="745" y2="300"/>
+
+<text class="head" x="60" y="405">Fade Types</text>
+
+<rect class="box" x="60" y="425" width="450" height="95"/>
+<text class="head" x="285" y="450" text-anchor="middle">AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC</text>
+<text class="small" x="75" y="475">Gain(dB)<tspan x="75" dy="18">G[n]=G[n-1]+ΔdB</tspan><tspan x="75" dy="18">• Constant dB step</tspan></text>
+
+<rect class="box" x="560" y="425" width="450" height="95"/>
+<text class="head" x="785" y="450" text-anchor="middle">AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SMOOTH</text>
+<text class="small" x="575" y="475">g[n]=α·g[n−1]+(1−α)·g<tspan baseline-shift="sub">target</tspan><tspan x="575" dy="18">• Exponential IIR smoothing</tspan></text>
+
+<text class="head" x="60" y="565">Gain Transition (dB)</text>
+
+<line class="axis" x1="100" y1="820" x2="980" y2="820"/>
+<line class="axis" x1="100" y1="610" x2="100" y2="820"/>
+<line class="grid" x1="100" y1="610" x2="980" y2="610"/><text class="small" x="55" y="615">+6</text><line class="grid" x1="100" y1="652" x2="980" y2="652"/><text class="small" x="55" y="657">0</text><line class="grid" x1="100" y1="694" x2="980" y2="694"/><text class="small" x="55" y="699">-12</text><line class="grid" x1="100" y1="736" x2="980" y2="736"/><text class="small" x="55" y="741">-24</text><line class="grid" x1="100" y1="778" x2="980" y2="778"/><text class="small" x="55" y="783">-36</text><line class="grid" x1="100" y1="820" x2="980" y2="820"/><text class="small" x="55" y="825">-48</text>
+<line class="target" x1="100" y1="610" x2="980" y2="610"/>
+<text class="small" x="990" y="615">Target</text>
+<polyline class="sym" points="100,800 220,772 340,744 460,716 580,688 700,660 820,635 940,610"/>
+<path class="smooth" d="M100 800 C220 790 320 740 430 690 S700 625 940 610"/>
+<text class="small" x="470" y="850">Time (Samples / Blocks)</text>
+<text class="small" transform="translate(28 735) rotate(-90)">Gain (dB)</text>
+<line x1="690" y1="875" x2="750" y2="875" class="sym"/>
+<text class="small" x="760" y="880">Symmetric (Linear in dB)</text>
+<line x1="690" y1="895" x2="750" y2="895" class="smooth"/>
+<text class="small" x="760" y="900">Smooth (Exponential IIR)</text>
+</svg>
