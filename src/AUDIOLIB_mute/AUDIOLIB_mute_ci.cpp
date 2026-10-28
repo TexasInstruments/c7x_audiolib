@@ -728,6 +728,196 @@ AUDIOLIB_STATUS AUDIOLIB_hardUnMute_exec_ci(AUDIOLIB_kernelHandle handle, void *
 }
 template AUDIOLIB_STATUS
      AUDIOLIB_hardUnMute_exec_ci<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_muteSymmetricFade_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut)
+{
+
+#if AUDIOLIB_DEBUGPRINT
+   printf("Enter AUDIOLIB_muteSymmetricFade_exec_ci\n");
+#endif
+
+   typedef typename c7x::make_full_vector<dataType>::type vec;
+
+   AUDIOLIB_STATUS         status       = AUDIOLIB_SUCCESS;
+   AUDIOLIB_mute_PrivArgs *pKerPrivArgs = (AUDIOLIB_mute_PrivArgs *) handle;
+   uint8_t                *pBlock       = pKerPrivArgs->bufPblock;
+   dataType *restrict pInLocal          = (dataType *) pIn;
+   dataType *restrict pOutLocal         = (dataType *) pOut;
+   uint32_t numSamples                  = pKerPrivArgs->samples;
+   float    targetGain                  = pKerPrivArgs->targetGain;
+   float    currentGain                 = pKerPrivArgs->currentGain;
+   uint32_t pInOffset                   = pKerPrivArgs->pInOffset;
+   uint32_t pOutOffset                  = pKerPrivArgs->pOutOffset;
+   uint32_t numBlocks                   = pKerPrivArgs->numBlocks;
+   uint32_t wBlocks                     = pKerPrivArgs->wBlocks;
+   uint32_t eleCount                    = c7x::element_count_of<vec>::value;
+
+   __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET);
+
+   vec currentGainVec, appliedGainVec;
+   vec inputSe0, inputSe1, outputSa0, outputSa1;
+
+   vec floorVec       = (vec) (AUDIOLIB_MUTE_SYMMETRIC_FLOOR);
+   vec oneVec         = (vec) (1.0f);
+   vec zeroVec        = (vec) (0.0f);
+   vec initialGainVec = (vec) (currentGain);
+
+   // Per-lane gain ratios of the first block, and the factor that advances them by one block.
+   float *alphaPtr         = pKerPrivArgs->alphaCoeff;
+   vec   *vecAlphaPtr      = stov_ptr(vec, (float *) &alphaPtr[0]);
+   vec    gainStepVec      = *vecAlphaPtr;
+   vec    gainStepAdderVec = (vec) (pKerPrivArgs->alphaMultiplier);
+
+   __SE0_OPEN(pInLocal, se0Params);
+   __SE1_OPEN(pInLocal + pInOffset, se1Params);
+   __SA0_OPEN(sa0Params);
+   __SA1_OPEN(sa1Params);
+#pragma MUST_ITERATE(1, , )
+   for (uint32_t i = 0; i < numBlocks; i++) {
+      // Geometric update. Both directions share it: the clamp to [floor, 1] only acts on the side the ramp moves
+      // toward.
+      currentGainVec = initialGainVec * gainStepVec;
+      currentGainVec = __min(__max(currentGainVec, floorVec), oneVec);
+      gainStepVec    = gainStepVec * gainStepAdderVec;
+
+      // The floor is the fully muted state: output exact zeros there.
+      appliedGainVec = __select(__cmp_gt_pred(currentGainVec, floorVec), currentGainVec, zeroVec);
+
+      // ii = 2 cycles per iteration (two vectors), 1 cycle per vector, float on C7504 and C7524 (from the compiled
+      // .asm), plus a 4-cycle pipeline fill per block. Bound by the single store per cycle.
+#pragma MUST_ITERATE(1, , )
+      for (size_t j = 0; j < wBlocks; j++) {
+         inputSe0 = c7x::strm_eng<0, vec>::get_adv();
+         inputSe1 = c7x::strm_eng<1, vec>::get_adv();
+
+         // Apply gains to input samples
+         outputSa0 = inputSe0 * appliedGainVec;
+         outputSa1 = inputSe1 * appliedGainVec;
+
+         // store outputSa0 to output buffer pOutLocal
+         __vpred tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
+         vec    *outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+         __vstore_pred(tmpSa0, outPtrSa0, outputSa0);
+
+         // store outputSa1 to output buffer pOutLocal + pOutLocalOffset
+         __vpred tmpSa1    = c7x::strm_agen<1, vec>::get_vpred();
+         vec    *outPtrSa1 = c7x::strm_agen<1, vec>::get_adv(pOutLocal + pOutOffset);
+         __vstore_pred(tmpSa1, outPtrSa1, outputSa1);
+      }
+   }
+   __SE0_CLOSE();
+   __SE1_CLOSE();
+   __SA0_CLOSE();
+   __SA1_CLOSE();
+
+   // Save the gain of the last sample. The clamp makes the end of the ramp exact, so equality with the target means
+   // the ramp is over and the next frame runs the converged variant (index 1: exact zeros or pass-through).
+   float lastGain            = __get_vector_element(currentGainVec, (numSamples - 1) % eleCount);
+   pKerPrivArgs->currentGain = lastGain;
+   pKerPrivArgs->execute     = pKerPrivArgs->symmetricNextExecute[(uint32_t) (lastGain == targetGain)];
+
+   return status;
+}
+
+template AUDIOLIB_STATUS
+AUDIOLIB_muteSymmetricFade_exec_ci<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_muteSymmetricFadeNarrow_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut)
+{
+
+#if AUDIOLIB_DEBUGPRINT
+   printf("Enter AUDIOLIB_muteSymmetricFadeNarrow_exec_ci\n");
+#endif
+
+   typedef typename c7x::make_full_vector<dataType>::type vec;
+
+   AUDIOLIB_STATUS         status       = AUDIOLIB_SUCCESS;
+   AUDIOLIB_mute_PrivArgs *pKerPrivArgs = (AUDIOLIB_mute_PrivArgs *) handle;
+   uint8_t                *pBlock       = pKerPrivArgs->bufPblock;
+   dataType *restrict pInLocal          = (dataType *) pIn;
+   dataType *restrict pOutLocal         = (dataType *) pOut;
+   uint32_t numSamples                  = pKerPrivArgs->samples;
+   float    targetGain                  = pKerPrivArgs->targetGain;
+   float    currentGain                 = pKerPrivArgs->currentGain;
+   uint32_t pInOffset                   = pKerPrivArgs->pInOffset;
+   uint32_t pOutOffset                  = pKerPrivArgs->pOutOffset;
+   uint32_t numBlocks                   = pKerPrivArgs->numBlocks;
+   uint32_t eleCount                    = c7x::element_count_of<vec>::value;
+
+   __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET);
+
+   vec currentGainVec, appliedGainVec;
+   vec inputSe0, inputSe1, outputSa0, outputSa1;
+
+   vec floorVec       = (vec) (AUDIOLIB_MUTE_SYMMETRIC_FLOOR);
+   vec oneVec         = (vec) (1.0f);
+   vec zeroVec        = (vec) (0.0f);
+   vec initialGainVec = (vec) (currentGain);
+
+   float *alphaPtr         = pKerPrivArgs->alphaCoeff;
+   vec   *vecAlphaPtr      = stov_ptr(vec, (float *) &alphaPtr[0]);
+   vec    gainStepVec      = *vecAlphaPtr;
+   vec    gainStepAdderVec = (vec) (pKerPrivArgs->alphaMultiplier);
+
+   __SE0_OPEN(pInLocal, se0Params);
+   __SE1_OPEN(pInLocal + pInOffset, se1Params);
+   __SA0_OPEN(sa0Params);
+   __SA1_OPEN(sa1Params);
+
+   // wBlocks is 1, so each block is one vector from each stream and there is no inner loop. That lets the compiler
+   // software pipeline this loop across blocks. ii = 4 cycles per block (two vectors), i.e. 2 cycles per vector, for
+   // float on C7504 and C7524 (from the compiled .asm). Bound by the 4-cycle multiply that advances gainStepVec.
+#pragma MUST_ITERATE(1, , )
+   for (uint32_t i = 0; i < numBlocks; i++) {
+      currentGainVec = initialGainVec * gainStepVec;
+      currentGainVec = __min(__max(currentGainVec, floorVec), oneVec);
+      gainStepVec    = gainStepVec * gainStepAdderVec;
+
+      // The floor is the fully muted state: output exact zeros there.
+      appliedGainVec = __select(__cmp_gt_pred(currentGainVec, floorVec), currentGainVec, zeroVec);
+
+      inputSe0 = c7x::strm_eng<0, vec>::get_adv();
+      inputSe1 = c7x::strm_eng<1, vec>::get_adv();
+
+      outputSa0 = inputSe0 * appliedGainVec;
+      outputSa1 = inputSe1 * appliedGainVec;
+
+      // store outputSa0 to output buffer pOutLocal
+      __vpred tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
+      vec    *outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      __vstore_pred(tmpSa0, outPtrSa0, outputSa0);
+
+      // store outputSa1 to output buffer pOutLocal + pOutLocalOffset
+      __vpred tmpSa1    = c7x::strm_agen<1, vec>::get_vpred();
+      vec    *outPtrSa1 = c7x::strm_agen<1, vec>::get_adv(pOutLocal + pOutOffset);
+      __vstore_pred(tmpSa1, outPtrSa1, outputSa1);
+   }
+   __SE0_CLOSE();
+   __SE1_CLOSE();
+   __SA0_CLOSE();
+   __SA1_CLOSE();
+
+   // Same hand-over as the generic function: equality with the target means the ramp is over.
+   float lastGain            = __get_vector_element(currentGainVec, (numSamples - 1) % eleCount);
+   pKerPrivArgs->currentGain = lastGain;
+   pKerPrivArgs->execute     = pKerPrivArgs->symmetricNextExecute[(uint32_t) (lastGain == targetGain)];
+
+   return status;
+}
+
+template AUDIOLIB_STATUS
+AUDIOLIB_muteSymmetricFadeNarrow_exec_ci<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
 void AUDIOLIB_mute_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, uint64_t *estCycles)
 {
    AUDIOLIB_mute_PrivArgs *pKerPrivArgs        = (AUDIOLIB_mute_PrivArgs *) handle;
@@ -775,6 +965,32 @@ void AUDIOLIB_mute_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, u
          }
          else {
             muteStartupCycles   = 17 + 17 + 3;
+            muteOperationCycles = 1 + (wBlocks * numBlocks) * 2;
+            muteTearDownCycles  = 2;
+         }
+      }
+      break;
+   case AUDIOLIB_MUTE_FADE_TYPE_SYMMETRIC:
+      if (!bypassSmoothing) {
+         // The ramp runs from the start, so the converged path is not modelled.
+         muteStartupCycles = AUDIOLIB_MUTE_SYMMETRIC_STARTUP_CYCLES;
+         // wBlocks == 1 runs the narrow function: one pipelined loop, AUDIOLIB_MUTE_SYMMETRIC_NARROW_II cycles per
+         // block.
+         muteOperationCycles =
+             (wBlocks == 1)
+                 ? AUDIOLIB_MUTE_SYMMETRIC_NARROW_PIPE_UP_CYCLES + numBlocks * AUDIOLIB_MUTE_SYMMETRIC_NARROW_II
+                 : (AUDIOLIB_MUTE_SYMMETRIC_BLOCK_OVERHEAD_CYCLES + (4 + wBlocks * 2)) * numBlocks;
+         muteTearDownCycles = AUDIOLIB_MUTE_SYMMETRIC_TEARDOWN_CYCLES;
+         muteOverheadCycles = AUDIOLIB_MUTE_SYMMETRIC_CALL_OVERHEAD_CYCLES;
+      }
+      else {
+         if (isMute) {
+            muteStartupCycles   = 14 + 2;
+            muteOperationCycles = 2 * wBlocks * numBlocks;
+            muteTearDownCycles  = 2;
+         }
+         else {
+            muteStartupCycles   = 28 + 3;
             muteOperationCycles = 1 + (wBlocks * numBlocks) * 2;
             muteTearDownCycles  = 2;
          }

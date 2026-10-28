@@ -31,7 +31,7 @@ class AUDIOLIB_mute:
             samplingRate (int): Sampling rate in Hz
             fadeTime (float): Fade time in milliseconds
             isInterleaved (bool): Whether data is interleaved (True) or planar (False)
-            fadeType (str): Type of fade ("LINEAR", "SMOOTH", or "HARD")
+            fadeType (str): Type of fade ("LINEAR", "SMOOTH", "HARD", or "SYMMETRIC")
             numExecReps (int): Number of execution repetitions
             testType (str): Type of test ("STATIC" or "SINE")
             amplitude (float): Amplitude for sine wave generation
@@ -159,6 +159,27 @@ class AUDIOLIB_mute:
                         pCurrentGain[j] = (smoothingCoefficient * prevGain) + (
                             (1.0 - smoothingCoefficient) * targetGain
                         )
+
+        elif self._fadeType == "SYMMETRIC":
+            # Geometric ramp between the mute floor (-200 dB) and unity: equal time to mute and unmute.
+            floorGain = np.float32(1e-10)
+            totalFadeSamples = (self._fadeTime / 1000.0) * self._samplingRate
+            if totalFadeSamples <= 0:
+                # No ramp: instantaneous change, exact zeros when muted.
+                pCurrentGain[:] = targetGain
+            else:
+                startGain = np.float32(1.0) if self._isMuted == 1.0 else floorGain
+                stopGain = floorGain if self._isMuted == 1.0 else np.float32(1.0)
+                gainStep = np.float32(
+                    np.power(np.float32(stopGain / startGain), np.float32(1.0 / totalFadeSamples))
+                )
+                rampGain = startGain
+                for i in range(self._totalSamplesPerChannel):
+                    rampGain = np.float32(
+                        min(max(np.float32(rampGain * gainStep), floorGain), np.float32(1.0))
+                    )
+                    # The floor is the fully muted state and outputs exact zeros.
+                    pCurrentGain[i] = rampGain if rampGain > floorGain else 0.0
 
         # Apply gains to input data
         pOutLocal = np.zeros(

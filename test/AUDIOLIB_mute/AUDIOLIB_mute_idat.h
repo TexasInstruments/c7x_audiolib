@@ -23,7 +23,7 @@ typedef struct {
    int32_t  samplingRate;
    float    fadeTime;
    uint8_t  isInterleaved;
-   uint32_t fadeType; // 0=LINEAR, 1=SMOOTH, 2=HARD
+   uint32_t fadeType; // 0=LINEAR, 1=SMOOTH, 2=HARD, 3=SYMMETRIC
    uint32_t strideIn;
    uint32_t strideOut;
    uint32_t outputDataLocation; // 0 -> HEAP (probably L2SRAM), 1 -> MSMC
