@@ -57,7 +57,7 @@ extern "C" {
  *   clamped to \f$[0, M-1]\f$; `minVal` and `maxVal` are not used:
  *   \f$ y_n = T_{\min(\max(x_n, 0), M-1)} \f$
  * - In this mode the table and output can be `int32_t` or `float`, and must have the same type.
- * - The AM275 hardware lookup table holds 256 entries.
+ * - The AM275/AM283 hardware lookup table holds 256 entries.
  *
  * ---
  * **Parameter Roles**
@@ -82,7 +82,7 @@ extern "C" {
  * ---
  * **Execution Path Selection**
  * - **Platform-specific behavior:**
- *   - **AM275:**
+ *   - **AM275/AM283:**
  *     - Default execution function: `AUDIOLIB_tableLookup_exec_ci`
  *     - If the given table size (`tableSamples`) **exceeds** the configured
  *       `tableLookupSize` (default = 8 KB), the kernel automatically switches to

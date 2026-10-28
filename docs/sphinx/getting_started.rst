@@ -39,8 +39,14 @@ Available Presets
    * - ``release-autotest-am275-pc``
      - AM275
      - PC simulation + tests
+   * - ``release-autotest-am283-pc``
+     - AM283
+     - PC simulation + tests
    * - ``release-autotest-am275-target``
      - AM275
+     - On-device + tests
+   * - ``release-autotest-am283-target``
+     - AM283
      - On-device + tests
    * - ``release-buildlib-am62d-pc``
      - AM62D
@@ -51,8 +57,14 @@ Available Presets
    * - ``release-buildlib-am275-pc``
      - AM275
      - PC (library only)
+   * - ``release-buildlib-am283-pc``
+     - AM283
+     - PC (library only)
    * - ``release-buildlib-am275-target``
      - AM275
+     - On-device (library only)
+   * - ``release-buildlib-am283-target``
+     - AM283
      - On-device (library only)
 
 Quick Start — PC simulation (AM62D)
@@ -100,7 +112,7 @@ Custom Configurations
 
 The shared, tracked presets live in ``CMakePresets.json`` and expose hidden
 per-device base presets: ``base-am62d-pc``, ``base-am62d-target``,
-``base-am275-pc``, ``base-am275-target``. To define your own configurations,
+``base-am275-pc``, ``base-am275-target``, ``base-am283-pc``, ``base-am283-target``. To define your own configurations,
 create a git-ignored ``CMakeUserPresets.json`` that **composes** a device base
 with your build-type and test settings via ``inherits``:
 

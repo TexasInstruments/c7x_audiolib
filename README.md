@@ -15,7 +15,7 @@
 
 AUDIOLIB is TI's optimized audio processing library for the **C7<sup>™</sup>** DSP architecture.
 It provides a suite of kernels targeting the C7<sup>™</sup> vector and streaming engines (SE/SA),
-enabling high-throughput audio signal processing on TI SoCs such as AM62D and AM275.
+enabling high-throughput audio signal processing on TI SoCs such as AM62D, AM275 and AM283.
 The Sample Rate Converter (`AUDIOLIB_ssrc`) additionally leverages the Matrix Multiply Accelerator (MMA)
 for maximum throughput.
 
@@ -102,6 +102,7 @@ reference implementation under `test/AUDIOLIB_idat_gen/AUDIOLIB_<kernel>/` for t
 |--------|-----|-------------|----------|
 | AM62D | C7504 | MMAv2 | Cortex-A53 |
 | AM275 | C7524 | MMAv2f (adds 32-bit float support) | — |
+| AM283 | C7524 | MMAv2f (adds 32-bit float support) | — |
 
 > MMA is used only by `AUDIOLIB_ssrc`. All other kernels run on the C7<sup>™</sup> SE/SA engines.
 
@@ -155,6 +156,9 @@ west build-audiolib --soc am62d --platform pc
 # PC simulation, AM275
 west build-audiolib --soc am275 --platform pc
 
+# PC simulation, AM283
+west build-audiolib --soc am283 --platform pc
+
 # On-target build
 west build-audiolib --soc am62d --platform target
 
@@ -207,10 +211,14 @@ AUDIOLIB uses **CMake presets** to manage build configurations.
 | `release-autotest-am62d-target` | AM62D | On-device + tests |
 | `release-autotest-am275-pc` | AM275 | PC simulation + tests |
 | `release-autotest-am275-target` | AM275 | On-device + tests |
+| `release-autotest-am283-pc` | AM283 | PC simulation + tests |
+| `release-autotest-am283-target` | AM283 | On-device + tests |
 | `release-buildlib-am62d-pc` | AM62D | PC (library only) |
 | `release-buildlib-am62d-target` | AM62D | On-device (library only) |
 | `release-buildlib-am275-pc` | AM275 | PC (library only) |
 | `release-buildlib-am275-target` | AM275 | On-device (library only) |
+| `release-buildlib-am283-pc` | AM283 | PC (library only) |
+| `release-buildlib-am283-target` | AM283 | On-device (library only) |
 
 ### Quick Start — PC simulation (AM62D)
 
