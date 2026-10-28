@@ -828,12 +828,13 @@ template AUDIOLIB_STATUS
 AUDIOLIB_muteSymmetricFade_exec_ci<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
 template <typename dataType>
-AUDIOLIB_STATUS
-AUDIOLIB_muteSymmetricFadeNarrow_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut)
+AUDIOLIB_STATUS AUDIOLIB_muteSymmetricFadeSingleVectorEvenBlocks_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                                         void *restrict pIn,
+                                                                         void *restrict pOut)
 {
 
 #if AUDIOLIB_DEBUGPRINT
-   printf("Enter AUDIOLIB_muteSymmetricFadeNarrow_exec_ci\n");
+   printf("Enter AUDIOLIB_muteSymmetricFadeSingleVectorEvenBlocks_exec_ci\n");
 #endif
 
    typedef typename c7x::make_full_vector<dataType>::type vec;
@@ -874,32 +875,63 @@ AUDIOLIB_muteSymmetricFadeNarrow_exec_ci(AUDIOLIB_kernelHandle handle, void *res
    __SA0_OPEN(sa0Params);
    __SA1_OPEN(sa1Params);
 
-   // wBlocks is 1, so each block is one vector from each stream and there is no inner loop. That lets the compiler
-   // software pipeline this loop across blocks. ii = 4 cycles per block (two vectors), i.e. 2 cycles per vector, for
-   // float on C7504 and C7524 (from the compiled .asm). Bound by the 4-cycle multiply that advances gainStepVec.
+   // wBlocks is 1, so each block is one vector from each stream and there is no inner loop. One block per iteration is
+   // bound by the 4-cycle multiply that advances gainStepVec (ii = 4 for two vectors). Two blocks per iteration use two
+   // independent step vectors, each advanced by the square of the ratio, which removes that bound and leaves the store
+   // port, one vector per cycle, as the limit. This variant is for an even number of blocks; the odd variant below
+   // processes one block first. @ref AUDIOLIB_mute_set picks the variant, and never picks either for a single block.
+   uint32_t numPairs = numBlocks / 2;
+
+   __vpred tmpSa0, tmpSa1;
+   vec    *outPtrSa0, *outPtrSa1;
+
+   // The second block of a pair is one ratio further on than the first.
+   vec gainStepOddVec          = gainStepVec * gainStepAdderVec;
+   vec gainStepAdderSquaredVec = gainStepAdderVec * gainStepAdderVec;
+   vec currentGainOddVec, appliedGainOddVec;
+
+   // ii = 4 cycles per pair of blocks (four vectors), i.e. 1 cycle per vector, for float on C7504 and C7524 (from the
+   // compiled .asm). Bound by the single vector store per cycle.
 #pragma MUST_ITERATE(1, , )
-   for (uint32_t i = 0; i < numBlocks; i++) {
-      currentGainVec = initialGainVec * gainStepVec;
-      currentGainVec = __min(__max(currentGainVec, floorVec), oneVec);
-      gainStepVec    = gainStepVec * gainStepAdderVec;
+   for (uint32_t i = 0; i < numPairs; i++) {
+      currentGainVec    = initialGainVec * gainStepVec;
+      currentGainOddVec = initialGainVec * gainStepOddVec;
+      currentGainVec    = __min(__max(currentGainVec, floorVec), oneVec);
+      currentGainOddVec = __min(__max(currentGainOddVec, floorVec), oneVec);
+      gainStepVec       = gainStepVec * gainStepAdderSquaredVec;
+      gainStepOddVec    = gainStepOddVec * gainStepAdderSquaredVec;
 
-      // The floor is the fully muted state: output exact zeros there.
-      appliedGainVec = __select(__cmp_gt_pred(currentGainVec, floorVec), currentGainVec, zeroVec);
+      appliedGainVec    = __select(__cmp_gt_pred(currentGainVec, floorVec), currentGainVec, zeroVec);
+      appliedGainOddVec = __select(__cmp_gt_pred(currentGainOddVec, floorVec), currentGainOddVec, zeroVec);
 
+      // first block of the pair
       inputSe0 = c7x::strm_eng<0, vec>::get_adv();
       inputSe1 = c7x::strm_eng<1, vec>::get_adv();
 
       outputSa0 = inputSe0 * appliedGainVec;
       outputSa1 = inputSe1 * appliedGainVec;
 
-      // store outputSa0 to output buffer pOutLocal
-      __vpred tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
-      vec    *outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
+      outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
       __vstore_pred(tmpSa0, outPtrSa0, outputSa0);
 
-      // store outputSa1 to output buffer pOutLocal + pOutLocalOffset
-      __vpred tmpSa1    = c7x::strm_agen<1, vec>::get_vpred();
-      vec    *outPtrSa1 = c7x::strm_agen<1, vec>::get_adv(pOutLocal + pOutOffset);
+      tmpSa1    = c7x::strm_agen<1, vec>::get_vpred();
+      outPtrSa1 = c7x::strm_agen<1, vec>::get_adv(pOutLocal + pOutOffset);
+      __vstore_pred(tmpSa1, outPtrSa1, outputSa1);
+
+      // second block of the pair
+      inputSe0 = c7x::strm_eng<0, vec>::get_adv();
+      inputSe1 = c7x::strm_eng<1, vec>::get_adv();
+
+      outputSa0 = inputSe0 * appliedGainOddVec;
+      outputSa1 = inputSe1 * appliedGainOddVec;
+
+      tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
+      outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      __vstore_pred(tmpSa0, outPtrSa0, outputSa0);
+
+      tmpSa1    = c7x::strm_agen<1, vec>::get_vpred();
+      outPtrSa1 = c7x::strm_agen<1, vec>::get_adv(pOutLocal + pOutOffset);
       __vstore_pred(tmpSa1, outPtrSa1, outputSa1);
    }
    __SE0_CLOSE();
@@ -908,15 +940,162 @@ AUDIOLIB_muteSymmetricFadeNarrow_exec_ci(AUDIOLIB_kernelHandle handle, void *res
    __SA1_CLOSE();
 
    // Same hand-over as the generic function: equality with the target means the ramp is over.
-   float lastGain            = __get_vector_element(currentGainVec, (numSamples - 1) % eleCount);
+   float lastGain            = __get_vector_element(currentGainOddVec, (numSamples - 1) % eleCount);
    pKerPrivArgs->currentGain = lastGain;
    pKerPrivArgs->execute     = pKerPrivArgs->symmetricNextExecute[(uint32_t) (lastGain == targetGain)];
 
    return status;
 }
 
-template AUDIOLIB_STATUS
-AUDIOLIB_muteSymmetricFadeNarrow_exec_ci<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+template AUDIOLIB_STATUS AUDIOLIB_muteSymmetricFadeSingleVectorEvenBlocks_exec_ci<float>(AUDIOLIB_kernelHandle handle,
+                                                                                         void *restrict pIn,
+                                                                                         void *restrict pOut);
+
+template <typename dataType>
+AUDIOLIB_STATUS AUDIOLIB_muteSymmetricFadeSingleVectorOddBlocks_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                                        void *restrict pIn,
+                                                                        void *restrict pOut)
+{
+
+#if AUDIOLIB_DEBUGPRINT
+   printf("Enter AUDIOLIB_muteSymmetricFadeSingleVectorOddBlocks_exec_ci\n");
+#endif
+
+   typedef typename c7x::make_full_vector<dataType>::type vec;
+
+   AUDIOLIB_STATUS         status       = AUDIOLIB_SUCCESS;
+   AUDIOLIB_mute_PrivArgs *pKerPrivArgs = (AUDIOLIB_mute_PrivArgs *) handle;
+   uint8_t                *pBlock       = pKerPrivArgs->bufPblock;
+   dataType *restrict pInLocal          = (dataType *) pIn;
+   dataType *restrict pOutLocal         = (dataType *) pOut;
+   uint32_t numSamples                  = pKerPrivArgs->samples;
+   float    targetGain                  = pKerPrivArgs->targetGain;
+   float    currentGain                 = pKerPrivArgs->currentGain;
+   uint32_t pInOffset                   = pKerPrivArgs->pInOffset;
+   uint32_t pOutOffset                  = pKerPrivArgs->pOutOffset;
+   uint32_t numBlocks                   = pKerPrivArgs->numBlocks;
+   uint32_t eleCount                    = c7x::element_count_of<vec>::value;
+
+   __SE_TEMPLATE_v1 se0Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE0_PARAM_OFFSET);
+   __SE_TEMPLATE_v1 se1Params = *(__SE_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SE1_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa0Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA0_PARAM_OFFSET);
+   __SA_TEMPLATE_v1 sa1Params = *(__SA_TEMPLATE_v1 *) ((uint8_t *) pBlock + SE_SA1_PARAM_OFFSET);
+
+   vec currentGainVec, appliedGainVec;
+   vec inputSe0, inputSe1, outputSa0, outputSa1;
+
+   vec floorVec       = (vec) (AUDIOLIB_MUTE_SYMMETRIC_FLOOR);
+   vec oneVec         = (vec) (1.0f);
+   vec zeroVec        = (vec) (0.0f);
+   vec initialGainVec = (vec) (currentGain);
+
+   float *alphaPtr         = pKerPrivArgs->alphaCoeff;
+   vec   *vecAlphaPtr      = stov_ptr(vec, (float *) &alphaPtr[0]);
+   vec    gainStepVec      = *vecAlphaPtr;
+   vec    gainStepAdderVec = (vec) (pKerPrivArgs->alphaMultiplier);
+
+   __SE0_OPEN(pInLocal, se0Params);
+   __SE1_OPEN(pInLocal + pInOffset, se1Params);
+   __SA0_OPEN(sa0Params);
+   __SA1_OPEN(sa1Params);
+
+   // Same loop as AUDIOLIB_muteSymmetricFadeSingleVectorEvenBlocks_exec_ci, for an odd number of blocks: the first
+   // block is processed on its own, the rest in pairs.
+   uint32_t numPairs = numBlocks / 2;
+
+   __vpred tmpSa0, tmpSa1;
+   vec    *outPtrSa0, *outPtrSa1;
+
+   // The first block, on its own.
+   currentGainVec = initialGainVec * gainStepVec;
+   currentGainVec = __min(__max(currentGainVec, floorVec), oneVec);
+   gainStepVec    = gainStepVec * gainStepAdderVec;
+
+   // The floor is the fully muted state: output exact zeros there.
+   appliedGainVec = __select(__cmp_gt_pred(currentGainVec, floorVec), currentGainVec, zeroVec);
+
+   inputSe0 = c7x::strm_eng<0, vec>::get_adv();
+   inputSe1 = c7x::strm_eng<1, vec>::get_adv();
+
+   outputSa0 = inputSe0 * appliedGainVec;
+   outputSa1 = inputSe1 * appliedGainVec;
+
+   // store outputSa0 to output buffer pOutLocal
+   tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
+   outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+   __vstore_pred(tmpSa0, outPtrSa0, outputSa0);
+
+   // store outputSa1 to output buffer pOutLocal + pOutLocalOffset
+   tmpSa1    = c7x::strm_agen<1, vec>::get_vpred();
+   outPtrSa1 = c7x::strm_agen<1, vec>::get_adv(pOutLocal + pOutOffset);
+   __vstore_pred(tmpSa1, outPtrSa1, outputSa1);
+
+   // gainStepVec now holds the ratios of the first block of the pairs. The second block of a pair is one ratio further
+   // on than the first.
+   vec gainStepOddVec          = gainStepVec * gainStepAdderVec;
+   vec gainStepAdderSquaredVec = gainStepAdderVec * gainStepAdderVec;
+   vec currentGainOddVec, appliedGainOddVec;
+
+   // ii = 4 cycles per pair of blocks (four vectors), i.e. 1 cycle per vector, for float on C7504 and C7524 (from the
+   // compiled .asm). Bound by the single vector store per cycle.
+#pragma MUST_ITERATE(1, , )
+   for (uint32_t i = 0; i < numPairs; i++) {
+      currentGainVec    = initialGainVec * gainStepVec;
+      currentGainOddVec = initialGainVec * gainStepOddVec;
+      currentGainVec    = __min(__max(currentGainVec, floorVec), oneVec);
+      currentGainOddVec = __min(__max(currentGainOddVec, floorVec), oneVec);
+      gainStepVec       = gainStepVec * gainStepAdderSquaredVec;
+      gainStepOddVec    = gainStepOddVec * gainStepAdderSquaredVec;
+
+      appliedGainVec    = __select(__cmp_gt_pred(currentGainVec, floorVec), currentGainVec, zeroVec);
+      appliedGainOddVec = __select(__cmp_gt_pred(currentGainOddVec, floorVec), currentGainOddVec, zeroVec);
+
+      // first block of the pair
+      inputSe0 = c7x::strm_eng<0, vec>::get_adv();
+      inputSe1 = c7x::strm_eng<1, vec>::get_adv();
+
+      outputSa0 = inputSe0 * appliedGainVec;
+      outputSa1 = inputSe1 * appliedGainVec;
+
+      tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
+      outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      __vstore_pred(tmpSa0, outPtrSa0, outputSa0);
+
+      tmpSa1    = c7x::strm_agen<1, vec>::get_vpred();
+      outPtrSa1 = c7x::strm_agen<1, vec>::get_adv(pOutLocal + pOutOffset);
+      __vstore_pred(tmpSa1, outPtrSa1, outputSa1);
+
+      // second block of the pair
+      inputSe0 = c7x::strm_eng<0, vec>::get_adv();
+      inputSe1 = c7x::strm_eng<1, vec>::get_adv();
+
+      outputSa0 = inputSe0 * appliedGainOddVec;
+      outputSa1 = inputSe1 * appliedGainOddVec;
+
+      tmpSa0    = c7x::strm_agen<0, vec>::get_vpred();
+      outPtrSa0 = c7x::strm_agen<0, vec>::get_adv(pOutLocal);
+      __vstore_pred(tmpSa0, outPtrSa0, outputSa0);
+
+      tmpSa1    = c7x::strm_agen<1, vec>::get_vpred();
+      outPtrSa1 = c7x::strm_agen<1, vec>::get_adv(pOutLocal + pOutOffset);
+      __vstore_pred(tmpSa1, outPtrSa1, outputSa1);
+   }
+   __SE0_CLOSE();
+   __SE1_CLOSE();
+   __SA0_CLOSE();
+   __SA1_CLOSE();
+
+   // Same hand-over as the generic function: equality with the target means the ramp is over.
+   float lastGain            = __get_vector_element(currentGainOddVec, (numSamples - 1) % eleCount);
+   pKerPrivArgs->currentGain = lastGain;
+   pKerPrivArgs->execute     = pKerPrivArgs->symmetricNextExecute[(uint32_t) (lastGain == targetGain)];
+
+   return status;
+}
+
+template AUDIOLIB_STATUS AUDIOLIB_muteSymmetricFadeSingleVectorOddBlocks_exec_ci<float>(AUDIOLIB_kernelHandle handle,
+                                                                                        void *restrict pIn,
+                                                                                        void *restrict pOut);
 
 void AUDIOLIB_mute_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, uint64_t *estCycles)
 {
@@ -974,14 +1153,15 @@ void AUDIOLIB_mute_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles, u
       if (!bypassSmoothing) {
          // The ramp runs from the start, so the converged path is not modelled.
          muteStartupCycles = AUDIOLIB_MUTE_SYMMETRIC_STARTUP_CYCLES;
-         // wBlocks == 1 runs the narrow function: one pipelined loop, AUDIOLIB_MUTE_SYMMETRIC_NARROW_II cycles per
-         // block.
-         muteOperationCycles =
-             (wBlocks == 1)
-                 ? AUDIOLIB_MUTE_SYMMETRIC_NARROW_PIPE_UP_CYCLES + numBlocks * AUDIOLIB_MUTE_SYMMETRIC_NARROW_II
-                 : (AUDIOLIB_MUTE_SYMMETRIC_BLOCK_OVERHEAD_CYCLES + (4 + wBlocks * 2)) * numBlocks;
-         muteTearDownCycles = AUDIOLIB_MUTE_SYMMETRIC_TEARDOWN_CYCLES;
-         muteOverheadCycles = AUDIOLIB_MUTE_SYMMETRIC_CALL_OVERHEAD_CYCLES;
+         // wBlocks == 1 runs a single-vector function: one pipelined loop over pairs of blocks, preceded by one block
+         // on its own when the block count is odd.
+         muteOperationCycles = (wBlocks == 1)
+                                   ? AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_PIPE_UP_CYCLES +
+                                         (numBlocks / 2) * AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_II +
+                                         (numBlocks & 1U) * AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_ODD_BLOCK_CYCLES
+                                   : (AUDIOLIB_MUTE_SYMMETRIC_BLOCK_OVERHEAD_CYCLES + (4 + wBlocks * 2)) * numBlocks;
+         muteTearDownCycles  = AUDIOLIB_MUTE_SYMMETRIC_TEARDOWN_CYCLES;
+         muteOverheadCycles  = AUDIOLIB_MUTE_SYMMETRIC_CALL_OVERHEAD_CYCLES;
       }
       else {
          if (isMute) {

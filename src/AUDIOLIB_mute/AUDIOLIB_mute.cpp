@@ -170,11 +170,15 @@ AUDIOLIB_STATUS AUDIOLIB_mute_set(AUDIOLIB_kernelHandle handle, AUDIOLIB_mute_Se
             }
          }
 
-         // wBlocks is only computed by the optimized init; a single vector per block has its own loop.
-         pFxnAUDIOLIB_mute_exec rampFuncCi =
-             ((pKerPrivArgs->initArgs.funcStyle == AUDIOLIB_FUNCTION_OPTIMIZED) && (pKerPrivArgs->wBlocks == 1U))
-                 ? AUDIOLIB_muteSymmetricFadeNarrow_exec_ci<float>
-                 : AUDIOLIB_muteSymmetricFade_exec_ci<float>;
+         // wBlocks is only computed by the optimized init. One vector per block has its own loop,
+         // which works on pairs of blocks, with one variant per parity of numBlocks; it needs at least two blocks.
+         pFxnAUDIOLIB_mute_exec rampFuncCi = AUDIOLIB_muteSymmetricFade_exec_ci<float>;
+         if ((pKerPrivArgs->initArgs.funcStyle == AUDIOLIB_FUNCTION_OPTIMIZED) && (pKerPrivArgs->wBlocks == 1U) &&
+             (pKerPrivArgs->numBlocks >= 2U)) {
+            rampFuncCi = (pKerPrivArgs->numBlocks & 1U)
+                             ? AUDIOLIB_muteSymmetricFadeSingleVectorOddBlocks_exec_ci<float>
+                             : AUDIOLIB_muteSymmetricFadeSingleVectorEvenBlocks_exec_ci<float>;
+         }
 
          // fadeTime == 0 means no ramp, and the coefficients above are then not populated: never run the ramp.
          muteFuncCi   = pKerPrivArgs->bypassSmoothing ? AUDIOLIB_hardMute_exec_ci<float> : rampFuncCi;

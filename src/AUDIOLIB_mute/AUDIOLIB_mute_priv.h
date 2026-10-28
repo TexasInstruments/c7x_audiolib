@@ -38,13 +38,15 @@
 
 /// @name perfEst constants for the symmetric fade
 /// Loop terms are from the compiled .asm (C7504 and C7524 compile to the same loops). The call overhead is a fit to the
-/// Loki warm cycles of 22 ramp-state test cases on AM62D; the model is within 2 cycles of all of them.
+/// Loki warm cycles of the ramp-state test cases on AM62D, which the model matches to within 2 cycles. On AM275 the
+/// single-vector variant for an odd block count runs about 7 cycles longer than modelled.
 /// @{
 #define AUDIOLIB_MUTE_SYMMETRIC_STARTUP_CYCLES 21        ///< Stream open and register setup before the loop.
 #define AUDIOLIB_MUTE_SYMMETRIC_TEARDOWN_CYCLES 8        ///< Stream close, gain extract and return.
 #define AUDIOLIB_MUTE_SYMMETRIC_CALL_OVERHEAD_CYCLES 33  ///< Fitted: exec wrapper, call and return, outside the loop.
-#define AUDIOLIB_MUTE_SYMMETRIC_NARROW_II 4              ///< Cycles per block of the wBlocks == 1 loop (two vectors).
-#define AUDIOLIB_MUTE_SYMMETRIC_NARROW_PIPE_UP_CYCLES 12 ///< Pipeline prologue + epilogue of the wBlocks == 1 loop.
+#define AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_II 4 ///< Cycles per pair of blocks (four vectors), wBlocks == 1.
+#define AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_ODD_BLOCK_CYCLES 5 ///< Fitted: the block done on its own when the count is odd.
+#define AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_PIPE_UP_CYCLES 15 ///< Fitted: pipeline fill of the wBlocks == 1 loop.
 #define AUDIOLIB_MUTE_SYMMETRIC_BLOCK_OVERHEAD_CYCLES                                                                  \
    14 ///< Fitted: gain update and inner-loop set-up per block of the nested loop.
 /// @}
@@ -159,10 +161,17 @@ template <typename dataType>
 AUDIOLIB_STATUS
 AUDIOLIB_muteSymmetricFade_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
-/*! @brief The same ramp for wBlocks == 1 (mono or stereo planar, up to 8 channels interleaved): no inner loop. */
+/*! @brief The same ramp for wBlocks == 1 (mono or stereo planar, up to 8 channels interleaved): no inner loop, two
+ *         blocks per iteration. One variant per parity of numBlocks, so neither contains a conditional. Both need
+ *         numBlocks >= 2: @ref AUDIOLIB_mute_set sends a single block to the generic function. */
 template <typename dataType>
-AUDIOLIB_STATUS
-AUDIOLIB_muteSymmetricFadeNarrow_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+AUDIOLIB_STATUS AUDIOLIB_muteSymmetricFadeSingleVectorEvenBlocks_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                                          void *restrict        pIn,
+                                                                          void *restrict        pOut);
+template <typename dataType>
+AUDIOLIB_STATUS AUDIOLIB_muteSymmetricFadeSingleVectorOddBlocks_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                                         void *restrict        pIn,
+                                                                         void *restrict        pOut);
 
 template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_hardMute_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
