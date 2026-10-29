@@ -86,7 +86,7 @@ extern "C" {
  *
  * \f[
  * \begin{aligned}
- * \textbf{AM275:} &
+ * \textbf{AM275/AM283:} &
  * \begin{cases}
  * \text{Default: } AUDIOLIB\_tableInterpolate\_exec\_ci, \\
  * \text{Switch to unrolled version if } \text{tableSamples} > \text{configured size.}

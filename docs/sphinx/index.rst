@@ -5,7 +5,7 @@ AUDIOLIB — C7x Audio Processing Library
 
 AUDIOLIB is TI's optimized audio processing library for the **C7™** DSP architecture.
 It provides a suite of kernels targeting the C7™ vector and streaming engines (SE/SA),
-enabling high-throughput audio signal processing on TI SoCs such as AM62D and AM275.
+enabling high-throughput audio signal processing on TI SoCs such as AM62D, AM275 and AM283.
 The Sample Rate Converter (``AUDIOLIB_ssrc``) additionally leverages the Matrix Multiply
 Accelerator (MMA) for maximum throughput.
 
@@ -33,7 +33,7 @@ hardware-optimized for SE/SA streaming engines).
       :link: perf/index
       :link-type: doc
 
-      Measured kernel cycle counts on C7504 (AM62D) and C7524 (AM275).
+      Measured kernel cycle counts on C7504 (AM62D) and C7524 (AM275/AM283).
 
    .. grid-item-card:: :si-icon:`material/file-tree` Repository Layout
       :link: repository_layout

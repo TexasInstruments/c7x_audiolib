@@ -257,7 +257,7 @@ bin/Debug/test_AUDIOLIB_<kernel_name>_<device>_x86_64 \endcode
 
   - AUDIOLIB utilizes CMake to build, ensure that system has CMake v3.16.0 or higher
   - Build options:
-    - SOC=AM62A/j721e/j721s2/j784s4/j722s/AM275
+    - SOC=AM62A/j721e/j721s2/j784s4/j722s/AM275/AM283
     - DEVICE=C7504/C7100/C7120/C7524/C7524
     - TARGET_PLATFORM=PC/""
     - KERNEL_NAME
