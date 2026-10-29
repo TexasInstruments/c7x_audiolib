@@ -529,11 +529,11 @@ int coverage_test_main()
          break;
       }
       case 1005: {
-         /* AUDIOLIB_mute_set: fadeType out of range (valid range 0..2) -> AUDIOLIB_ERR_INVALID_VALUE */
+         /* AUDIOLIB_mute_set: fadeType out of range (valid range 0..3) -> AUDIOLIB_ERR_INVALID_VALUE */
          AUDIOLIB_mute_SetArgs covSetArgs;
          covSetArgs.isMute   = 1;
          covSetArgs.fadeTime = 5.0f;
-         covSetArgs.fadeType = 3; /* invalid */
+         covSetArgs.fadeType = 4; /* invalid */
          status_opt          = AUDIOLIB_mute_set(handle, &covSetArgs);
          currentTestFail     = (status_opt != AUDIOLIB_ERR_INVALID_VALUE);
          break;

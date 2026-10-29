@@ -71,8 +71,8 @@ AUDIOLIB_STATUS AUDIOLIB_mute_set(AUDIOLIB_kernelHandle handle, AUDIOLIB_mute_Se
       /* isMute is a boolean switch: 1 = mute, 0 = unmute. */
       status = AUDIOLIB_ERR_INVALID_VALUE;
    }
-   else if (pKerSetArgs->fadeType > AUDIOLIB_MUTE_FADE_TYPE_HARD) {
-      /* fadeType must be one of AUDIOLIB_MUTE_FADE_TYPE_{LINEAR,SMOOTH,HARD}. */
+   else if (pKerSetArgs->fadeType > AUDIOLIB_MUTE_FADE_TYPE_SYMMETRIC) {
+      /* fadeType must be one of AUDIOLIB_MUTE_FADE_TYPE_{LINEAR,SMOOTH,HARD,SYMMETRIC}. */
       status = AUDIOLIB_ERR_INVALID_VALUE;
    }
    else if (pKerSetArgs->fadeTime < 0.0f) {
@@ -142,6 +142,55 @@ AUDIOLIB_STATUS AUDIOLIB_mute_set(AUDIOLIB_kernelHandle handle, AUDIOLIB_mute_Se
          break;
       }
 
+      case AUDIOLIB_MUTE_FADE_TYPE_SYMMETRIC: {
+         float totalFadeSamples =
+             (pKerSetArgs->fadeTime * pKerPrivArgs->initArgs.samplingRate) / AUDIOLIB_MS_PER_SECOND;
+         pKerPrivArgs->bypassSmoothing = (pKerSetArgs->fadeTime == 0.0f || totalFadeSamples <= 0);
+
+         if (!pKerPrivArgs->bypassSmoothing) {
+            // The geometric ramp runs between the floor and unity, so it starts from the floor rather than 0.
+            pKerPrivArgs->currentGain = pKerSetArgs->isMute ? 1.0f : AUDIOLIB_MUTE_SYMMETRIC_FLOOR;
+            pKerPrivArgs->targetGain  = pKerSetArgs->isMute ? AUDIOLIB_MUTE_SYMMETRIC_FLOOR : 1.0f;
+
+            // Per-sample gain ratio: the whole floor-to-unity span takes fadeTime in either direction.
+            pKerPrivArgs->gainStep =
+                powf(pKerPrivArgs->targetGain / pKerPrivArgs->currentGain, 1.0f / totalFadeSamples);
+            if (pKerPrivArgs->initArgs.isInterleaved) {
+               for (int i = 0; i < ALPHA_COEFF_INDEX; i++) {
+                  pKerPrivArgs->alphaCoeff[i] = pKerPrivArgs->gainStep;
+               }
+               pKerPrivArgs->alphaMultiplier = pKerPrivArgs->gainStep;
+            }
+            else {
+               for (int i = 0; i < ALPHA_COEFF_INDEX; i++) {
+                  pKerPrivArgs->alphaCoeff[i] = (i == 0) ? pKerPrivArgs->gainStep
+                                                         : pKerPrivArgs->alphaCoeff[i - 1] * pKerPrivArgs->gainStep;
+               }
+               pKerPrivArgs->alphaMultiplier = pKerPrivArgs->alphaCoeff[ALPHA_COEFF_INDEX - 1];
+            }
+         }
+
+         // wBlocks is only computed by the optimized init. One vector per block has its own loop,
+         // which works on pairs of blocks, with one variant per parity of numBlocks; it needs at least two blocks.
+         pFxnAUDIOLIB_mute_exec rampFuncCi = AUDIOLIB_muteSymmetricFade_exec_ci<float>;
+         if ((pKerPrivArgs->initArgs.funcStyle == AUDIOLIB_FUNCTION_OPTIMIZED) && (pKerPrivArgs->wBlocks == 1U) &&
+             (pKerPrivArgs->numBlocks >= 2U)) {
+            rampFuncCi = (pKerPrivArgs->numBlocks & 1U)
+                             ? AUDIOLIB_muteSymmetricFadeSingleVectorOddBlocks_exec_ci<float>
+                             : AUDIOLIB_muteSymmetricFadeSingleVectorEvenBlocks_exec_ci<float>;
+         }
+
+         // fadeTime == 0 means no ramp, and the coefficients above are then not populated: never run the ramp.
+         muteFuncCi   = pKerPrivArgs->bypassSmoothing ? AUDIOLIB_hardMute_exec_ci<float> : rampFuncCi;
+         unmuteFuncCi = pKerPrivArgs->bypassSmoothing ? AUDIOLIB_hardUnMute_exec_ci<float> : rampFuncCi;
+
+         // When the ramp reaches its target it hands over to the converged variant: exact zeros or pass-through.
+         pKerPrivArgs->symmetricNextExecute[AUDIOLIB_MUTE_EXEC_RAMP] = rampFuncCi;
+         pKerPrivArgs->symmetricNextExecute[AUDIOLIB_MUTE_EXEC_CONVERGED] =
+             pKerSetArgs->isMute ? AUDIOLIB_hardMute_exec_ci<float> : AUDIOLIB_hardUnMute_exec_ci<float>;
+         break;
+      }
+
       case AUDIOLIB_MUTE_FADE_TYPE_HARD: {
          pKerPrivArgs->bypassSmoothing = 1;
          muteFuncCi                    = AUDIOLIB_hardMute_exec_ci<float>;
@@ -174,6 +223,10 @@ AUDIOLIB_STATUS AUDIOLIB_mute_set(AUDIOLIB_kernelHandle handle, AUDIOLIB_mute_Se
 
                case AUDIOLIB_MUTE_FADE_TYPE_SMOOTH:
                   pKerPrivArgs->execute = AUDIOLIB_muteSmoothFade_exec_cn<float>;
+                  break;
+
+               case AUDIOLIB_MUTE_FADE_TYPE_SYMMETRIC:
+                  pKerPrivArgs->execute = AUDIOLIB_muteSymmetricFade_exec_cn<float>;
                   break;
 
                default:

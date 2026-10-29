@@ -31,6 +31,26 @@
 /// @brief Conversion factor from milliseconds to seconds.
 #define AUDIOLIB_MS_PER_SECOND 1000.0f
 
+/// @brief Level the symmetric fade treats as fully muted: -200 dB, the AWE MuteSymmetric muteThreshold of 1e-10.
+/// A geometric ramp can never reach 0, so it runs between this floor and 1.0 and the exec path outputs exact zeros
+/// whenever the gain sits on the floor.
+#define AUDIOLIB_MUTE_SYMMETRIC_FLOOR 1e-10f
+
+/// @name perfEst constants for the symmetric fade
+/// Loop terms are from the compiled .asm (C7504 and C7524 compile to the same loops). The call overhead is a fit to the
+/// Loki warm cycles of the ramp-state test cases on AM62D, which the model matches to within 2 cycles. On AM275 the
+/// single-vector variant for an odd block count runs about 7 cycles longer than modelled.
+/// @{
+#define AUDIOLIB_MUTE_SYMMETRIC_STARTUP_CYCLES 21        ///< Stream open and register setup before the loop.
+#define AUDIOLIB_MUTE_SYMMETRIC_TEARDOWN_CYCLES 8        ///< Stream close, gain extract and return.
+#define AUDIOLIB_MUTE_SYMMETRIC_CALL_OVERHEAD_CYCLES 33  ///< Fitted: exec wrapper, call and return, outside the loop.
+#define AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_II 4 ///< Cycles per pair of blocks (four vectors), wBlocks == 1.
+#define AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_ODD_BLOCK_CYCLES 5 ///< Fitted: the block done on its own when the count is odd.
+#define AUDIOLIB_MUTE_SYMMETRIC_SINGLE_VECTOR_PIPE_UP_CYCLES 15 ///< Fitted: pipeline fill of the wBlocks == 1 loop.
+#define AUDIOLIB_MUTE_SYMMETRIC_BLOCK_OVERHEAD_CYCLES                                                                  \
+   14 ///< Fitted: gain update and inner-loop set-up per block of the nested loop.
+/// @}
+
 #if __C7X_VEC_SIZE_BITS__ == 256
 #define ALPHA_COEFF_INDEX 8
 #else
@@ -41,10 +61,22 @@
  * @brief Enumeration of available fade types.
  */
 typedef enum {
-   AUDIOLIB_MUTE_FADE_TYPE_LINEAR = 0, ///< Linear ramp fade.
-   AUDIOLIB_MUTE_FADE_TYPE_SMOOTH = 1, ///< Exponential curve fade.
-   AUDIOLIB_MUTE_FADE_TYPE_HARD   = 2  ///< Instantaneous gain change.
+   AUDIOLIB_MUTE_FADE_TYPE_LINEAR    = 0, ///< Linear ramp fade.
+   AUDIOLIB_MUTE_FADE_TYPE_SMOOTH    = 1, ///< Exponential curve fade.
+   AUDIOLIB_MUTE_FADE_TYPE_HARD      = 2, ///< Instantaneous gain change.
+   AUDIOLIB_MUTE_FADE_TYPE_SYMMETRIC = 3  ///< Geometric (constant dB/s) ramp: equal time to mute and unmute.
 } FadeType;
+
+/*!
+ * @brief Index into AUDIOLIB_mute_PrivArgs::symmetricNextExecute.
+ * @details Deliberately valued 0 and 1 so that the convergence test at the end of the symmetric ramp can be used
+ *          directly as the index.
+ */
+typedef enum {
+   AUDIOLIB_MUTE_EXEC_RAMP      = 0, ///< Gain is still moving toward the target.
+   AUDIOLIB_MUTE_EXEC_CONVERGED = 1, ///< Gain has reached the target; it is now constant.
+   AUDIOLIB_MUTE_NUM_EXEC_VARIANTS   ///< Table size.
+} AUDIOLIB_mute_execVariant;
 
 /*!
  *  @brief This is a function pointer type that conforms to the
@@ -124,6 +156,23 @@ template <typename dataType>
 AUDIOLIB_STATUS
 AUDIOLIB_unMuteSmoothFade_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
+/*! @brief Geometric (constant dB/s) gain ramp of the symmetric fade, for both mute and unmute. */
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_muteSymmetricFade_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+
+/*! @brief The same ramp for wBlocks == 1 (mono or stereo planar, up to 8 channels interleaved): no inner loop, two
+ *         blocks per iteration. One variant per parity of numBlocks, so neither contains a conditional. Both need
+ *         numBlocks >= 2: @ref AUDIOLIB_mute_set sends a single block to the generic function. */
+template <typename dataType>
+AUDIOLIB_STATUS AUDIOLIB_muteSymmetricFadeSingleVectorEvenBlocks_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                                          void *restrict        pIn,
+                                                                          void *restrict        pOut);
+template <typename dataType>
+AUDIOLIB_STATUS AUDIOLIB_muteSymmetricFadeSingleVectorOddBlocks_exec_ci(AUDIOLIB_kernelHandle handle,
+                                                                         void *restrict        pIn,
+                                                                         void *restrict        pOut);
+
 template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_hardMute_exec_ci(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 template <typename dataType>
@@ -152,6 +201,9 @@ template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_muteLinearFade_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 template <typename dataType>
 AUDIOLIB_STATUS AUDIOLIB_muteSmoothFade_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_muteSymmetricFade_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 
 /*!
  * @brief Structure that is reserved for internal use by the kernel
@@ -199,6 +251,10 @@ typedef struct {
    int32_t bypassSmoothing;
    /** @brief Pre-calculated multiplier to efficiently update the alphaCoeff vector for smooth fades. */
    float alphaMultiplier;
+   /** @brief Variants the symmetric ramp can hand over to, indexed by @ref AUDIOLIB_mute_execVariant. At the end of
+    * each frame the ramp loop stores the entry selected by "gain has reached the target" into execute, so the table
+    *         lookup is a data index and neither the ramp nor @ref AUDIOLIB_mute_exec contains a convergence branch. */
+   pFxnAUDIOLIB_mute_exec symmetricNextExecute[AUDIOLIB_MUTE_NUM_EXEC_VARIANTS];
 } AUDIOLIB_mute_PrivArgs;
 
 #endif /* AUDIOLIB_MUTE_IXX_IXX_OXX_PRIV_H_ */

@@ -19,7 +19,7 @@ extern "C" {
  * This kernel mutes or unmutes an audio signal by applying a gain factor, \f$G[n]\f$,
  * which transitions between 1.0 (unmuted) and 0.0 (muted). To avoid audible clicks,
  * the transition can be smoothed over a specified `fadeTime`. The kernel supports
- * three distinct fade behaviors.
+ * four distinct fade behaviors.
  *
  * ### 1. Hard Mute (`fadeType = 2` or `fadeTime = 0`)
  * The gain changes instantly to its target value.
@@ -43,6 +43,17 @@ extern "C" {
  * The smoothing coefficient, \f$\alpha\f$, is derived from the `fadeTime` (acting as the
  * time constant \f$\tau\f$) and the sampling rate \f$f_s\f$:
  * \f[ \alpha = e^{\frac{-1}{f_s \cdot (\text{T}_{\text{fade}} / 1000)}} \f]
+ *
+ * ### 4. Symmetric Fade (`fadeType = 3`)
+ * The gain moves by a constant ratio per sample, so it is a straight line in dB and the time to mute equals the time to
+ * unmute. A geometric ramp can never reach 0, so it runs between a floor \f$G_{\text{floor}} = 10^{-10}\f$ (-200 dB)
+ * and 1.0. Muting starts at 1.0 and unmuting starts at \f$G_{\text{floor}}\f$:
+ * \f[ G[n] = \min\left(\max\left(G[n-1] \cdot r,\ G_{\text{floor}}\right),\ 1\right) \f]
+ * \f[ r = \left(\frac{G_{\text{target}}}{G_{\text{start}}}\right)^{\frac{1}{(T_{\text{fade}} / 1000) \cdot f_s}} \f]
+ * where \f$G_{\text{start}}\f$ and \f$G_{\text{target}}\f$ are \f$\{1, G_{\text{floor}}\}\f$ when muting and the
+ * reverse when unmuting, so \f$T_{\text{fade}}\f$ is the time for the full 200 dB span in either direction. The
+ * output uses \f$0\f$ instead of \f$G[n]\f$ whenever \f$G[n] = G_{\text{floor}}\f$, so a fully muted signal is
+ * exactly zero. With `fadeTime = 0` the change is instantaneous (hard mute or pass-through).
  *
  * The final output signal, \f$y[n]\f$, is computed by applying the current gain
  * \f$G[n]\f$ to the input signal, \f$x[n]\f$:
@@ -73,9 +84,9 @@ typedef struct {
    /** @brief Control switch for muting: 1 to engage mute (fade-out), 0 to disengage (fade-in). */
    uint32_t isMute;
    /** @brief The duration of the fade-in or fade-out ramp in milliseconds. A value of 0 results in a hard (instant)
-    * mute. */
+    *         mute. For the symmetric fade it is the time of the full floor-to-unity (200 dB) span, either direction. */
    float fadeTime;
-   /** @brief The type of fade curve to apply. See @c fadeType for options. */
+   /** @brief The type of fade curve to apply: 0 = linear, 1 = smooth, 2 = hard, 3 = symmetric. */
    uint32_t fadeType;
 } AUDIOLIB_mute_SetArgs;
 
