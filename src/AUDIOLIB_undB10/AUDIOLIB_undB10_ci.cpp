@@ -62,7 +62,7 @@ void AUDIOLIB_undB10_perfEst(AUDIOLIB_kernelHandle handle, uint64_t *archCycles,
             undB10TeardownCycles = 3;
 
             nVecs                 = pKerPrivArgs->nVecs;
-            undB10OperationCycles = (61 + nVecs * 14) + (8 + nVecs * 3);
+            undB10OperationCycles = (61 + nVecs * 14) + (12 + nVecs * 3);
          }
       }
    }
@@ -131,8 +131,8 @@ AUDIOLIB_STATUS AUDIOLIB_undB10_init_ci(AUDIOLIB_kernelHandle           handle,
    se0Params.VECLEN  = SE_VECLEN;
    sa0Params.VECLEN  = SA_VECLEN;
 
-   // For input buffer without stride
-   if (pKerPrivArgs->dim_x == pKerPrivArgs->inStride && pKerPrivArgs->dim_x == pKerPrivArgs->inStride) {
+   // For input and output buffers without stride
+   if (pKerPrivArgs->dim_x == pKerPrivArgs->inStride && pKerPrivArgs->dim_x == pKerPrivArgs->outStride) {
       uint32_t blockSize = pKerPrivArgs->dim_y * pKerPrivArgs->dim_x;
       se0Params.ICNT0    = blockSize;
       se0Params.DIMFMT   = __SE_DIMFMT_1D;
@@ -148,7 +148,7 @@ AUDIOLIB_STATUS AUDIOLIB_undB10_init_ci(AUDIOLIB_kernelHandle           handle,
 
 #endif
    }
-   // For input buffer with stride
+   // For input or output buffer with stride
    else {
       se0Params.ICNT0  = pKerPrivArgs->dim_x;
       se0Params.ICNT1  = pKerPrivArgs->dim_y;
@@ -344,7 +344,7 @@ static inline void AUDIOLIB_undB10_cond(AUDIOLIB_kernelHandle handle,
    /* Create and assign values for constants employed on pow computation */
    /**********************************************************************/
 
-   vec k10e, LnMin, LnMax, Max, zero;
+   vec k10e, LnMin, LnMax, Max, zero, undb10;
    c7x::uint_vec inVec_min;
 
    k10e = (vec) 2.302585093f;
@@ -353,7 +353,10 @@ static inline void AUDIOLIB_undB10_cond(AUDIOLIB_kernelHandle handle,
    Max = (vec) 3.402823466E+38f;
    zero = (vec) 0.0f;
    inVec_min = (c7x::uint_vec) 114u;
+   undb10 = (vec) 0.1f;
 
+   /* ii = 3 cycles per vector for float (C7524, from the compiled .asm). Bound by the compare and select work on
+    * the .C/.L/.M/.S units; the input scaling multiply uses a free .M/.N slot. */
    // compute loop to perform vector pow
    for (size_t i = 0; i < numBlocks; i++) {
       vec outVec = c7x::strm_eng<0, vec>::get_adv();
@@ -368,7 +371,8 @@ static inline void AUDIOLIB_undB10_cond(AUDIOLIB_kernelHandle handle,
       /**********************************************************************/
       /* Bounds checking                                                    */
       /**********************************************************************/
-      Ye = k10e * inVec;
+      // SE1 streams the dB input, so scale it by 1/10 as the main loop does before applying the bounds
+      Ye = k10e * (inVec * undb10);
       // Early exit for small input
       inVec_small = ((c7x::as_uint_vec(Ye) << 1U) >> 24U);
       __vpred cmp_inVec = __cmp_gt_pred(inVec_min, inVec_small);
