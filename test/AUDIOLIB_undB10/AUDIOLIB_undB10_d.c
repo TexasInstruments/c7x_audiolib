@@ -29,6 +29,9 @@ __attribute__((section(".ddrData"), aligned(64))) int8_t   ddrBuffer[2048 * 1024
 #endif
 #endif // WIN32
 
+// Pass within 1e-3 in log10; the absolute tolerance only absorbs rounding, so that a small gain flushed to 0 fails
+#define AUDIOLIB_UNDB10_ABS_TOLERANCE ((double) 1e-9)
+
 int16_t volatile volatileSum = 0; // use volatile to keep compiler from removing this operation
 
 int AUDIOLIB_undB10_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
@@ -87,12 +90,12 @@ int AUDIOLIB_undB10_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
          bufParamsIn.data_type = currPrm.dataType;
          bufParamsIn.dim_x     = currPrm.numSamples;
          bufParamsIn.dim_y     = currPrm.numChannels;
-         bufParamsIn.stride_y  = currPrm.strideIn * sizeof(currPrm.dataType);
+         bufParamsIn.stride_y  = currPrm.strideIn;
 
          bufParamsOut.data_type = currPrm.dataType;
          bufParamsOut.dim_x     = currPrm.numSamples;
          bufParamsOut.dim_y     = currPrm.numChannels;
-         bufParamsOut.stride_y  = currPrm.strideOut * sizeof(currPrm.dataType);
+         bufParamsOut.stride_y  = currPrm.strideOut;
 
          uint32_t inpSizeBytes = bufParamsIn.dim_y * bufParamsIn.stride_y;
          uint32_t outSizeBytes = bufParamsOut.dim_y * bufParamsOut.stride_y;
@@ -219,9 +222,9 @@ int AUDIOLIB_undB10_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             printf("AUDIOLIB_DEBUGPRINT  AUDIOLIB_undB10_d CP 6 status_nat %d\n", status_nat);
 #endif
             if (currPrm.dataType == AUDIOLIB_FLOAT32) {
-               status_nat_vs_opt = TI_compare_mem_2D_float((void *) pOut, (void *) pOutCn, 0.001, (double) powf(4, -2),
-                                                           bufParamsOut.dim_x, bufParamsOut.dim_y,
-                                                           bufParamsOut.stride_y, AUDIOLIB_sizeof(currPrm.dataType));
+               status_nat_vs_opt = TI_compare_mem_2D_float(
+                   (void *) pOut, (void *) pOutCn, 0.001, AUDIOLIB_UNDB10_ABS_TOLERANCE, bufParamsOut.dim_x,
+                   bufParamsOut.dim_y, bufParamsOut.stride_y, AUDIOLIB_sizeof(currPrm.dataType));
             }
             else {
                // TBD
@@ -239,14 +242,14 @@ int AUDIOLIB_undB10_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                if (currPrm.dataType == AUDIOLIB_FLOAT32) {
 
                   status_nat_vs_ref = TI_compare_mem_2DDualStride_float(
-                      (void *) pOutCn, (void *) currPrm.staticOut, 0.001, (double) powf(4, -2), bufParamsOut.dim_x,
-                      bufParamsOut.dim_y, bufParamsOut.stride_y, bufParamsOutTemp.stride_y,
+                      (void *) pOutCn, (void *) currPrm.staticOut, 0.001, AUDIOLIB_UNDB10_ABS_TOLERANCE,
+                      bufParamsOut.dim_x, bufParamsOut.dim_y, bufParamsOut.stride_y, bufParamsOutTemp.stride_y,
                       AUDIOLIB_sizeof(currPrm.dataType));
 
                   status_ref_vs_opt = TI_compare_mem_2DDualStride_float(
-                      (void *) pOut, (void *) currPrm.staticOut, 0.001, (double) powf(4, -2), bufParamsOut.dim_x,
-                      bufParamsOut.dim_y, bufParamsOut.stride_y, bufParamsOut.dim_x * AUDIOLIB_sizeof(currPrm.dataType),
-                      AUDIOLIB_sizeof(currPrm.dataType));
+                      (void *) pOut, (void *) currPrm.staticOut, 0.001, AUDIOLIB_UNDB10_ABS_TOLERANCE,
+                      bufParamsOut.dim_x, bufParamsOut.dim_y, bufParamsOut.stride_y,
+                      bufParamsOut.dim_x * AUDIOLIB_sizeof(currPrm.dataType), AUDIOLIB_sizeof(currPrm.dataType));
                }
                else {
                }

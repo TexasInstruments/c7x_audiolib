@@ -98,6 +98,30 @@
 #include "test_data/staticRefCase23.h"
 #endif
 
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 101))
+#include "test_data/staticRefCase101.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 102))
+#include "test_data/staticRefCase102.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 103))
+#include "test_data/staticRefCase103.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 104))
+#include "test_data/staticRefCase104.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 105))
+#include "test_data/staticRefCase105.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 106))
+#include "test_data/staticRefCase106.h"
+#endif
+
 static AUDIOLIB_undB20_testParams_t testParams[] = {
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 1))
     {
@@ -464,6 +488,102 @@ static AUDIOLIB_undB20_testParams_t testParams[] = {
         AUDIOLIB_TEST_OUTPUT_MSMC,                                                // Output data location
         1,                                                                        // number of reps.
         23,                                                                       // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 101))
+    {
+        STATIC,                                                                  // Test pattern
+        staticRefInCase101,                                                      // Input vector
+        staticRefOutCase101,                                                     // Output vector
+        AUDIOLIB_FLOAT32,                                                        // DataType
+        4,                                                                       // No of Channels
+        512,                                                                     // No of Samples
+        AUDIOLIB_CALC_STRIDE(512 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideIn
+        AUDIOLIB_CALC_STRIDE(512 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOut
+        AUDIOLIB_TEST_OUTPUT_MSMC,                                               // Output data location
+        1,                                                                       // number of reps.
+        101,                                                                     // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 102))
+    {
+        STATIC,                                                                  // Test pattern
+        staticRefInCase102,                                                      // Input vector
+        staticRefOutCase102,                                                     // Output vector
+        AUDIOLIB_FLOAT32,                                                        // DataType
+        4,                                                                       // No of Channels
+        512,                                                                     // No of Samples
+        AUDIOLIB_CALC_STRIDE(512 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideIn
+        AUDIOLIB_CALC_STRIDE(512 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOut
+        AUDIOLIB_TEST_OUTPUT_MSMC,                                               // Output data location
+        1,                                                                       // number of reps.
+        102,                                                                     // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 103))
+    {
+        STATIC,                                                                  // Test pattern
+        staticRefInCase103,                                                      // Input vector
+        staticRefOutCase103,                                                     // Output vector
+        AUDIOLIB_FLOAT32,                                                        // DataType
+        3,                                                                       // No of Channels
+        275,                                                                     // No of Samples
+        AUDIOLIB_CALC_STRIDE(288 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideIn
+        AUDIOLIB_CALC_STRIDE(296 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOut
+        AUDIOLIB_TEST_OUTPUT_MSMC,                                               // Output data location
+        1,                                                                       // number of reps.
+        103,                                                                     // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 104))
+    {
+        STATIC,                                                                  // Test pattern
+        staticRefInCase104,                                                      // Input vector
+        staticRefOutCase104,                                                     // Output vector
+        AUDIOLIB_FLOAT32,                                                        // DataType
+        4,                                                                       // No of Channels
+        512,                                                                     // No of Samples
+        AUDIOLIB_CALC_STRIDE(512 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideIn
+        AUDIOLIB_CALC_STRIDE(528 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOut
+        AUDIOLIB_TEST_OUTPUT_MSMC,                                               // Output data location
+        1,                                                                       // number of reps.
+        104,                                                                     // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 105))
+    {
+        STATIC,                                                                // Test pattern
+        staticRefInCase105,                                                    // Input vector
+        staticRefOutCase105,                                                   // Output vector
+        AUDIOLIB_FLOAT32,                                                      // DataType
+        64,                                                                    // No of Channels
+        1,                                                                     // No of Samples
+        AUDIOLIB_CALC_STRIDE(1 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideIn
+        AUDIOLIB_CALC_STRIDE(1 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOut
+        AUDIOLIB_TEST_OUTPUT_MSMC,                                             // Output data location
+        1,                                                                     // number of reps.
+        105,                                                                   // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 106))
+    {
+        STATIC,                                                                // Test pattern
+        staticRefInCase106,                                                    // Input vector
+        staticRefOutCase106,                                                   // Output vector
+        AUDIOLIB_FLOAT32,                                                      // DataType
+        1,                                                                     // No of Channels
+        1,                                                                     // No of Samples
+        AUDIOLIB_CALC_STRIDE(1 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideIn
+        AUDIOLIB_CALC_STRIDE(1 * sizeof(float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOut
+        AUDIOLIB_TEST_OUTPUT_MSMC,                                             // Output data location
+        1,                                                                     // number of reps.
+        106,                                                                   // test ID
     },
 #endif
 

@@ -44,5 +44,3 @@ AUDIOLIB_STATUS AUDIOLIB_undB10_exec_cn(AUDIOLIB_kernelHandle handle, void *rest
 // explicit instantiation for the different data type versions
 template AUDIOLIB_STATUS
 AUDIOLIB_undB10_exec_cn<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
-template AUDIOLIB_STATUS
-AUDIOLIB_undB10_exec_cn<double>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
