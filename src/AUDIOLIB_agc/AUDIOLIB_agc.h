@@ -40,10 +40,11 @@ extern "C" {
  * 5. Sample-rate smoothing of the output gain:
  * \f[ g[n] = G_T + (1 - \alpha_S)(g[n-1] - G_T), \qquad
  *     \alpha_S = 1 - e^{-1 / (f_s T_s)} \f]
- *
- * Where \f$ f_s \f$ is the sampling rate and \f$ T_s \f$ is smoothingTime in seconds.
+ *    where \f$ f_s \f$ is the sampling rate and \f$ T_s \f$ is smoothingTime in seconds.
  *
  * 6. Calculated gain is multiplied with input: out = gain * in
+ *
+ * @image html AUDIOLIB_agc.svg "AGC block diagram" width=1000px
  *
  * If the input is ratio dB louder than targetLevel, the output after applying the
  * gain is 1 dB above targetLevel.

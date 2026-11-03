@@ -28,6 +28,8 @@ extern "C" {
  * ramp longer than one frame spans frames seamlessly. Once the target is reached the gain
  * stays there until the next @ref AUDIOLIB_gainSmoothing_set.
  *
+ * @image html AUDIOLIB_gainSmoothing.svg "Gain smoothing"
+ *
  * ### fadeType = 0, AUDIOLIB_GAINSMOOTHING_FADE_TYPE_SYMMETRIC - geometric ramp
  * The gain is multiplied by a constant ratio each sample, i.e. it moves at a constant
  * number of dB per sample:

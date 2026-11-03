@@ -34,6 +34,8 @@ extern "C" {
  * - \f$g\f$ = scalar gain, the same for every channel and sample
  * - \f$c\f$ = scalar offset, the same for every channel and sample
  *
+ * @image html AUDIOLIB_gainOffset.svg "Gain and offset operation"
+ *
  * ---
  * **Example (gain = 2.0, offset = 0.5):**
  *
