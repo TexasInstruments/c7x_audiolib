@@ -84,7 +84,7 @@ def gen_testCaseParams(testParamsFile, currPrm):
     AUDIOLIB_dType = AUDIOLIB_utils.resolve_dType(dType)
 
     # Map fadeType string to integer
-    fadeType_map = {"LINEAR": 0, "SMOOTH": 1, "HARD": 2}
+    fadeType_map = {"LINEAR": 0, "SMOOTH": 1, "HARD": 2, "SYMMETRIC": 3}
     fadeType_int = fadeType_map[fadeType]
 
     if testType in ["STATIC", "SINE"]:
@@ -121,7 +121,7 @@ def gen_testCaseParams(testParamsFile, currPrm):
     idatFile.write("%s, // Sampling Rate \n" % (samplingRate))
     idatFile.write("%s, // fadeTime \n" % (fadeTime))
     idatFile.write("%d, // isInterleaved \n" % (int(isInterleaved)))
-    idatFile.write("%d, // fadeType (0=LINEAR, 1=SMOOTH, 2=HARD)\n" % (fadeType_int))
+    idatFile.write("%d, // fadeType (0=LINEAR, 1=SMOOTH, 2=HARD, 3=SYMMETRIC)\n" % (fadeType_int))
     idatFile.write(
         "AUDIOLIB_CALC_STRIDE(%s * sizeof(%s), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements \n"
         % (strideInElements, AUDIOLIB_dType)
@@ -215,12 +215,12 @@ def process_test_case(testCase):
             f"Invalid isInterleaved value {testCase['isInterleaved']} for test ID {testCase['ID']}"
         )
     # Validate fadeType
-    if testCase["fadeType"] not in ["LINEAR", "SMOOTH", "HARD"]:
+    if testCase["fadeType"] not in ["LINEAR", "SMOOTH", "HARD", "SYMMETRIC"]:
         raise ValueError(
             f"Invalid fadeType value {testCase['fadeType']} for test ID {testCase['ID']}"
         )
-    # Set initialGain and targetGain based on isMuted array
-    testCase["initialGain"] = [1.0 if m == 1 else 0.0 for m in isMuted]
+    # Every channel's gain is 0 after init; set() fades each channel from its current gain to its target
+    testCase["initialGain"] = [0.0] * testCase["numChannels"]
     testCase["targetGain"] = [1.0 - m for m in isMuted]
     return testCase
 

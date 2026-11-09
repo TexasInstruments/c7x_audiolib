@@ -471,7 +471,7 @@ int coverage_test_main()
       covMuteFlags[c] = 0;
    }
 
-   while (testNum <= 1012) {
+   while (testNum <= 1017) {
 
       switch (testNum) {
       case 1000:
@@ -548,11 +548,11 @@ int coverage_test_main()
          break;
       }
       case 1005: {
-         /* AUDIOLIB_muteNCh_set: fadeType out of range (valid 0..2) -> AUDIOLIB_ERR_INVALID_VALUE */
+         /* AUDIOLIB_muteNCh_set: fadeType out of range (valid 0..3) -> AUDIOLIB_ERR_INVALID_VALUE */
          AUDIOLIB_muteNCh_SetArgs covSetArgs;
          covSetArgs.isMute   = covMuteFlags;
          covSetArgs.fadeTime = 5.0f;
-         covSetArgs.fadeType = 3; /* invalid */
+         covSetArgs.fadeType = 4; /* invalid */
          status_opt          = AUDIOLIB_muteNCh_set(handle, &covSetArgs);
          currentTestFail     = (status_opt != AUDIOLIB_ERR_INVALID_VALUE);
          break;
@@ -635,6 +635,242 @@ int coverage_test_main()
          status_opt      = AUDIOLIB_muteNCh_exec_checkParams(handle, pIn0, pOut);
          currentTestFail = ((status_nat != AUDIOLIB_ERR_NULL_POINTER) || (status_opt != AUDIOLIB_SUCCESS));
          break;
+      case 1013: {
+         /* A smooth unmute settles on exactly unity gain: after 30 time constants every output sample equals its input
+          * sample, bit for bit, in both layouts and both implementations (1 ms at 48 kHz is 48 samples, 90 frames of
+          * 16). */
+         AUDIOLIB_muteNCh_SetArgs covSetArgs;
+         int32_t                  layout, style, frame, i;
+         for (i = 0; i < inSamples * inChannels; i++) {
+            ((float *) pIn0)[i] = (float) (i + 1) / 7.0f;
+         }
+         covSetArgs.isMute   = covMuteFlags;
+         covSetArgs.fadeTime = 1.0f;
+         covSetArgs.fadeType = 1; /* SMOOTH */
+         currentTestFail     = 0;
+         for (layout = 0; layout < 2; layout++) {
+            for (style = 0; style < 2; style++) {
+               kerInitArgs.samplingRate  = 48000;
+               kerInitArgs.isInterleaved = (uint8_t) layout;
+               kerInitArgs.funcStyle     = (style == 0) ? AUDIOLIB_FUNCTION_NATC : AUDIOLIB_FUNCTION_OPTIMIZED;
+               AUDIOLIB_muteNCh_init(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
+               AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+               for (frame = 0; frame < 90; frame++) {
+                  AUDIOLIB_muteNCh_exec(handle, pIn0, pOut);
+               }
+               if (memcmp(pIn0, pOut, OutSize) != 0) {
+                  currentTestFail = 1;
+               }
+            }
+         }
+         kerInitArgs.isInterleaved = 0;
+         break;
+      }
+      case 1014: {
+         /* A later set() changes only the channels whose flag changed. Channel 0 is muted and every other channel
+          * unmuted; once all are at rest, a second set() also mutes channel 1. Channel 0 must stay at exactly 0 and
+          * channels 2..15 at exactly 1, while channel 1 starts its fade from 1. Linear, smooth and symmetric fades, 1
+          * ms at 48 kHz; 60 frames of 16 samples bring every channel to rest. */
+         AUDIOLIB_muteNCh_SetArgs covSetArgs;
+         const uint32_t           fadeTypes[3] = {0, 1, 3}; /* LINEAR, SMOOTH, SYMMETRIC */
+         int32_t                  layout, style, fade, frame, ch, s, idx;
+         for (s = 0; s < inSamples * inChannels; s++) {
+            ((float *) pIn0)[s] = 1.0f;
+         }
+         covSetArgs.isMute   = covMuteFlags;
+         covSetArgs.fadeTime = 1.0f;
+         currentTestFail     = 0;
+         for (fade = 0; fade < 3; fade++) {
+            for (layout = 0; layout < 2; layout++) {
+               for (style = 0; style < 2; style++) {
+                  covSetArgs.fadeType       = fadeTypes[fade];
+                  kerInitArgs.samplingRate  = 48000;
+                  kerInitArgs.isInterleaved = (uint8_t) layout;
+                  kerInitArgs.funcStyle     = (style == 0) ? AUDIOLIB_FUNCTION_NATC : AUDIOLIB_FUNCTION_OPTIMIZED;
+                  AUDIOLIB_muteNCh_init(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
+                  covMuteFlags[0] = 1;
+                  covMuteFlags[1] = 0;
+                  AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+                  for (frame = 0; frame < 60; frame++) {
+                     AUDIOLIB_muteNCh_exec(handle, pIn0, pOut);
+                  }
+                  covMuteFlags[1] = 1;
+                  AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+                  AUDIOLIB_muteNCh_exec(handle, pIn0, pOut);
+                  for (ch = 0; ch < inChannels; ch++) {
+                     for (s = 0; s < inSamples; s++) {
+                        idx = (layout == 1) ? (s * inChannels + ch) : (ch * inSamples + s);
+                        if (ch == 1) {
+                           int32_t prev = (layout == 1) ? ((s - 1) * inChannels + ch) : (ch * inSamples + s - 1);
+                           if (!(((float *) pOut)[idx] < 1.0f) || ((s == 0) && !(((float *) pOut)[idx] > 0.5f)) ||
+                               ((s > 0) && (((float *) pOut)[idx] > ((float *) pOut)[prev]))) {
+                              currentTestFail = 1;
+                           }
+                        }
+                        else if (((float *) pOut)[idx] != ((ch == 0) ? 0.0f : 1.0f)) {
+                           currentTestFail = 1;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         covMuteFlags[0]           = 0;
+         covMuteFlags[1]           = 0;
+         kerInitArgs.isInterleaved = 0;
+         break;
+      }
+      case 1015: {
+         /* A set() during a fade turns the fade round from the running gain, without a jump: every channel fades in
+          * for one frame, then a second set() mutes them all. The first sample after it must be no higher than the
+          * last sample before it, and no lower than half of it. Linear, smooth and symmetric fades, 1 ms at 48 kHz. */
+         AUDIOLIB_muteNCh_SetArgs covSetArgs;
+         const uint32_t           fadeTypes[3] = {0, 1, 3}; /* LINEAR, SMOOTH, SYMMETRIC */
+         int32_t                  layout, style, fade, c2, s;
+         for (s = 0; s < inSamples * inChannels; s++) {
+            ((float *) pIn0)[s] = 1.0f;
+         }
+         covSetArgs.isMute   = covMuteFlags;
+         covSetArgs.fadeTime = 1.0f;
+         currentTestFail     = 0;
+         for (fade = 0; fade < 3; fade++) {
+            for (layout = 0; layout < 2; layout++) {
+               for (style = 0; style < 2; style++) {
+                  /* Channel 0 and the last channel: the first and the last lane */
+                  const int32_t checkCh[2] = {0, inChannels - 1};
+                  float         lastGain[2];
+                  covSetArgs.fadeType       = fadeTypes[fade];
+                  kerInitArgs.samplingRate  = 48000;
+                  kerInitArgs.isInterleaved = (uint8_t) layout;
+                  kerInitArgs.funcStyle     = (style == 0) ? AUDIOLIB_FUNCTION_NATC : AUDIOLIB_FUNCTION_OPTIMIZED;
+                  AUDIOLIB_muteNCh_init(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
+                  for (c = 0; c < inChannels; c++) {
+                     covMuteFlags[c] = 0;
+                  }
+                  AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+                  AUDIOLIB_muteNCh_exec(handle, pIn0, pOut);
+                  for (c2 = 0; c2 < 2; c2++) {
+                     lastGain[c2] = ((float *) pOut)[(layout == 1) ? ((inSamples - 1) * inChannels + checkCh[c2])
+                                                                   : (checkCh[c2] * inSamples + inSamples - 1)];
+                  }
+                  for (c = 0; c < inChannels; c++) {
+                     covMuteFlags[c] = 1;
+                  }
+                  AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+                  AUDIOLIB_muteNCh_exec(handle, pIn0, pOut);
+                  for (c2 = 0; c2 < 2; c2++) {
+                     float firstGain = ((float *) pOut)[(layout == 1) ? checkCh[c2] : (checkCh[c2] * inSamples)];
+                     if (!(lastGain[c2] > 0.0f) || (firstGain > lastGain[c2]) || (firstGain < 0.5f * lastGain[c2])) {
+                        currentTestFail = 1;
+                     }
+                  }
+               }
+            }
+         }
+         for (c = 0; c < inChannels; c++) {
+            covMuteFlags[c] = 0;
+         }
+         kerInitArgs.isInterleaved = 0;
+         break;
+      }
+      case 1016: {
+         /* A hard change leaves each channel at rest on its target, and the next fade starts from there: even channels
+          * muted and odd channels unmuted with a hard set(), then a fade that unmutes channel 0 and mutes channel 1.
+          * The other channels must stay at exactly 0 (even) and 1 (odd); channel 0 rises from 0 and channel 1 falls
+          * from 1. Linear, smooth and symmetric fades, 1 ms at 48 kHz. */
+         AUDIOLIB_muteNCh_SetArgs covSetArgs;
+         const uint32_t           fadeTypes[3] = {0, 1, 3}; /* LINEAR, SMOOTH, SYMMETRIC */
+         int32_t                  layout, style, fade, ch, s, idx;
+         for (s = 0; s < inSamples * inChannels; s++) {
+            ((float *) pIn0)[s] = 1.0f;
+         }
+         covSetArgs.isMute   = covMuteFlags;
+         covSetArgs.fadeTime = 1.0f;
+         currentTestFail     = 0;
+         for (fade = 0; fade < 3; fade++) {
+            for (layout = 0; layout < 2; layout++) {
+               for (style = 0; style < 2; style++) {
+                  kerInitArgs.samplingRate  = 48000;
+                  kerInitArgs.isInterleaved = (uint8_t) layout;
+                  kerInitArgs.funcStyle     = (style == 0) ? AUDIOLIB_FUNCTION_NATC : AUDIOLIB_FUNCTION_OPTIMIZED;
+                  AUDIOLIB_muteNCh_init(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
+                  for (c = 0; c < inChannels; c++) {
+                     covMuteFlags[c] = ((c % 2) == 0) ? 1 : 0;
+                  }
+                  covSetArgs.fadeType = 2; /* HARD */
+                  AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+                  AUDIOLIB_muteNCh_exec(handle, pIn0, pOut);
+                  covMuteFlags[0]     = 0;
+                  covMuteFlags[1]     = 1;
+                  covSetArgs.fadeType = fadeTypes[fade];
+                  AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+                  AUDIOLIB_muteNCh_exec(handle, pIn0, pOut);
+                  for (ch = 0; ch < inChannels; ch++) {
+                     for (s = 0; s < inSamples; s++) {
+                        idx = (layout == 1) ? (s * inChannels + ch) : (ch * inSamples + s);
+                        if (ch == 0) {
+                           /* A symmetric fade starts on the -200 dB floor, which is output as 0 */
+                           if (((s == 0) && !((((float *) pOut)[idx] >= 0.0f) && (((float *) pOut)[idx] < 0.1f))) ||
+                               ((s == inSamples - 1) && !(((float *) pOut)[idx] > 0.0f))) {
+                              currentTestFail = 1;
+                           }
+                        }
+                        else if (ch == 1) {
+                           if ((s == 0) && !((((float *) pOut)[idx] > 0.5f) && (((float *) pOut)[idx] < 1.0f))) {
+                              currentTestFail = 1;
+                           }
+                        }
+                        else if (((float *) pOut)[idx] != (((ch % 2) == 0) ? 0.0f : 1.0f)) {
+                           currentTestFail = 1;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         for (c = 0; c < inChannels; c++) {
+            covMuteFlags[c] = 0;
+         }
+         kerInitArgs.isInterleaved = 0;
+         break;
+      }
+      case 1017: {
+         /* perfEst follows the exec dispatch: while a fade runs it estimates the fading variant of the layout, and once
+          * a linear or symmetric fade has converged it estimates the hard path. Every channel unmutes from the muted
+          * initial state; 1 ms at 48 kHz is 48 samples, so 10 frames of 16 bring a linear or symmetric fade to rest
+          * (a smooth fade never converges). Linear, smooth and symmetric fades, both layouts. */
+         AUDIOLIB_muteNCh_SetArgs covSetArgs;
+         const uint32_t           fadeTypes[3] = {0, 1, 3}; /* LINEAR, SMOOTH, SYMMETRIC */
+         int32_t                  layout, fade, frame;
+         uint64_t                 archFade, estFade, archDone, estDone, archHard, estHard;
+         covSetArgs.isMute   = covMuteFlags;
+         covSetArgs.fadeTime = 1.0f;
+         currentTestFail     = 0;
+         for (fade = 0; fade < 3; fade++) {
+            for (layout = 0; layout < 2; layout++) {
+               covSetArgs.fadeType       = fadeTypes[fade];
+               kerInitArgs.samplingRate  = 48000;
+               kerInitArgs.isInterleaved = (uint8_t) layout;
+               kerInitArgs.funcStyle     = AUDIOLIB_FUNCTION_OPTIMIZED;
+               AUDIOLIB_muteNCh_init(handle, &bufParamsIn, &bufParamsOut, &kerInitArgs);
+               AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+               AUDIOLIB_muteNCh_perfEst(handle, &archFade, &estFade);
+               for (frame = 0; frame < 10; frame++) {
+                  AUDIOLIB_muteNCh_exec(handle, pIn0, pOut);
+               }
+               AUDIOLIB_muteNCh_perfEst(handle, &archDone, &estDone);
+               covSetArgs.fadeType = 2; /* HARD */
+               AUDIOLIB_muteNCh_set(handle, &covSetArgs);
+               AUDIOLIB_muteNCh_perfEst(handle, &archHard, &estHard);
+               if ((archFade == 0U) || (estFade <= archFade) || (archFade == archHard) ||
+                   ((fadeTypes[fade] != 1U) && ((archDone != archHard) || (estDone != estHard)))) {
+                  currentTestFail = 1;
+               }
+            }
+         }
+         kerInitArgs.isInterleaved = 0;
+         break;
+      }
 
       default:
          break;
