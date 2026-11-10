@@ -9,8 +9,9 @@
 #include <cstdlib>
 #include <stdint.h>
 
-// Define the frame size for our example
+// Define the frame size for our example: NUM_CHANNELS rows of NUM_SAMPLES samples each
 #define NUM_SAMPLES (16)
+#define NUM_CHANNELS (4)
 
 /******************************************************************************/
 /* */
@@ -21,9 +22,9 @@ int main(void)
 {
    // clang-format off
 
-   // Setup output buffers for two frames of noise
-   float outBuf_Frame1[NUM_SAMPLES] = {0.0f};
-   float outBuf_Frame2[NUM_SAMPLES] = {0.0f};
+   // Setup output buffers for two frames of noise, one row per channel
+   float outBuf_Frame1[NUM_CHANNELS][NUM_SAMPLES] = {{0.0f}};
+   float outBuf_Frame2[NUM_CHANNELS][NUM_SAMPLES] = {{0.0f}};
 
    // clang-format on
 
@@ -33,7 +34,7 @@ int main(void)
 
    // Setup initialization parameters
    kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED; // Use C7x optimized kernel
-   kerInitArgs.seed      = 42;                          // Initial seed for the generator
+   kerInitArgs.seed      = 42;                          // One seed for all channels
    kerInitArgs.range     = 1.0f;                        // Output noise in range [-1.0, 1.0]
 
    int32_t               handleSize = AUDIOLIB_whiteNoiseGenerator_getHandleSize(&kerInitArgs);
@@ -44,11 +45,14 @@ int main(void)
       return -1;
    }
 
-   AUDIOLIB_bufParams1D_t bufParamsOut;
+   AUDIOLIB_bufParams2D_t bufParamsOut;
 
-   // Fill in output buffer parameters
+   // Fill in output buffer parameters: each channel is a row, rows stride_y bytes apart.
+   // Every channel gets its own uncorrelated noise; channel 0 equals the single-channel output.
    bufParamsOut.data_type = AUDIOLIB_FLOAT32;
    bufParamsOut.dim_x     = NUM_SAMPLES;
+   bufParamsOut.dim_y     = NUM_CHANNELS;
+   bufParamsOut.stride_y  = NUM_SAMPLES * sizeof(float);
 
    status = AUDIOLIB_SUCCESS;
 
@@ -90,20 +94,26 @@ int main(void)
    }
 
    // Print results
-   printf("--- Frame 1 Output (Seed=42) ---\n");
+   printf("--- Frame 1 Output (Seed=42, %d channels) ---\n", NUM_CHANNELS);
    printf("Status: %d\n", status);
-   for (size_t s = 0; s < NUM_SAMPLES; s++) {
-      printf("%12.8f, ", outBuf_Frame1[s]);
-      if ((s + 1) % 8 == 0)
-         printf("\n");
+   for (size_t ch = 0; ch < NUM_CHANNELS; ch++) {
+      printf("Channel %zu:\n", ch);
+      for (size_t s = 0; s < NUM_SAMPLES; s++) {
+         printf("%12.8f, ", outBuf_Frame1[ch][s]);
+         if ((s + 1) % 8 == 0)
+            printf("\n");
+      }
    }
 
    printf("\n--- Frame 2 Output (State Continued) ---\n");
    printf("Status: %d\n", status);
-   for (size_t s = 0; s < NUM_SAMPLES; s++) {
-      printf("%12.8f, ", outBuf_Frame2[s]);
-      if ((s + 1) % 8 == 0)
-         printf("\n");
+   for (size_t ch = 0; ch < NUM_CHANNELS; ch++) {
+      printf("Channel %zu:\n", ch);
+      for (size_t s = 0; s < NUM_SAMPLES; s++) {
+         printf("%12.8f, ", outBuf_Frame2[ch][s]);
+         if ((s + 1) % 8 == 0)
+            printf("\n");
+      }
    }
 
    free(handle);

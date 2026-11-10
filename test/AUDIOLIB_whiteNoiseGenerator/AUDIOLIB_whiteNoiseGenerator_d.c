@@ -40,7 +40,7 @@ int AUDIOLIB_whiteNoiseGenerator_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
    int32_t                fail = 0;
    uint32_t               repCount;
    uint32_t               numReps;
-   AUDIOLIB_bufParams1D_t bufParamsOut;
+   AUDIOLIB_bufParams2D_t bufParamsOut;
    uint32_t               testNum;
    uint32_t               comparisonDone = 0;
 
@@ -61,7 +61,7 @@ int AUDIOLIB_whiteNoiseGenerator_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 
    // file IO for Loki benchmarking
    FILE *fpOutputCSV = fopen("AUDIOLIB_whiteNoiseGenerator.csv", "w+");
-   fprintf(fpOutputCSV, "Test ID, Bit Width, inSamples, frames,"
+   fprintf(fpOutputCSV, "Test ID, Bit Width, inSamples, channels, frames,"
                         "Arch cycles, EVM cycles, EVM/EST cycles, Pass/Fail\n");
 
    for (tpi = 0; tpi < test_cases; tpi++) {
@@ -88,8 +88,13 @@ int AUDIOLIB_whiteNoiseGenerator_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 
          bufParamsOut.data_type = currPrm.sampleDataType;
          bufParamsOut.dim_x     = currPrm.numSamples;
+         bufParamsOut.dim_y     = currPrm.numChannels;
+         bufParamsOut.stride_y  = currPrm.strideOutElements * AUDIOLIB_sizeof(currPrm.sampleDataType);
 
-         uint32_t outSizeBytes = bufParamsOut.dim_x * bufParamsOut.data_type;
+         /* One frame: numChannels rows, stride_y bytes apart */
+         uint32_t outSizeBytes = bufParamsOut.dim_y * bufParamsOut.stride_y;
+         /* Reference frames hold the channels back to back, without row padding */
+         uint32_t refFrameElements = currPrm.numSamples * currPrm.numChannels;
 
          void *pOut, *pOutCn;
          if (currPrm.outputDataLocation == AUDIOLIB_TEST_OUTPUT_HEAP) {
@@ -213,10 +218,11 @@ int AUDIOLIB_whiteNoiseGenerator_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                status_nat_vs_opt = TI_TEST_KERNEL_PASS;
                int32_t frame     = 0;
                for (frame = 0; frame < numExecReps; frame++) {
-                  int32_t frame_status_nat_vs_opt = TI_compare_mem_2D_float(
-                      (void *) ((int8_t *) pOut + frame * outSizeBytes),
-                      (void *) ((int8_t *) pOutCn + frame * outSizeBytes), 0.01, (double) powf(2, -10),
-                      bufParamsOut.dim_x, 1, 0, AUDIOLIB_sizeof(currPrm.sampleDataType));
+                  int32_t frame_status_nat_vs_opt =
+                      TI_compare_mem_2D_float((void *) ((int8_t *) pOut + frame * outSizeBytes),
+                                              (void *) ((int8_t *) pOutCn + frame * outSizeBytes), 0.01,
+                                              (double) powf(2, -10), bufParamsOut.dim_x, bufParamsOut.dim_y,
+                                              bufParamsOut.stride_y, AUDIOLIB_sizeof(currPrm.sampleDataType));
 
                   // Update overall status: fail if any frame fails
                   if (frame_status_nat_vs_opt == TI_TEST_KERNEL_FAIL) {
@@ -247,8 +253,10 @@ int AUDIOLIB_whiteNoiseGenerator_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 
                      int32_t frame_status_ref_vs_opt = TI_compare_mem_2DDualStride_float(
                          (void *) ((int8_t *) pOut + frame * outSizeBytes),
-                         (void *) ((float *) currPrm.staticOut + frame * currPrm.numSamples), 0.01,
-                         (double) powf(2, -10), bufParamsOut.dim_x, 1, 0, 0, AUDIOLIB_sizeof(currPrm.sampleDataType));
+                         (void *) ((float *) currPrm.staticOut + frame * refFrameElements), 0.01, (double) powf(2, -10),
+                         bufParamsOut.dim_x, bufParamsOut.dim_y, bufParamsOut.stride_y,
+                         currPrm.numSamples * AUDIOLIB_sizeof(currPrm.sampleDataType),
+                         AUDIOLIB_sizeof(currPrm.sampleDataType));
 
                      // Update overall status: fail if any frame fails
                      if (frame_status_ref_vs_opt == TI_TEST_KERNEL_FAIL) {
@@ -292,18 +300,20 @@ int AUDIOLIB_whiteNoiseGenerator_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
             pProfile[3 * tpi + 1] = (int32_t) TI_profile_get_cycles(TI_PROFILE_KERNEL_OPT_WARM);
             pProfile[3 * tpi + 2] = (int32_t) TI_profile_get_cycles(TI_PROFILE_KERNEL_OPT_WARMWRB);
 
-            sprintf(desc, "%s generated input | numSamples = %d", testPatternString, currPrm.numSamples);
+            sprintf(desc, "%s generated input | numSamples = %d | numChannels = %d", testPatternString,
+                    currPrm.numSamples, currPrm.numChannels);
 
             AUDIOLIB_whiteNoiseGenerator_perfEst(handle, &archCycles, &estCycles);
 
             // write to CSV, must happen prior to write to screen because
             // TI_profile_formula_add clears values in counters
-            fprintf(fpOutputCSV, "%d, %d, %d, %d, %ld, %d, %f, %d\n", currPrm.testID,
-                    AUDIOLIB_sizeof(currPrm.sampleDataType) * 8, currPrm.numSamples, currPrm.numExecReps, estCycles,
-                    pProfile[3 * tpi + 1],
+            fprintf(fpOutputCSV, "%d, %d, %d, %d, %d, %ld, %d, %f, %d\n", currPrm.testID,
+                    AUDIOLIB_sizeof(currPrm.sampleDataType) * 8, currPrm.numSamples, currPrm.numChannels,
+                    currPrm.numExecReps, estCycles, pProfile[3 * tpi + 1],
                     ((AUDIOLIB_F32) cycles[TI_PROFILE_KERNEL_OPT_WARM]) / ((AUDIOLIB_F32) estCycles), !currentTestFail);
 
-            TI_profile_add_test(testNum++, (currPrm.numSamples * 1), archCycles, estCycles, currentTestFail, desc);
+            TI_profile_add_test(testNum++, (currPrm.numSamples * currPrm.numChannels), archCycles, estCycles,
+                                currentTestFail, desc);
          }
          else {
             sprintf(desc, "%s data does not fit in memory | inSamples = %d", testPatternString, currPrm.numSamples);
@@ -367,7 +377,7 @@ int coverage_test_main()
    AUDIOLIB_STATUS status_nat;
    AUDIOLIB_STATUS status_opt;
 
-   AUDIOLIB_bufParams1D_t bufParamsOut;
+   AUDIOLIB_bufParams2D_t bufParamsOut;
 
    int   fail = 0;
    void *pOut;
@@ -376,14 +386,16 @@ int coverage_test_main()
 
    bufParamsOut.data_type = AUDIOLIB_FLOAT32;
    bufParamsOut.dim_x     = numSamples;
+   bufParamsOut.dim_y     = 1;
+   bufParamsOut.stride_y  = numSamples * AUDIOLIB_sizeof(AUDIOLIB_FLOAT32);
 
-   uint64_t OutSize = bufParamsOut.dim_x * bufParamsOut.data_type;
+   uint64_t OutSize = bufParamsOut.dim_y * bufParamsOut.stride_y;
 
-   AUDIOLIB_bufParams1D_t bufParamsOutTemp;
+   AUDIOLIB_bufParams2D_t bufParamsOutTemp = bufParamsOut;
 
    pOut = (void *) malloc(OutSize);
 
-   while (testNum <= 1001) {
+   while (testNum <= 1005) {
 
       switch (testNum) {
       case 1000:
@@ -407,6 +419,50 @@ int coverage_test_main()
          kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
          status_opt            = AUDIOLIB_whiteNoiseGenerator_init_checkParams(handle, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
+         break;
+      case 1002:
+         bufParamsOutTemp           = bufParamsOut;
+         bufParamsOutTemp.data_type = AUDIOLIB_FLOAT64;
+
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
+         status_nat            = AUDIOLIB_whiteNoiseGenerator_init_checkParams(handle, &bufParamsOutTemp, &kerInitArgs);
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
+         status_opt            = AUDIOLIB_whiteNoiseGenerator_init_checkParams(handle, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
+         break;
+      case 1003:
+         bufParamsOutTemp           = bufParamsOut;
+         bufParamsOutTemp.data_type = AUDIOLIB_FLOAT64;
+         kerInitArgs.seed           = 1;
+         kerInitArgs.range          = 1.0f;
+
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
+         status_nat            = AUDIOLIB_whiteNoiseGenerator_init(handle, &bufParamsOutTemp, &kerInitArgs);
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
+         status_opt            = AUDIOLIB_whiteNoiseGenerator_init(handle, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
+         break;
+      case 1004:
+         bufParamsOutTemp       = bufParamsOut;
+         bufParamsOutTemp.dim_y = AUDIOLIB_WHITENOISEGENERATOR_MAX_NUM_CHANNELS + 1;
+
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
+         status_nat            = AUDIOLIB_whiteNoiseGenerator_init_checkParams(handle, &bufParamsOutTemp, &kerInitArgs);
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
+         status_opt            = AUDIOLIB_whiteNoiseGenerator_init_checkParams(handle, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail =
+             ((status_nat != AUDIOLIB_ERR_INVALID_DIMENSION) || (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION));
+         break;
+      case 1005:
+         bufParamsOutTemp       = bufParamsOut;
+         bufParamsOutTemp.dim_y = 0;
+
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
+         status_nat            = AUDIOLIB_whiteNoiseGenerator_init_checkParams(handle, &bufParamsOutTemp, &kerInitArgs);
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
+         status_opt            = AUDIOLIB_whiteNoiseGenerator_init_checkParams(handle, &bufParamsOutTemp, &kerInitArgs);
+         currentTestFail =
+             ((status_nat != AUDIOLIB_ERR_INVALID_DIMENSION) || (status_opt != AUDIOLIB_ERR_INVALID_DIMENSION));
          break;
 
       default:

@@ -30,6 +30,8 @@ def gen_testCaseParams(testParamsFile, currPrm):
         dType = "double"
 
     numSamples = currPrm["numSamples"]
+    numChannels = currPrm["numChannels"]
+    strideOutElements = currPrm["strideOutElements"]
     seed = currPrm["seed"]
     range_val = currPrm["range"]
     samplingRate = currPrm["samplingRate"]
@@ -62,6 +64,8 @@ def gen_testCaseParams(testParamsFile, currPrm):
     testParamsFile.write("%s, // Test pattern \n" % (testType))
     testParamsFile.write("%s, // Output buffer \n" % (out))
     testParamsFile.write("%s, // numSamples \n" % (numSamples))
+    testParamsFile.write("%s, // numChannels \n" % (numChannels))
+    testParamsFile.write("%s, // strideOutElements \n" % (strideOutElements))
     testParamsFile.write("%s, // seed \n" % (seed))
     testParamsFile.write("%s, // range \n" % (range_val))
     testParamsFile.write("%s, // precision \n" % (AUDIOLIB_utils.resolve_dType(dType)))
@@ -121,6 +125,8 @@ def process_test_case(testCase):
     testCase["seed"] = int(testCase["seed"])
     testCase["range"] = float(testCase["range"])
     testCase["numSamples"] = int(testCase["numSamples"])
+    testCase["numChannels"] = int(testCase["numChannels"])
+    testCase["strideOutElements"] = int(testCase["strideOutElements"])
     testCase["samplingRate"] = int(testCase["samplingRate"])
     testCase["numReps"] = int(testCase["numReps"])
     testCase["numExecReps"] = int(testCase.get("numExecReps", 1))  # NEW: frame count
@@ -131,6 +137,7 @@ def gen_test_case_header_file(testCase):
     testId = testCase["testId"]
     dType = testCase["dType"]
     numSamples = testCase["numSamples"]
+    numChannels = testCase["numChannels"]
     seed = testCase["seed"]
     range_val = testCase["range"]
     plotSignals = testCase["plotSignals"]
@@ -138,8 +145,10 @@ def gen_test_case_header_file(testCase):
 
     target_dtype = np.float32 if dType == "AUDIOLIB_FLOAT32" else np.float64
 
-    out = generate_white_noise(numSamples, numExecReps, seed, range_val, target_dtype)
-    totalSamples = numSamples * numExecReps
+    out = generate_white_noise(
+        numSamples, numChannels, numExecReps, seed, range_val, target_dtype
+    )
+    totalSamples = numSamples * numChannels * numExecReps
 
     if plotSignals == "TRUE":
         file_io.plot_Signals(out, totalSamples, testId)
