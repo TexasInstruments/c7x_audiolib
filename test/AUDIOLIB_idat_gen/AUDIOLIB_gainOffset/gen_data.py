@@ -61,6 +61,7 @@ def gen_testCaseParams(testParamsFile, currPrm):
     idatFile.write("{\n")
     idatFile.write("%s, // Test pattern \n" % ((testType)))
     idatFile.write("%s, // Input buffer\n" % ((in0)))
+    # stored as double in the test params; the driver converts to the buffer type
     idatFile.write("%s, // gain \n" % ((gain)))
     idatFile.write("%s, // offset \n" % ((offset)))
 
@@ -136,8 +137,12 @@ def process_test_case(testCase):
     testCase["inSamples"] = int(testCase["inSamples"])
     testCase["strideInElements"] = int(testCase["strideInElements"])
     testCase["strideOutElements"] = int(testCase["strideOutElements"])
-    testCase["gain"] = float(testCase["gain"])
-    testCase["offset"] = float(testCase["offset"])
+    if testCase["dType"].startswith("int32"):
+        testCase["gain"] = int(testCase["gain"])
+        testCase["offset"] = int(testCase["offset"])
+    else:
+        testCase["gain"] = float(testCase["gain"])
+        testCase["offset"] = float(testCase["offset"])
 
     return testCase
 
@@ -178,7 +183,16 @@ def gen_test_case_header_file(testCase):
     # [minVal, maxVal] = AUDIOLIB_utils.minMaxVal(dType)
     [minVal, maxVal] = [-10, 10]
 
-    if dType[0] == "i" or dType[0] == "u":
+    if dType.startswith("int32"):
+        # full int32 range, so the saturation is exercised; the edge values come first
+        i32 = np.iinfo(np.int32)
+        in0 = np.random.randint(low=i32.min, high=i32.max, size=(inChannels, inSamples), dtype=np.int64)
+        edges = [0, 1, -1, i32.max, i32.min, 2**30, -2**30, 12345, -98765]
+        flat = in0.reshape(-1)
+        flat[: min(len(edges), flat.size)] = edges[: flat.size]
+        in0 = flat.reshape(inChannels, inSamples).astype(np.int32)
+        out = gainOffset_processor.exec(in0)
+    elif dType[0] == "i" or dType[0] == "u":
         in0 = np.random.randint(low=minVal, high=maxVal, size=(inChannels,inSamples)).astype("int")
         out = gainOffset_processor.exec(in0)
     elif dType[0] == "f":
@@ -200,7 +214,7 @@ def gen_test_case_header_file(testCase):
 # CSV file with paratmeters for all test cases
 testCasesCsvFile = "../AUDIOLIB_gainOffset/test_cases_list.csv"
 testIdList = []  # list of test IDs that we want to generate test data
-testIdList += range(0, 60)
+testIdList += range(0, 70)
 
 myArgs = AUDIOLIB_utils.getCmdLineArgs()
 

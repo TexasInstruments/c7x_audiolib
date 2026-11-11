@@ -57,7 +57,7 @@ int AUDIOLIB_gainOffset_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
    AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_gainOffset_d CP 0\n");
 
    int32_t               handleSize = AUDIOLIB_gainOffset_getHandleSize(&kerInitArgs);
-   AUDIOLIB_kernelHandle handle     = malloc(handleSize);
+   AUDIOLIB_kernelHandle handle     = TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, handleSize); /* 64-byte aligned handle */
 
    AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_gainOffset_d CP 1\n");
 
@@ -72,8 +72,6 @@ int AUDIOLIB_gainOffset_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
       numReps             = prm[tpi].numReps;
       testNum             = prm[tpi].testID;
       currPrm             = prm[tpi];
-      kerInitArgs.gain   = (float)currPrm.gain;
-      kerInitArgs.offset = (float)currPrm.offset;
 
       for (repCount = 0; repCount < numReps; repCount++) {
          AUDIOLIB_DEBUGPRINTFN(0, "Current TestID: %d Current Repetition: %d\n", currPrm.testID, repCount + 1);
@@ -103,6 +101,23 @@ int AUDIOLIB_gainOffset_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 
          void *pIn0 = (void *) TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, inp0SizeBytes);
 
+         /* *pGain / *pOffset: float for float and double data, int32_t for int32 data
+            (both 4 bytes, so one buffer size fits every case) */
+         void *pGain   = (void *) TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, sizeof(float));
+         void *pOffset = (void *) TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, sizeof(float));
+         if (pGain && pOffset) {
+            if (currPrm.dataType == AUDIOLIB_INT32) {
+               *(int32_t *) pGain   = (int32_t) currPrm.gain;
+               *(int32_t *) pOffset = (int32_t) currPrm.offset;
+            }
+            else {
+               *(float *) pGain   = (float) currPrm.gain;
+               *(float *) pOffset = (float) currPrm.offset;
+            }
+         }
+         kerInitArgs.pGain   = pGain;
+         kerInitArgs.pOffset = pOffset;
+
          void *pOut, *pOutCn;
          if (currPrm.outputDataLocation == AUDIOLIB_TEST_OUTPUT_HEAP) {
             pOut   = (void *) TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, outSizeBytes);
@@ -128,7 +143,7 @@ int AUDIOLIB_gainOffset_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
          AUDIOLIB_DEBUGPRINTFN(0, "pIn: %p pOut: %p pOutCn: %p\n", pIn0, pOut, pOutCn);
 
          /* Only run the test if the buffer allocations fit in the heap */
-         if (pIn0 && pOut && pOutCn) {
+         if (pIn0 && pOut && pOutCn && pGain && pOffset) {
 
             if (currPrm.dataType == AUDIOLIB_FLOAT32 || currPrm.dataType == AUDIOLIB_FLOAT64) {
                TI_fillBuffer_float(prm[tpi].testPattern, 0, pIn0, prm[tpi].staticIn0, bufParamsIn0.dim_x,
@@ -136,7 +151,9 @@ int AUDIOLIB_gainOffset_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                                    testPatternString);
             }
             else {
-               // TBD for other precisions
+               TI_fillBuffer(prm[tpi].testPattern, (uint8_t) 255, pIn0, prm[tpi].staticIn0, bufParamsIn0.dim_x,
+                             bufParamsIn0.dim_y, bufParamsIn0.stride_y, AUDIOLIB_sizeof(currPrm.dataType),
+                             testPatternString);
             }
 
             AUDIOLIB_DEBUGPRINTFN(0, "AUDIOLIB_DEBUGPRINT  AUDIOLIB_gainOffset_d CP 0\n");
@@ -233,7 +250,10 @@ int AUDIOLIB_gainOffset_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                    bufParamsOut.dim_y, bufParamsOut.stride_y, AUDIOLIB_sizeof(currPrm.dataType));
             }
             else {
-               /* TBD */
+               /* int32: natural C and optimized must be bit-exact */
+               status_nat_vs_opt =
+                   TI_compare_mem_2D((void *) pOut, (void *) pOutCn, 0, 0, bufParamsOut.dim_x, bufParamsOut.dim_y,
+                                     bufParamsOut.stride_y, AUDIOLIB_sizeof(currPrm.dataType));
             }
 
             comparisonDone = 1;
@@ -254,6 +274,11 @@ int AUDIOLIB_gainOffset_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
                       AUDIOLIB_sizeof(currPrm.dataType));
                }
                else {
+                  /* int32: bit-exact against the reference */
+                  status_ref_vs_opt = TI_compare_mem_2DDualStride(
+                      (void *) pOut, (void *) currPrm.staticOut, 0, 0, bufParamsOut.dim_x, bufParamsOut.dim_y,
+                      bufParamsOut.stride_y, bufParamsOut.dim_x * AUDIOLIB_sizeof(currPrm.dataType),
+                      AUDIOLIB_sizeof(currPrm.dataType));
                }
 
                comparisonDone = 1;
@@ -327,11 +352,13 @@ int AUDIOLIB_gainOffset_d(uint32_t *pProfile, uint8_t LevelOfFeedback)
 #endif
          }
          TI_align_free(pIn0);
+         TI_align_free(pGain);
+         TI_align_free(pOffset);
 
       } /* end repetitions */
    } /* end idat test cases*/
 
-   free(handle);
+   TI_align_free(handle);
    /* Close results CSV */
    fclose(fpOutputCSV);
 
@@ -361,7 +388,7 @@ int coverage_test_main()
    AUDIOLIB_gainOffset_InitArgs kerInitArgs;
 
    int32_t               handleSize = AUDIOLIB_gainOffset_getHandleSize(&kerInitArgs);
-   AUDIOLIB_kernelHandle handle     = malloc(handleSize);
+   AUDIOLIB_kernelHandle handle     = TI_memalign(AUDIOLIB_L2DATA_ALIGNMENT, handleSize); /* 64-byte aligned handle */
 
    AUDIOLIB_STATUS status_nat;
    AUDIOLIB_STATUS status_opt;
@@ -392,7 +419,13 @@ int coverage_test_main()
    pIn0 = (void *) malloc(In0Size);
    pOut = (void *) malloc(OutSize);
 
-   while (testNum <= 1006) {
+   /* Valid gain/offset for the float32 buffers above; cases 1007/1008 clear them */
+   float covGain   = 1.0f;
+   float covOffset = 0.0f;
+   kerInitArgs.pGain   = &covGain;
+   kerInitArgs.pOffset = &covOffset;
+
+   while (testNum <= 1008) {
 
       switch (testNum) {
       case 1000:
@@ -473,6 +506,22 @@ int coverage_test_main()
          status_opt            = AUDIOLIB_gainOffset_init(handle, &bufParamsIn0Temp, &bufParamsOutTemp, &kerInitArgs);
          currentTestFail = ((status_nat != AUDIOLIB_ERR_INVALID_TYPE) || (status_opt != AUDIOLIB_ERR_INVALID_TYPE));
          break;
+      case 1007:
+         /* NULL pGain */
+         kerInitArgs.pGain     = NULL;
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
+         status_opt      = AUDIOLIB_gainOffset_init_checkParams(handle, &bufParamsIn0, &bufParamsOut, &kerInitArgs);
+         currentTestFail = (status_opt != AUDIOLIB_ERR_NULL_POINTER);
+         kerInitArgs.pGain = &covGain;
+         break;
+      case 1008:
+         /* NULL pOffset */
+         kerInitArgs.pOffset   = NULL;
+         kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_NATC;
+         status_nat      = AUDIOLIB_gainOffset_init_checkParams(handle, &bufParamsIn0, &bufParamsOut, &kerInitArgs);
+         currentTestFail = (status_nat != AUDIOLIB_ERR_NULL_POINTER);
+         kerInitArgs.pOffset = &covOffset;
+         break;
 
       default:
          break;
@@ -486,7 +535,7 @@ int coverage_test_main()
    free(pIn0);
    free(pOut);
 
-   free(handle);
+   TI_align_free(handle);
 
 #if defined(ENABLE_LDRA_COVERAGE)
    /* For every call of AUDIOLIB_gainOffset_getHandleSize() the execution history is pushed

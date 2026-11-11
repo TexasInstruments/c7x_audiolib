@@ -209,18 +209,62 @@
 #include "test_data/staticRefCase51.h"
 #endif
 
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 52))
+#include "test_data/staticRefCase52.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 53))
+#include "test_data/staticRefCase53.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 54))
+#include "test_data/staticRefCase54.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 55))
+#include "test_data/staticRefCase55.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 56))
+#include "test_data/staticRefCase56.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 57))
+#include "test_data/staticRefCase57.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 58))
+#include "test_data/staticRefCase58.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 59))
+#include "test_data/staticRefCase59.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 60))
+#include "test_data/staticRefCase60.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 61))
+#include "test_data/staticRefCase61.h"
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 62))
+#include "test_data/staticRefCase62.h"
+#endif
+
 static AUDIOLIB_gainOffset_testParams_t testParams[] = {
 #if (defined(ALL_TEST_CASES) || (TEST_CASE == 1))
    {
     STATIC,                                           // Test pattern
     staticRefIn0Case1,                                // Input buffer
     2.34,                                             // gain
-    0.0,                                              // offset
+    3.0,                                              // offset
     staticRefOutCase1,                                // Output buffer
-    16,                                               // inSamples
-    1,                                                // inChannels
-    AUDIOLIB_CALC_STRIDE (16 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),   // strideInElements
-    AUDIOLIB_CALC_STRIDE (16 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),   // strideOutElements
+    1024,                                             // inSamples
+    8,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
     AUDIOLIB_FLOAT32,                                 // precision
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
@@ -235,10 +279,10 @@ static AUDIOLIB_gainOffset_testParams_t testParams[] = {
     3.234,                                            // gain
     0.05,                                             // offset
     staticRefOutCase2,                                // Output buffer
-    256,                                              // inSamples
-    1,                                                // inChannels
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideInElements
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideOutElements
+    512,                                              // inSamples
+    8,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideOutElements
     AUDIOLIB_FLOAT32,                                 // precision
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
@@ -359,7 +403,7 @@ static AUDIOLIB_gainOffset_testParams_t testParams[] = {
     STATIC,                                           // Test pattern
     staticRefIn0Case9,                                // Input buffer
     9.33,                                             // gain
-    0.5,                                              // offset
+    0.0,                                              // offset
     staticRefOutCase9,                                // Output buffer
     1024,                                             // inSamples
     16,                                               // inChannels
@@ -669,7 +713,7 @@ static AUDIOLIB_gainOffset_testParams_t testParams[] = {
     2.4401,                                           // offset
     staticRefOutCase26,                               // Output buffer
     1024,                                             // inSamples
-    4,                                                // inChannels
+    9,                                                // inChannels
     AUDIOLIB_CALC_STRIDE (1024 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
     AUDIOLIB_CALC_STRIDE (1024 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
     AUDIOLIB_FLOAT32,                                 // precision
@@ -688,10 +732,10 @@ static AUDIOLIB_gainOffset_testParams_t testParams[] = {
     6.011,                                            // gain
     -3.4455,                                          // offset
     staticRefOutCase27,                               // Output buffer
-    256,                                              // inSamples
-    15,                                               // inChannels
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideInElements
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideOutElements
+    512,                                              // inSamples
+    3,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (float), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideOutElements
     AUDIOLIB_FLOAT32,                                 // precision
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
@@ -727,10 +771,10 @@ static AUDIOLIB_gainOffset_testParams_t testParams[] = {
     2.43,                                             // gain
     0.666667,                                         // offset
     staticRefOutCase29,                               // Output buffer
-    16,                                               // inSamples
-    1,                                                // inChannels
-    AUDIOLIB_CALC_STRIDE (16 * sizeof (double), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideInElements
-    AUDIOLIB_CALC_STRIDE (16 * sizeof (double), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideOutElements
+    1024,                                             // inSamples
+    8,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (double), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (double), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
     AUDIOLIB_FLOAT64,                                 // precision
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
@@ -745,10 +789,10 @@ static AUDIOLIB_gainOffset_testParams_t testParams[] = {
     3.23,                                             // gain
     0.2,                                              // offset
     staticRefOutCase30,                               // Output buffer
-    256,                                              // inSamples
-    1,                                                // inChannels
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (double), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
-    AUDIOLIB_CALC_STRIDE (256 * sizeof (double), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    512,                                              // inSamples
+    8,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (double), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (double), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
     AUDIOLIB_FLOAT64,                                 // precision
     AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
     1,                                                // number of reps.
@@ -1139,6 +1183,204 @@ static AUDIOLIB_gainOffset_testParams_t testParams[] = {
     },
 #endif
 #endif // if !defined(__C7100__)
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 52))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case52,                               // Input buffer
+    3,                                                // gain
+    7,                                                // offset
+    staticRefOutCase52,                               // Output buffer
+    1024,                                             // inSamples
+    8,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    52,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 53))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case53,                               // Input buffer
+    -1,                                               // gain
+    -1,                                               // offset
+    staticRefOutCase53,                               // Output buffer
+    512,                                              // inSamples
+    8,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (512 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    53,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 54))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case54,                               // Input buffer
+    2,                                                // gain
+    0,                                                // offset
+    staticRefOutCase54,                               // Output buffer
+    256,                                              // inSamples
+    2,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (256 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (256 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    54,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 55))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case55,                               // Input buffer
+    0,                                                // gain
+    1000,                                             // offset
+    staticRefOutCase55,                               // Output buffer
+    1024,                                             // inSamples
+    1,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (1024 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    55,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 56))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case56,                               // Input buffer
+    1,                                                // gain
+    2147483647,                                       // offset
+    staticRefOutCase56,                               // Output buffer
+    256,                                              // inSamples
+    4,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (256 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (256 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    56,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 57))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case57,                               // Input buffer
+    -3,                                               // gain
+    -2147483648,                                      // offset
+    staticRefOutCase57,                               // Output buffer
+    100,                                              // inSamples
+    3,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (112 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (128 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    57,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 58))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case58,                               // Input buffer
+    65536,                                            // gain
+    5,                                                // offset
+    staticRefOutCase58,                               // Output buffer
+    37,                                               // inSamples
+    5,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (40 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
+    AUDIOLIB_CALC_STRIDE (48 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    58,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 59))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case59,                               // Input buffer
+    2147483647,                                       // gain
+    -1,                                               // offset
+    staticRefOutCase59,                               // Output buffer
+    7,                                                // inSamples
+    1,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (7 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideInElements
+    AUDIOLIB_CALC_STRIDE (7 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),  // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    59,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 60))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case60,                               // Input buffer
+    -2147483648,                                      // gain
+    0,                                                // offset
+    staticRefOutCase60,                               // Output buffer
+    333,                                              // inSamples
+    2,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (333 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideInElements
+    AUDIOLIB_CALC_STRIDE (333 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),        // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    60,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 61))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case61,                               // Input buffer
+    1,                                                // gain
+    0,                                                // offset
+    staticRefOutCase61,                               // Output buffer
+    4096,                                             // inSamples
+    1,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (4096 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideInElements
+    AUDIOLIB_CALC_STRIDE (4096 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES),       // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    61,                                               // test ID
+    },
+#endif
+
+#if (defined(ALL_TEST_CASES) || (TEST_CASE == 62))
+   {
+    STATIC,                                           // Test pattern
+    staticRefIn0Case62,                               // Input buffer
+    7,                                                // gain
+    -7,                                               // offset
+    staticRefOutCase62,                               // Output buffer
+    64,                                               // inSamples
+    2,                                                // inChannels
+    AUDIOLIB_CALC_STRIDE (64 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideInElements
+    AUDIOLIB_CALC_STRIDE (80 * sizeof (int32_t), AUDIOLIB_ALIGN_SHIFT_64BYTES), // strideOutElements
+    AUDIOLIB_INT32,                                   // precision
+    AUDIOLIB_TEST_OUTPUT_MSMC,                        // Output data location
+    1,                                                // number of reps.
+    62,                                               // test ID
+    },
+#endif
 
 };
 

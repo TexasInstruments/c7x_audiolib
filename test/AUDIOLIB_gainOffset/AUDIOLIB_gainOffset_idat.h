@@ -15,8 +15,8 @@ typedef struct {
    uint8_t testPattern; /* 0: constant, 1: sequential, 2: random, 3: static
                            array, 4: file, etc */
    void    *staticIn0;
-   float    gain;
-   float    offset;
+   double   gain;   /* holds every float value and every int32 exactly; the driver converts */
+   double   offset; /* it to the buffer data type and points pGain/pOffset at it */
    void    *staticOut;
    uint32_t inSamples;
    uint32_t inChannels;
