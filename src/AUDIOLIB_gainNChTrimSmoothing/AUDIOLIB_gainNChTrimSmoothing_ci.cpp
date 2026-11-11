@@ -855,13 +855,16 @@ AUDIOLIB_STATUS AUDIOLIB_gainNChTrimSmoothing_set_ci(AUDIOLIB_kernelHandle      
       }
    }
 
-   /* Fade kernel for the fade type and layout: [isSmooth][layout]. */
-   static const pFxnAUDIOLIB_gainNChTrimSmoothing_exec fadeKernels[2][2] = {
-       {AUDIOLIB_gainNChTrimSmoothingPlanarSymmetric_exec_ci<dataType>,
-        AUDIOLIB_gainNChTrimSmoothingLaneSymmetric_exec_ci<dataType>},
-       {AUDIOLIB_gainNChTrimSmoothingPlanarSmooth_exec_ci<dataType>,
-        AUDIOLIB_gainNChTrimSmoothingLaneSmooth_exec_ci<dataType>}};
-   const pFxnAUDIOLIB_gainNChTrimSmoothing_exec fadeFxn = fadeKernels[isSmooth][layout];
+   /* Fade kernel for the fade type and layout. */
+   pFxnAUDIOLIB_gainNChTrimSmoothing_exec fadeFxn = NULL;
+   if (layout == (uint8_t) AUDIOLIB_GAINNCHTRIMSMOOTHING_LAYOUT_PLANAR) {
+      fadeFxn = (isSmooth != 0U) ? AUDIOLIB_gainNChTrimSmoothingPlanarSmooth_exec_ci<dataType>
+                                 : AUDIOLIB_gainNChTrimSmoothingPlanarSymmetric_exec_ci<dataType>;
+   }
+   else {
+      fadeFxn = (isSmooth != 0U) ? AUDIOLIB_gainNChTrimSmoothingLaneSmooth_exec_ci<dataType>
+                                 : AUDIOLIB_gainNChTrimSmoothingLaneSymmetric_exec_ci<dataType>;
+   }
 
    if (isSmooth != 0U) {
       *pRampFxn      = (isInstant != 0U) ? pKerPrivArgs->bypassFxn : fadeFxn;
