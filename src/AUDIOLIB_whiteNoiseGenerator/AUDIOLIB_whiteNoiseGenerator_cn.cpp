@@ -15,37 +15,42 @@ AUDIOLIB_STATUS AUDIOLIB_whiteNoiseGenerator_exec_cn(AUDIOLIB_kernelHandle handl
 
    dataType *restrict pOutLocal = (dataType *) pOut;
 
-   uint32_t samples = pKerPrivArgs->samples;
-   float    range   = pKerPrivArgs->range;
+   int32_t samples     = pKerPrivArgs->samples;
+   int32_t numChannels = pKerPrivArgs->numChannels;
+   int32_t strideOut   = pKerPrivArgs->strideOut;
+   float   range       = pKerPrivArgs->range;
 
    // Standard LCG parameters
    const uint32_t a = 1664525u;
    const uint32_t c = 1013904223u;
    // m = 2**32 is implicit in uint32_t arithmetic wrap-around
 
-   // Pre-calculate 1.0 / (2**32) for normalization
-   const dataType m_inv = (dataType) 2.3283064365386963e-10;
+   // range / 2^31 maps the zero-centred LCG output to [-range, +range]
+   const dataType scale = (dataType) AUDIOLIB_LCG_SIGNED_NORM_FACTOR_F32 * range;
 
-   // Initialize LCG state from the handle
-   uint32_t x = pKerPrivArgs->seed;
+   // Channel 0's next output; every other channel's is CHANNEL_SPACING steps after the previous channel's
+   uint32_t channelNext = pKerPrivArgs->states[0];
 
-   for (uint32_t i = 0; i < samples; i++) {
-      // 1. Generate the next pseudo-random integer: x = (a * x + c) % m
-      // The modulo is implicit for uint32_t.
-      x = (a * x + c);
+   for (int32_t ch = 0; ch < numChannels; ch++) {
+      uint32_t x  = channelNext;
+      channelNext = pKerPrivArgs->channelMultiplier * channelNext + pKerPrivArgs->channelIncrement;
 
-      // 2. Normalize the integer to [0.0, 1.0)
-      // normalized_val = (dataType)x / (double)(1ULL << 32)
-      dataType normalized_val = (dataType) x * m_inv;
+      for (int32_t i = 0; i < samples; i++) {
+         // 1. Centre the pseudo-random integer on zero: (int32_t) (x ^ 2^31) = x - 2^31
+         int32_t centred = (int32_t) (x ^ AUDIOLIB_LCG_SIGN_FLIP);
 
-      // 3. Scale to the desired range [-range, range]
-      // out[i] = (2 * range_val * normalized_val) - range_val
-      pOutLocal[i] = (2.0f * range * normalized_val) - range;
+         // 2. Scale to the desired range [-range, range]: (x / 2^31 - 1) * range
+         pOutLocal[ch * strideOut + i] = (dataType) centred * scale;
+
+         // 3. Generate the next pseudo-random integer: x = (a * x + c) % m
+         // The modulo is implicit for uint32_t.
+         x = (a * x + c);
+      }
    }
 
-   // Update the seed in the handle for the next exec call
-   // This ensures the noise sequence continues from where it left off.
-   pKerPrivArgs->seed = x;
+   // Channel 0 continues `samples` steps on, so the next exec call continues every channel's sequence
+   pKerPrivArgs->states[0] =
+       pKerPrivArgs->jumpHeadMultiplierNextFrame * pKerPrivArgs->states[0] + pKerPrivArgs->jumpHeadIncNextFrame;
 
    return status;
 }

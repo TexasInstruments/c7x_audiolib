@@ -111,9 +111,11 @@ def write_header_file(out, testCase, headerFileName):
         headerFileName (str): The name for the output .h file.
     """
     testId = testCase["ID"]
-    numSamples = testCase["numSamples"]  # Samples per frame
+    numSamples = testCase["numSamples"]  # Samples per channel per frame
+    numChannels = testCase["numChannels"]  # Channels per frame
     numExecReps = testCase["numExecReps"]  # Number of frames
-    totalSamples = numSamples * numExecReps  # Total output samples
+    frameLength = numSamples * numChannels  # Samples per frame, channels back to back
+    totalSamples = frameLength * numExecReps  # Total output samples
 
     dType = testCase["dType"]
     if dType == "AUDIOLIB_FLOAT32":
@@ -135,14 +137,14 @@ def write_header_file(out, testCase, headerFileName):
         )
 
         f.write(
-            f"    /* Frame-based output: {numExecReps} frames, {numSamples} samples per frame */\n"
+            f"    /* Frame-based output: {numExecReps} frames of {numChannels} channels x {numSamples} samples */\n"
         )
 
         # Loop through frames to clearly group samples
         for frame in range(numExecReps):
             f.write(f"    /* Frame {frame} */\n")
-            start_idx = frame * numSamples
-            end_idx = (frame + 1) * numSamples
+            start_idx = frame * frameLength
+            end_idx = (frame + 1) * frameLength
 
             frame_samples = ", ".join(f"{x:}" for x in out[start_idx:end_idx])
             f.write("    " + frame_samples + ",\n")

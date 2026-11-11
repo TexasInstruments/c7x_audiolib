@@ -26,12 +26,11 @@ extern "C" {
  * - \f$ c = 1013904223 \f$ (increment)
  * - \f$ m = 2^{32} \f$ (modulus, implicit in 32-bit unsigned arithmetic)
  *
- * Each 32-bit integer \f$X_n\f$ is normalized to a floating-point value in
- * the range `[0.0, 1.0)`:
- * \f[ \text{normalized} = \frac{X_n}{2^{32}} \f]
+ * Each 32-bit integer \f$X_n\f$ is centred on zero and scaled to the output range `[-range, +range]`:
+ * \f[ y[n] = \frac{X_n - 2^{31}}{2^{31}} \cdot \text{range} = \left(\frac{2 X_n}{2^{32}} - 1\right) \cdot \text{range} \f]
  *
- * This value is then scaled to the desired output range `[-range, +range]`:
- * \f[ y[n] = (\text{normalized} \cdot 2 \cdot \text{range}) - \text{range} \f]
+ * \f$X_n - 2^{31}\f$ is computed exactly as the signed 32-bit value of \f$X_n\f$ with its top bit flipped, so
+ * the float computation rounds twice (conversion, multiply).
  *
  * ### State Continuity
  * The kernel is stateful and maintains the LCG state across calls. When `exec`
@@ -39,14 +38,41 @@ extern "C" {
  * from the *previous* call. This ensures a continuous, unbroken sequence of
  * pseudo-random noise across frame boundaries.
  *
+ * ### Multiple Channels
+ * The output buffer holds `dim_y` channels of `dim_x` samples each, one channel per row,
+ * rows `stride_y` bytes apart. Every channel runs its own LCG sequence, all derived from the
+ * single `seed`:
+ * - channel 0 starts at `seed`, so a one-channel buffer gives exactly the single-channel output;
+ * - channel `c` starts \f$ c \cdot 51274189 \f$ steps further along the same sequence.
+ *
+ * The channels therefore never repeat each other's samples for 51274189 samples per channel
+ * (about 17.8 minutes at 48 kHz), any two channels are uncorrelated at every lag up to
+ * 1508038 samples (31 s at 48 kHz), and adding channels never changes the existing ones.
+ *
+ * ### Supported Data Types
+ * The output buffer must be `AUDIOLIB_FLOAT32`.
+ *
  * ### C7x Optimized Implementation
- * The C7x implementation uses 8 parallel LCG states (all derived from the
- * initial seed) to generate 8 samples simultaneously. The main loop is unrolled
- * 4x to process **32 samples per iteration** for high throughput.
+ * The C7x implementation runs 5 or 8 full-width vectors of parallel LCG states in one software-pipelined loop
+ * over every channel row, and stores that many vectors per iteration through streaming address generator SA0,
+ * at 1 cycle per vector (the bound of the two vector multiply units: one LCG multiply and one scale multiply per
+ * vector). Every row runs whole iterations: SA0's DECDIM masking turns off the lanes past the end of each
+ * row, so there is no remainder code and no store reaches the next channel. On each row's last iteration a
+ * predicate from SA1 (DECDIM again) selects the jump to the next channel's states, without a branch.
+ * Because rows run in whole iterations, @ref AUDIOLIB_whiteNoiseGenerator_init picks the unroll that pads each
+ * row least (8 for rows of a multiple of 64 samples, 5 for rows of up to 40), from the same cycle model that
+ * @ref AUDIOLIB_whiteNoiseGenerator_perfEst reports.
  *
  * @ingroup  AUDIOLIB
  */
 /**@{*/
+
+/**
+ * @brief Maximum number of channels (rows of the output buffer) the kernel supports. The channels'
+ *        start states are 51274189 LCG steps apart, and 64 of those spacings fit in the LCG's 2^32
+ *        period, so no two channels ever start inside each other's first 51274189 samples.
+ */
+#define AUDIOLIB_WHITENOISEGENERATOR_MAX_NUM_CHANNELS (64)
 
 /**
  * @brief Structure containing the parameters to initialize the kernel
@@ -54,7 +80,7 @@ extern "C" {
 typedef struct {
    /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
    int8_t funcStyle;
-   /** @brief The initial 32-bit seed for the LCG. */
+   /** @brief The initial 32-bit seed for the LCG of channel 0. Any value, including 0, is valid. */
    uint32_t seed;
    /** @brief The output range. Noise will be in [-range, +range]. */
    float range;
@@ -91,7 +117,7 @@ int32_t AUDIOLIB_whiteNoiseGenerator_getHandleSize(AUDIOLIB_whiteNoiseGenerator_
  */
 
 AUDIOLIB_STATUS AUDIOLIB_whiteNoiseGenerator_init(AUDIOLIB_kernelHandle                        handle,
-                                                  AUDIOLIB_bufParams1D_t                      *bufParamsOut,
+                                                  AUDIOLIB_bufParams2D_t                      *bufParamsOut,
                                                   const AUDIOLIB_whiteNoiseGenerator_InitArgs *pKerInitArgs);
 
 /**
@@ -110,12 +136,16 @@ AUDIOLIB_STATUS AUDIOLIB_whiteNoiseGenerator_init(AUDIOLIB_kernelHandle         
  *
  * @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
+ * - `AUDIOLIB_ERR_NULL_POINTER` if `handle` or `bufParamsOut` is NULL.
+ * - `AUDIOLIB_ERR_INVALID_TYPE` if the output data type is not `AUDIOLIB_FLOAT32`.
+ * - `AUDIOLIB_ERR_INVALID_DIMENSION` if `dim_y` (channels) is 0 or greater than
+ *   @ref AUDIOLIB_WHITENOISEGENERATOR_MAX_NUM_CHANNELS.
  *
  * @remarks     None
  */
 AUDIOLIB_STATUS
 AUDIOLIB_whiteNoiseGenerator_init_checkParams(AUDIOLIB_kernelHandle                        handle,
-                                              const AUDIOLIB_bufParams1D_t                *bufParamsOut,
+                                              const AUDIOLIB_bufParams2D_t                *bufParamsOut,
                                               const AUDIOLIB_whiteNoiseGenerator_InitArgs *pKerInitArgs);
 
 /** * @brief Estimates the performance of the whiteNoiseGenerator kernel.

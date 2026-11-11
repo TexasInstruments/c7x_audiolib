@@ -16,6 +16,8 @@ typedef struct {
                            array, 4: file, etc */
    void    *staticOut;
    uint32_t numSamples;
+   uint32_t numChannels;
+   uint32_t strideOutElements;
    uint32_t seed;
    float    range;
    uint32_t sampleDataType;
