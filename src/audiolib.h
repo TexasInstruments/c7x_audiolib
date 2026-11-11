@@ -7,6 +7,7 @@
 
 #include "AUDIOLIB_agc/AUDIOLIB_agc.h"
 #include "AUDIOLIB_asrc/AUDIOLIB_asrc.h"
+#include "AUDIOLIB_asymmetricLimiter/AUDIOLIB_asymmetricLimiter.h"
 #include "AUDIOLIB_balance/AUDIOLIB_balance.h"
 #include "AUDIOLIB_balanceFader/AUDIOLIB_balanceFader.h"
 #include "AUDIOLIB_blockStatistics/AUDIOLIB_blockStatistics.h"

@@ -206,6 +206,7 @@ _API_GROUP_ORDER = [
         "AUDIOLIB_delayNChannel",
         "AUDIOLIB_crossfade",
         "AUDIOLIB_softClip",
+        "AUDIOLIB_asymmetricLimiter",
         "AUDIOLIB_nlms",
         "AUDIOLIB_preEmphasis",
     ]),

@@ -73,6 +73,7 @@ reference implementation under `test/AUDIOLIB_idat_gen/AUDIOLIB_<kernel>/` for t
 | `AUDIOLIB_delayNChannel` | Multi-channel audio delay line |
 | `AUDIOLIB_crossfade` | Smooth crossfade between two audio signals |
 | `AUDIOLIB_softClip` | Soft clipping / limiting |
+| `AUDIOLIB_asymmetricLimiter` | Asymmetric limiter that clamps audio samples to separate lower and upper bounds |
 | `AUDIOLIB_nlms` | Normalized LMS adaptive filter |
 
 ### Routing & Mixing
