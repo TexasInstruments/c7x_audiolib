@@ -19,20 +19,27 @@ extern "C" {
  * This kernel mutes or unmutes a multi-channel audio signal by applying a per-channel gain
  * factor, \f$G_c[n]\f$, which transitions between 1.0 (unmuted) and 0.0 (muted). To avoid
  * audible clicks, the transition can be smoothed over a specified `fadeTime`. The kernel
- * supports three distinct fade behaviors for each channel.
+ * supports four distinct fade behaviors for each channel.
+ *
+ * Every channel's gain is 0.0 after @ref AUDIOLIB_muteNCh_init. Each call to @ref AUDIOLIB_muteNCh_set
+ * sets the channels' targets and keeps their current gains, so a fade always starts from where the
+ * channel is: a channel whose mute flag did not change is not disturbed, and a flag changed during a
+ * fade turns the fade round without a jump. On the first set(), muted channels stay silent and
+ * unmuted channels fade in from 0.0.
  *
  * ### 1. Hard Mute (`fadeType = 2` or `fadeTime = 0`)
  * The gain for a channel changes instantly to its target value.
  * \f[ G_c[n] = G_{c, \text{target}} \f]
- * where \f$G_{c, \text{target}}\f$ is either 0.0 or 1.0.
+ * where \f$G_{c, \text{target}}\f$ is either 0.0 or 1.0. A later fade starts from this gain.
  *
  * ### 2. Linear Fade (`fadeType = 0`)
- * The gain changes linearly at a constant rate over the specified `fadeTime`.
- * The per-sample gain step, \f$G_{c, \text{step}}\f$, is calculated based on the
- * total number of samples in the fade duration:
- * \f[ G_{c, \text{step}} = \frac{G_{c, \text{target}} - G_{c, \text{current}}}{ (T_{\text{fade}} / 1000) \cdot f_s } \f]
+ * The gain changes linearly at a constant rate: a full fade, from 1.0 to 0.0 or from 0.0 to 1.0,
+ * lasts `fadeTime`, and a fade that starts part-way takes proportionally less. The per-sample gain
+ * step, \f$G_{c, \text{step}}\f$, is:
+ * \f[ G_{c, \text{step}} = \frac{2 G_{c, \text{target}} - 1}{ (T_{\text{fade}} / 1000) \cdot f_s } \f]
  * The gain at each sample, \f$G_c[n]\f$, is then updated as:
  * \f[ G_c[n] = G_c[n-1] + G_{c, \text{step}} \f]
+ * and stops at the target.
  * where \f$T_{\text{fade}}\f$ is the fade time in milliseconds and \f$f_s\f$ is the sampling rate.
  *
  * ### 3. Smooth Fade (`fadeType = 1`)
@@ -40,9 +47,22 @@ extern "C" {
  * This is implemented using a first-order low-pass filter where the gain
  * smoothly approaches the target. The update equation is:
  * \f[ G_c[n] = \alpha \cdot G_c[n-1] + (1 - \alpha) \cdot G_{c, \text{target}} \f]
+ * The kernel computes it as the distance from the target, \f$d_c[n] = \alpha \cdot d_c[n-1]\f$ and
+ * \f$G_c[n] = G_{c, \text{target}} + d_c[n]\f$, so the distance keeps its full precision and an unmute settles on
+ * exactly 1.0 (bit-exact pass-through) once \f$|d_c| \le 2^{-25}\f$, about \f$17\tau\f$ after a full unmute.
  * The smoothing coefficient, \f$\alpha\f$, is derived from the `fadeTime` (acting as the
  * time constant \f$\tau\f$) and the sampling rate \f$f_s\f$:
  * \f[ \alpha = e^{\frac{-1}{f_s \cdot (T_{\text{fade}} / 1000)}} \f]
+ *
+ * ### 4. Symmetric Fade (`fadeType = 3`)
+ * The gain moves by a constant ratio per sample, so it is a straight line in dB and a full mute takes as long as a full
+ * unmute. A geometric ramp can never reach 0, so it runs between a floor \f$G_{\text{floor}} = 10^{-10}\f$ (-200 dB)
+ * and 1.0, starting from the channel's current gain:
+ * \f[ G_c[n] = \min\left(\max\left(G_c[n-1] \cdot r_c,\ G_{\text{floor}}\right),\ 1\right), \qquad
+ *     r_c = \left(10^{10}\right)^{\pm \frac{1}{(T_{\text{fade}} / 1000) \cdot f_s}} \f]
+ * with the positive exponent when unmuting and the negative one when muting, so \f$T_{\text{fade}}\f$ is the time
+ * of the full 200 dB span in either direction and a fade that starts part-way takes proportionally less. The output
+ * uses 0 instead of \f$G_c[n]\f$ while the gain sits on the floor, so a fully muted channel is exactly zero.
  *
  * The final output signal for each channel, \f$y_c[n]\f$, is computed by applying the current gain
  * \f$G_c[n]\f$ to the input signal, \f$x_c[n]\f$:
@@ -78,9 +98,9 @@ typedef struct {
     * 1 to engage mute (fade-out) or 0 to disengage (fade-in) for that channel. */
    uint32_t *isMute;
    /** @brief The duration of the fade-in or fade-out ramp in milliseconds. A value of 0 results in a hard
-    * (instantaneous) mute. */
+    * (instantaneous) mute. For the symmetric fade it is the time of the full floor-to-unity (200 dB) span. */
    float fadeTime;
-   /** @brief The type of fade curve to apply. See @c fadeType for options. */
+   /** @brief The type of fade curve to apply: 0 = linear, 1 = smooth, 2 = hard, 3 = symmetric. */
    uint32_t fadeType;
 } AUDIOLIB_muteNCh_SetArgs;
 

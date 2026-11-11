@@ -121,10 +121,68 @@ AUDIOLIB_muteNChSmoothFade_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict 
    uint32_t channels             = pKerPrivArgs->channels;
    float   *targetGain           = pKerPrivArgs->targetGain;
    float   *currentGain          = pKerPrivArgs->currentGain;
+   float   *smoothDistance       = pKerPrivArgs->smoothDistance;
    uint32_t strideInElements     = pKerPrivArgs->strideInElements;
    uint32_t strideOutElements    = pKerPrivArgs->strideOutElements;
    uint8_t  isInterleaved        = pKerPrivArgs->initArgs.isInterleaved;
    float    smoothingCoefficient = pKerPrivArgs->smoothingCoefficient;
+
+   // The gain is target + distance; the distance to the target shrinks by alpha every sample
+   float localDistance[channels]; // Local copy per channel for this frame
+   for (uint32_t ch = 0; ch < channels; ch++) {
+      localDistance[ch] = smoothDistance[ch];
+   }
+
+   if (isInterleaved) {
+      // Interleaved: [ch0_s0, ch1_s0, ..., ch0_s1, ...]
+      for (uint32_t j = 0; j < samples; j++) {
+         for (uint32_t c = 0; c < channels; c++) {
+            localDistance[c] *= smoothingCoefficient;
+         }
+         for (uint32_t c = 0; c < channels; c++) {
+            pOutLocal[j * strideOutElements + c] =
+                pInLocal[j * strideInElements + c] * (targetGain[c] + localDistance[c]);
+         }
+      }
+   }
+   else {
+      // Non-interleaved: [ch0_s0, ch0_s1, ..., ch1_s0, ...]
+      for (uint32_t j = 0; j < samples; j++) {
+
+         for (uint32_t c = 0; c < channels; c++) {
+            localDistance[c] *= smoothingCoefficient;
+            pOutLocal[c * strideOutElements + j] =
+                pInLocal[c * strideInElements + j] * (targetGain[c] + localDistance[c]);
+         }
+      }
+   }
+
+   // Save the distances and the gains they give back
+   for (uint32_t ch = 0; ch < channels; ch++) {
+      smoothDistance[ch] = localDistance[ch];
+      currentGain[ch]    = targetGain[ch] + localDistance[ch];
+   }
+   return status;
+}
+
+template <typename dataType>
+AUDIOLIB_STATUS
+AUDIOLIB_muteNChSymmetricFade_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut)
+{
+   AUDIOLIB_STATUS            status       = AUDIOLIB_SUCCESS;
+   AUDIOLIB_muteNCh_PrivArgs *pKerPrivArgs = (AUDIOLIB_muteNCh_PrivArgs *) handle;
+
+   AUDIOLIB_DEBUGPRINTFN(0, "%s\n", "Enter AUDIOLIB_muteNChSymmetricFade_exec_cn");
+   dataType *restrict pInLocal  = (dataType *) pIn;
+   dataType *restrict pOutLocal = (dataType *) pOut;
+
+   uint32_t samples           = pKerPrivArgs->samples;
+   uint32_t channels          = pKerPrivArgs->channels;
+   float   *gainRatio         = pKerPrivArgs->gainStep;
+   float   *currentGain       = pKerPrivArgs->currentGain;
+   uint8_t  isInterleaved     = pKerPrivArgs->initArgs.isInterleaved;
+   uint32_t strideInElements  = pKerPrivArgs->strideInElements;
+   uint32_t strideOutElements = pKerPrivArgs->strideOutElements;
 
    float localCurrentGain[channels]; // Local copy per channel for this frame
    for (uint32_t ch = 0; ch < channels; ch++) {
@@ -135,22 +193,22 @@ AUDIOLIB_muteNChSmoothFade_exec_cn(AUDIOLIB_kernelHandle handle, void *restrict 
       // Interleaved: [ch0_s0, ch1_s0, ..., ch0_s1, ...]
       for (uint32_t j = 0; j < samples; j++) {
          for (uint32_t c = 0; c < channels; c++) {
+            // The ramp moves geometrically, so it is clamped to [floor, 1]; the floor is the fully muted state.
             localCurrentGain[c] =
-                smoothingCoefficient * localCurrentGain[c] + (1.0f - smoothingCoefficient) * targetGain[c];
-         }
-         for (uint32_t c = 0; c < channels; c++) {
-            pOutLocal[j * strideOutElements + c] = pInLocal[j * strideInElements + c] * localCurrentGain[c];
+                fminf(fmaxf(localCurrentGain[c] * gainRatio[c], AUDIOLIB_MUTENCH_SYMMETRIC_FLOOR), 1.0f);
+            float appliedGain = (localCurrentGain[c] > AUDIOLIB_MUTENCH_SYMMETRIC_FLOOR) ? localCurrentGain[c] : 0.0f;
+            pOutLocal[j * strideOutElements + c] = pInLocal[j * strideInElements + c] * appliedGain;
          }
       }
    }
    else {
       // Non-interleaved: [ch0_s0, ch0_s1, ..., ch1_s0, ...]
       for (uint32_t j = 0; j < samples; j++) {
-
          for (uint32_t c = 0; c < channels; c++) {
             localCurrentGain[c] =
-                smoothingCoefficient * localCurrentGain[c] + (1.0f - smoothingCoefficient) * targetGain[c];
-            pOutLocal[c * strideOutElements + j] = pInLocal[c * strideInElements + j] * localCurrentGain[c];
+                fminf(fmaxf(localCurrentGain[c] * gainRatio[c], AUDIOLIB_MUTENCH_SYMMETRIC_FLOOR), 1.0f);
+            float appliedGain = (localCurrentGain[c] > AUDIOLIB_MUTENCH_SYMMETRIC_FLOOR) ? localCurrentGain[c] : 0.0f;
+            pOutLocal[c * strideOutElements + j] = pInLocal[c * strideInElements + j] * appliedGain;
          }
       }
    }
@@ -169,3 +227,5 @@ template AUDIOLIB_STATUS
 AUDIOLIB_muteNChLinearFade_exec_cn<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
 template AUDIOLIB_STATUS
 AUDIOLIB_muteNChSmoothFade_exec_cn<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);
+template AUDIOLIB_STATUS
+AUDIOLIB_muteNChSymmetricFade_exec_cn<float>(AUDIOLIB_kernelHandle handle, void *restrict pIn, void *restrict pOut);

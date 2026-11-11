@@ -28,7 +28,7 @@ class AUDIOLIB_muteNCh:
             numExecReps (int): Number of execution repetitions
             samplingRate (int): Sampling rate in Hz
             fadeTime (float): Fade time in milliseconds
-            fadeType (str): Type of fade ("HARD", "LINEAR", "SMOOTH")
+            fadeType (str): Type of fade ("HARD", "LINEAR", "SMOOTH", "SYMMETRIC")
             initialGain (list): Initial gain values for each channel
             targetGain (list): Target gain values for each channel
             isInterleaved (bool): Whether the data is interleaved
@@ -67,20 +67,16 @@ class AUDIOLIB_muteNCh:
         for ch in range(self._numChannels):
             curr_g = self._initialGain[ch]
             targ_g = self._targetGain[ch]
-            if self._fadeType == "HARD":
+            if self._fadeType == "HARD" or self._fadeTime == 0:
                 # Instantaneous gain change to target
                 pCurrentGain[ch, :] = targ_g
             elif self._fadeType == "LINEAR":
-                # Linear fade
+                # Linear fade at a constant rate: a full fade, from 1 - target to target, lasts fadeTime
                 timeConstantSec = self._fadeTime / 1000.0
                 totalFadeSamples = timeConstantSec * self._samplingRate
-                gainStep = (
-                    (targ_g - curr_g) / totalFadeSamples
-                    if totalFadeSamples > 0 and self._fadeTime > 0
-                    else 0
-                )
+                gainStep = (targ_g - (1.0 - targ_g)) / totalFadeSamples
                 for i in range(totalSamplesPerChannel):
-                    if abs(curr_g - targ_g) < gainThreshold or self._fadeTime == 0:
+                    if abs(curr_g - targ_g) < gainThreshold:
                         curr_g = targ_g
                     else:
                         curr_g += gainStep
@@ -89,33 +85,34 @@ class AUDIOLIB_muteNCh:
                         ):
                             curr_g = targ_g
                     pCurrentGain[ch, i] = curr_g
+            elif self._fadeType == "SYMMETRIC":
+                # Constant ratio per sample between the floor (-200 dB) and 1, in float32 as the kernel computes it
+                floor = np.float32(1e-10)
+                totalFadeSamples = (
+                    np.float32(self._fadeTime) * np.float32(self._samplingRate)
+                ) / np.float32(1000.0)
+                ratioUp = np.float32(
+                    np.power(np.float32(1.0) / floor, np.float32(1.0) / totalFadeSamples)
+                )
+                ratio = ratioUp if targ_g == 1.0 else np.float32(np.float32(1.0) / ratioUp)
+                # set() starts the ramp from the running gain, no lower than one ratio step below the floor
+                curr_g = max(np.float32(curr_g), np.float32(floor / ratio))
+                for i in range(totalSamplesPerChannel):
+                    curr_g = min(max(np.float32(curr_g * ratio), floor), np.float32(1.0))
+                    pCurrentGain[ch, i] = curr_g if curr_g > floor else 0.0
             elif self._fadeType == "SMOOTH":
-                # Exponential smoothing
-                bypassSmoothing = self._fadeTime == 0.0
-                prevGain = curr_g
-                for frame in range(self._numExecReps):
-                    startIdx = frame * frameSize
-                    endIdx = (frame + 1) * frameSize
-                    if frame > 0:
-                        prev_idx = startIdx - 1
-                        bypassSmoothing = (
-                            abs(pCurrentGain[ch, prev_idx] - targ_g) < gainThreshold
-                        )
-                    if bypassSmoothing:
-                        pCurrentGain[ch, startIdx:endIdx] = targ_g
-                    else:
-                        timeConstantSec = self._fadeTime / 1000.0
-                        smoothingCoefficient = np.exp(
-                            -1.0 / (self._samplingRate * timeConstantSec)
-                        )
-                        for j in range(startIdx, endIdx):
-                            if frame == 0 and j == startIdx:
-                                prevGain = curr_g
-                            else:
-                                prevGain = pCurrentGain[ch, j - 1]
-                            pCurrentGain[ch, j] = (smoothingCoefficient * prevGain) + (
-                                (1.0 - smoothingCoefficient) * targ_g
-                            )
+                # Exponential smoothing on the distance from the target, in float32 as the kernel computes it:
+                # the distance shrinks by alpha every sample and the gain is target + distance
+                timeConstantSec = np.float32(self._fadeTime) / np.float32(1000.0)
+                smoothingCoefficient = np.float32(
+                    np.exp(np.float32(-1.0) / (np.float32(self._samplingRate) * timeConstantSec))
+                )
+                targ_g = np.float32(targ_g)
+                distance = np.float32(np.float32(curr_g) - targ_g)
+                for i in range(totalSamplesPerChannel):
+                    distance = np.float32(distance * smoothingCoefficient)
+                    curr_g = np.float32(targ_g + distance)
+                    pCurrentGain[ch, i] = curr_g
 
         return pCurrentGain
 
