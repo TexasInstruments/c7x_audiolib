@@ -21,6 +21,23 @@
 #define AUDIOLIB_GAINOFFSET_IXX_IXX_OXX_PBLOCK_SIZE (2 * SE_PARAM_SIZE)
 
 /*!
+ * @brief Bytes of one gain or offset value in the handle: a float (float and double data) or an
+ *        int32_t (int32 data), both 4 bytes.
+ */
+#define AUDIOLIB_GAINOFFSET_VALUE_BYTES (sizeof(float))
+
+/*!
+ * @brief Handle layout, every region starting on an AUDIOLIB_L2DATA_ALIGNMENT boundary
+ *        (offsets relative to the handle, which is allocated with that alignment):
+ *
+ *   | PrivArgs | gain value | offset value |
+ */
+#define AUDIOLIB_GAINOFFSET_PRIVARGS_BYTES                                                                         \
+   AUDIOLIB_CALC_STRIDE(sizeof(AUDIOLIB_gainOffset_PrivArgs), AUDIOLIB_L2DATA_ALIGN_SHIFT)
+#define AUDIOLIB_GAINOFFSET_VALUE_REGION_BYTES                                                                     \
+   AUDIOLIB_CALC_STRIDE(AUDIOLIB_GAINOFFSET_VALUE_BYTES, AUDIOLIB_L2DATA_ALIGN_SHIFT)
+
+/*!
  *  @brief This is a function pointer type that conforms to the
  *         declaration of @ref AUDIOLIB_gainOffset_exec_ci
  *         and @ref AUDIOLIB_gainOffset_exec_cn.
@@ -107,9 +124,21 @@ typedef struct {
     *         @ref AUDIOLIB_gainOffset_exec_ci.                        */
    pFxnAUDIOLIB_gainOffset_exec execute;
 
-   uint32_t nVecs;     /**< \brief Number of output vectors stored by the optimized loop. */
-   float    gain;      /**< \brief Scalar gain copied from the init args. */
-   float    offset;    /**< \brief Scalar offset copied from the init args. */
+   uint32_t nVecs;     /**< \brief Number of output vectors stored by the optimized loop (for int32
+                            data: vectors of 64-bit lanes, 4 samples on C7504). */
+   /*! @brief Gain value inside the handle (region after PrivArgs, aligned), copied from *pGain:
+    *         a float for float/double data, an int32_t for int32 data. */
+   void *pGain;
+   /*! @brief Offset value inside the handle (aligned region), copied from *pOffset. */
+   void *pOffset;
+   uint32_t dataType;  /**< \brief Data type of the buffers, @ref AUDIOLIB_data_type_e (for perfEst). */
+   /*! @brief int32 data: the inputs x for which gain * x + offset fits in int32 are
+    *         [satLo, satLo + satWidth] (computed exactly by init). Inside, the wrapped 32-bit
+    *         result is exact; outside, the output is a rail chosen by the sign of x. */
+   int32_t  satLo;
+   uint32_t satWidth; /**< \brief int32 data: width of the linear input range (unsigned). */
+   int32_t  satRail;  /**< \brief int32 data: rail for x > 0 out of range: INT32_MAX if gain >= 0,
+                           else INT32_MIN; x < 0 takes the other rail (satRail ^ -1). */
    uint32_t dimX;      /**< \brief Width of buffer in X dimension in elements. */
    uint32_t dimY;      /**< \brief Height of buffer in Y dimension in elements. */
    int32_t  strideIn;  /**< \brief Input stride in Y dimension in elements. */

@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <malloc.h>
 
 static const uint32_t M         = 3U;
 static const uint32_t K         = 3U;
@@ -53,15 +54,21 @@ int main(void)
    AUDIOLIB_STATUS              status = AUDIOLIB_SUCCESS;
    AUDIOLIB_gainOffset_InitArgs kerInitArgs;
 
+   /* pGain/pOffset point to values of the buffer data type: float here (double or int32_t
+      for those buffer types). init() copies them, so they need not outlive the call. */
+   const float gain   = 1.0f;
+   const float offset = 0.22f;
+
    kerInitArgs.funcStyle = AUDIOLIB_FUNCTION_OPTIMIZED;
-   kerInitArgs.gain      = 1.0f;
-   kerInitArgs.offset    = 0.22f;
+   kerInitArgs.pGain     = &gain;
+   kerInitArgs.pOffset   = &offset;
 
    const int32_t         handleSize = AUDIOLIB_gainOffset_getHandleSize(&kerInitArgs);
    AUDIOLIB_kernelHandle handle     = NULL;
 
    if (handleSize > 0) {
-      handle = malloc(static_cast<size_t>(handleSize));
+      /* the handle must be AUDIOLIB_L2DATA_ALIGNMENT (64-byte) aligned */
+      handle = memalign(AUDIOLIB_L2DATA_ALIGNMENT, static_cast<size_t>(handleSize));
    }
 
    if (handle == NULL) {

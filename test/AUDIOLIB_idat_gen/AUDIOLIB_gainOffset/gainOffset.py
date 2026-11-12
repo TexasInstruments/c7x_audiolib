@@ -5,7 +5,7 @@ class AUDIOLIB_gainOffset:
         """Initialize the AUDIOLIB_gainOffset class with parameters
         
         Args:
-            dType (str): Data type ('int', 'float', 'double')
+            dType (str): Data type ('int32_t', 'float', 'double')
             inChannels (int): Number of input channels
             inSamples (int): Number of input samples per channel
         """
@@ -31,6 +31,12 @@ class AUDIOLIB_gainOffset:
         """
         # Apply gainOffset operation
         
-        out = in0 * np.float32(self.__gain) + np.float32(self.__offset)
-       
+        if self.__dType is not None and self.__dType.startswith("int32"):
+            # int32: integer gain and offset, exact in int64 (|x * gain| <= 2^62), one clamp
+            acc = in0.astype(np.int64) * np.int64(self.__gain) + np.int64(self.__offset)
+            out = np.clip(acc, np.iinfo(np.int32).min, np.iinfo(np.int32).max).astype(np.int32)
+        else:
+            # float and double data: the kernel keeps gain/offset at float precision
+            out = in0 * np.float32(self.__gain) + np.float32(self.__offset)
+
         return out

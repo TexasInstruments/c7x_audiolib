@@ -18,10 +18,11 @@ extern "C" {
  * @details
  * The following datatype combinations are supported
  *
- *  | Case    | Input   | Output  |
- *  |  ----:  | :----:  | :----   |
- *  |    1    | float   | float   |
- *  |    2    | double  | double  |
+ *  | Case    | Input   | Output  | `*pGain`, `*pOffset` |
+ *  |  ----:  | :----:  | :----   | :--                  |
+ *  |    1    | float   | float   | float                |
+ *  |    2    | double  | double  | float                |
+ *  |    3    | int32   | int32   | int32_t              |
  *
  * @par Method
  * \f[
@@ -34,7 +35,16 @@ extern "C" {
  * - \f$g\f$ = scalar gain, the same for every channel and sample
  * - \f$c\f$ = scalar offset, the same for every channel and sample
  *
- * @image html AUDIOLIB_gainOffset.svg "Gain and offset operation"
+ * @par int32 data
+ * \f[
+ *   Y[i][j] = \mathrm{sat}_{32}\left( g \cdot X[i][j] + c \right)
+ * \f]
+ * The gain and offset are plain integers (no fractional bits), as in an integer scale-and-offset
+ * block. The product and the sum are formed exactly in 64 bits (\f$|g \cdot X| \le 2^{62}\f$) and
+ * clamped **once** to [INT32_MIN, INT32_MAX], so an overflow clips at full scale instead of
+ * wrapping to the opposite sign (a full-scale jump, heard as a click on audio). The natural C and
+ * the optimized variants are bit-exact. Example: \f$g = 2\f$, \f$c = 0\f$,
+ * \f$X = 2^{30}\f$ gives \f$2^{31}\f$, which saturates to INT32_MAX.
  *
  * ---
  * **Example (gain = 2.0, offset = 0.5):**
@@ -66,6 +76,12 @@ extern "C" {
  * streaming engine walks it as a 2D block and masks the partial vector at the end of
  * every row with store predication.
  *
+ * For int32 data the streaming engine sign-extends every sample to 64 bits while reading
+ * (SE promotion), so each vector of 64-bit lanes is multiplied by the gain (exact 64-bit
+ * product), the offset is added, the lanes are saturated to the int32 range, and the store
+ * keeps the low 32 bits of each lane (packing store). No permute is needed, so the loop
+ * runs at one vector of 64-bit lanes per cycle.
+ *
  * @par Preconditions
  *  - Input and output buffers must have the same data type and dimensions.
  *  - Strides must be a whole number of elements and at least dimX elements.
@@ -78,12 +94,23 @@ extern "C" {
 
 /**
  * @brief Structure containing the parameters to initialize the kernel
+ *
+ * @c pGain and @c pOffset point to one value each:
+ *
+ *  | Buffer data type        | @c pGain / @c pOffset point to |
+ *  | :--                     | :--                            |
+ *  | @ref AUDIOLIB_FLOAT32   | @c float                       |
+ *  | @ref AUDIOLIB_FLOAT64   | @c float (a float gain is far below audible error on double data) |
+ *  | @ref AUDIOLIB_INT32     | @c int32_t (plain integer, no fractional bits) |
+ *
+ * The values are read and copied into the handle by @ref AUDIOLIB_gainOffset_init, so the
+ * variables they point to need not outlive the call.
  */
 typedef struct {
    /** @brief Variant of the function refer to @ref AUDIOLIB_FUNCTION_STYLE     */
-   int8_t funcStyle;
-   float  gain;   /**< Scalar gain \f$ g \f$ applied to every sample. */
-   float  offset; /**< Scalar offset \f$ c \f$ added to every sample after the gain. */
+   int8_t      funcStyle;
+   const void *pGain;   /**< Scalar gain \f$ g \f$ applied to every sample, of the buffer data type. */
+   const void *pOffset; /**< Scalar offset \f$ c \f$ added after the gain, of the buffer data type. */
 } AUDIOLIB_gainOffset_InitArgs;
 
 /**
@@ -91,9 +118,12 @@ typedef struct {
  *                handle
  *  @param [in]   pKerInitArgs  : Pointer to structure holding init parameters
  *                                (not read; the handle size is fixed)
- *  @return       Size of the buffer in bytes
+ *  @return       Size of the buffer in bytes: the private arguments plus the gain and offset
+ *                values, each region rounded up to AUDIOLIB_L2DATA_ALIGNMENT (64 bytes)
  *  @remarks      Application is expected to allocate buffer of the requested
  *                size and provide it as input to other functions requiring it.
+ *                The buffer must be allocated with at least AUDIOLIB_L2DATA_ALIGNMENT
+ *                (64-byte) alignment, so the gain and offset regions inside it are aligned.
  */
 int32_t AUDIOLIB_gainOffset_getHandleSize(AUDIOLIB_gainOffset_InitArgs *pKerInitArgs);
 
@@ -115,7 +145,7 @@ int32_t AUDIOLIB_gainOffset_getHandleSize(AUDIOLIB_gainOffset_InitArgs *pKerInit
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
- *   - @ref AUDIOLIB_ERR_INVALID_TYPE   if the data type is not float or double
+ *   - @ref AUDIOLIB_ERR_INVALID_TYPE   if the data type is not float, double or int32
  *   - @ref AUDIOLIB_ERR_INVALID_VALUE  if @c funcStyle is not a supported variant
  *
  *  @remarks     Application is expected to provide a valid handle and to have called
@@ -144,8 +174,8 @@ AUDIOLIB_STATUS AUDIOLIB_gainOffset_init(AUDIOLIB_kernelHandle               han
  *
  *  @return      Status value indicating success or failure. Refer to @ref
  * AUDIOLIB_STATUS.
- *   - @ref AUDIOLIB_ERR_NULL_POINTER       if any argument is NULL
- *   - @ref AUDIOLIB_ERR_INVALID_TYPE       if the data type is not float or double, or input
+ *   - @ref AUDIOLIB_ERR_NULL_POINTER       if any argument, @c pKerInitArgs->pGain or @c pKerInitArgs->pOffset is NULL
+ *   - @ref AUDIOLIB_ERR_INVALID_TYPE       if the data type is not float, double or int32, or input
  *                                          and output types differ
  *   - @ref AUDIOLIB_ERR_INVALID_DIMENSION  if input and output dimensions differ
  *
