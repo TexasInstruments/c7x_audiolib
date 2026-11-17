@@ -1,0 +1,11 @@
+/*
+ *  Sends the test parameter structure and number of tests
+ */
+void AUDIOLIB_downSample_getTestParams (
+    AUDIOLIB_downSample_testParams_t **params,
+    int32_t *                                 numTests)
+{
+   *params = testParams;
+   *numTests =
+       sizeof (testParams) / sizeof (AUDIOLIB_downSample_testParams_t);
+}
