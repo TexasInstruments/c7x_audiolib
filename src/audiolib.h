@@ -47,8 +47,10 @@
 #include "AUDIOLIB_undB10/AUDIOLIB_undB10.h"
 #include "AUDIOLIB_undB20/AUDIOLIB_undB20.h"
 #include "AUDIOLIB_whiteNoiseGenerator/AUDIOLIB_whiteNoiseGenerator.h"
+#include "AUDIOLIB_upSample/AUDIOLIB_upSample.h"
 #include "common/AUDIOLIB_bufParams.h"
 #include "common/AUDIOLIB_types.h"
+
 
 /**
  * @brief Defines standard channel locations in a 3D audio space.
