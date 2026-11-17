@@ -32,6 +32,7 @@
 #include "AUDIOLIB_inputAggregator/AUDIOLIB_inputAggregator.h"
 #include "AUDIOLIB_mute/AUDIOLIB_mute.h"
 #include "AUDIOLIB_muteNCh/AUDIOLIB_muteNCh.h"
+#include "AUDIOLIB_panning/AUDIOLIB_panning.h"
 #include "AUDIOLIB_nlms/AUDIOLIB_nlms.h"
 #include "AUDIOLIB_rmsSmoothed/AUDIOLIB_rmsSmoothed.h"
 #include "AUDIOLIB_round/AUDIOLIB_round.h"
@@ -82,5 +83,47 @@ typedef enum {
    AUDIOLIB_CHANNEL_TOP_REAR_RIGHT,        /**< Azimuth: +135°,Elevation: +45° */
    AUDIOLIB_CHANNEL_OVERHEAD               /**< Azimuth: N/A,  Elevation: +90° (Voice of God) */
 } AUDIOLIB_CHANNEL_TYPE;
+
+/**
+ * @brief Position of one speaker relative to the listener, in degrees.
+ */
+typedef struct {
+   float azimuth;   /**< Horizontal angle. 0 is front-center, negative is to the left. */
+   float elevation; /**< Vertical angle. 0 is ear-level, positive is above. */
+} AUDIOLIB_channelPosition_t;
+
+/**
+ * @brief Nominal position of every standard channel, indexed by @ref AUDIOLIB_CHANNEL_TYPE.
+ *
+ * @details Several channel types deliberately share an angle, e.g. FRONT_LEFT,
+ *          FRONT_LEFT_MID and FRONT_LEFT_WOOFER are all drivers of the speaker at
+ *          -30 deg. Kernels that pan across the horizontal plane must therefore
+ *          cope with co-located channels. The LFE and OVERHEAD entries carry no
+ *          meaningful azimuth and are expected to be excluded from panning
+ *          altogether.
+ */
+static const AUDIOLIB_channelPosition_t gChannelPositionMap[] = {
+    {-30.0f, 0.0f},   /* FRONT_LEFT            */
+    {-30.0f, 0.0f},   /* FRONT_LEFT_TREBBLE    */
+    {-30.0f, 0.0f},   /* FRONT_LEFT_MID        */
+    {-30.0f, 0.0f},   /* FRONT_LEFT_WOOFER     */
+    {30.0f, 0.0f},    /* FRONT_RIGHT           */
+    {30.0f, 0.0f},    /* FRONT_RIGHT_TREBBLE   */
+    {30.0f, 0.0f},    /* FRONT_RIGHT_MID       */
+    {30.0f, 0.0f},    /* FRONT_RIGHT_WOOFER    */
+    {0.0f, 0.0f},     /* FRONT_CENTER          */
+    {0.0f, 0.0f},     /* LOW_FREQUENCY_EFFECTS */
+    {-90.0f, 0.0f},   /* SIDE_LEFT             */
+    {90.0f, 0.0f},    /* SIDE_RIGHT            */
+    {-135.0f, 0.0f},  /* REAR_LEFT             */
+    {135.0f, 0.0f},   /* REAR_RIGHT            */
+    {-45.0f, 45.0f},  /* TOP_FRONT_LEFT        */
+    {45.0f, 45.0f},   /* TOP_FRONT_RIGHT       */
+    {-90.0f, 90.0f},  /* TOP_MIDDLE_LEFT       */
+    {90.0f, 90.0f},   /* TOP_MIDDLE_RIGHT      */
+    {-135.0f, 45.0f}, /* TOP_REAR_LEFT         */
+    {135.0f, 45.0f},  /* TOP_REAR_RIGHT        */
+    {0.0f, 90.0f}     /* OVERHEAD              */
+};
 
 #endif /*_AUDIOLIB_H_*/
